@@ -17,6 +17,8 @@
 .auth-bar{max-width:1100px;margin:12px auto 0;padding:0 24px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.auth-bar input{background:#0f0f16;color:var(--text);border:1px solid #343443;border-radius:9px;padding:9px 10px;min-width:190px}.auth-bar button{flex:none;padding:9px 12px}.auth-status{font-size:13px;color:var(--muted);margin-right:auto}.admin-badge{display:inline-block;background:#4c1d95;color:#e9d5ff;border:1px solid #7c3aed;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:800;margin-left:6px}.sync-note{font-size:12px;color:#a7f3d0}.auth-required{padding:28px;text-align:center;background:var(--panel);border:1px dashed #3c3c4c;border-radius:16px;color:var(--muted)}
 
 .combat-campaign-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.combat-campaign-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden}.combat-campaign-card img,.combat-campaign-placeholder{width:100%;height:135px;object-fit:cover;background:#0e0e15;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:900;color:#77778a}.combat-campaign-body{padding:14px}.combat-toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}.combat-roster{display:grid;gap:14px}.combat-char{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px}.combat-char-head{display:flex;gap:12px;align-items:center;margin-bottom:12px}.combat-avatar{width:58px;height:58px;border-radius:12px;object-fit:cover;background:#0d0d14;border:1px solid #3a3a4b;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px}.combat-char-title{flex:1}.combat-char-title h3{margin:0 0 4px}.combat-bars{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.combat-resource{background:#111119;border:1px solid #2c2c3a;border-radius:12px;padding:10px}.combat-resource-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:7px;font-size:13px}.combat-bar{height:13px;border-radius:999px;background:#262633;overflow:hidden;border:1px solid #3a3a48}.combat-bar-fill{height:100%;background:linear-gradient(90deg,#6d28d9,#a78bfa);width:0%}.combat-resource input[type=range]{width:100%;margin-top:7px}.combat-number-row{display:flex;gap:6px;margin-top:6px;align-items:center}.combat-number-row input{width:72px;background:#0f0f16;color:var(--text);border:1px solid #343443;border-radius:7px;padding:6px}.combat-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:7px;margin-top:12px}.combat-stat{background:#101018;border:1px solid #292938;border-radius:9px;padding:8px;font-size:12px}.combat-stat b{display:block;font-size:16px;margin-top:2px}.combat-admin-row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:10px}.combat-hidden-card{opacity:.58}.visibility-pill{font-size:11px;padding:4px 8px;border-radius:999px;background:#252535;color:#d4d4df}.visibility-pill.on{background:#12351f;color:#bbf7d0}@media(max-width:720px){.combat-bars{grid-template-columns:1fr}.combat-char-head{align-items:flex-start}}
+
+.account-card{background:#111119;border:1px solid #2d2d3a;border-radius:14px;padding:16px;margin-top:12px}.account-state{display:flex;gap:12px;align-items:center}.account-dot{width:12px;height:12px;border-radius:50%;background:#4ade80;box-shadow:0 0 12px rgba(74,222,128,.45)}.account-dot.off{background:#71717a;box-shadow:none}.account-details{display:grid;gap:5px;margin-top:12px}.account-details-row{display:flex;gap:8px;flex-wrap:wrap}.account-label{color:var(--muted);min-width:70px}.account-help{font-size:12px;color:var(--muted);margin-top:10px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 </head>
@@ -192,18 +194,29 @@
 <section id="account-section" class="hidden">
   <div class="sheet-card">
     <h2 style="margin-top:0">Cuenta</h2>
-    <div id="account-status" class="muted" style="margin-bottom:14px">Conectando...</div>
-    <div id="account-login-box">
+    <div id="account-status-card" class="account-card">
+      <div class="account-state">
+        <span id="account-dot" class="account-dot off"></span>
+        <div>
+          <b id="account-state-title">Comprobando sesión...</b>
+          <div id="account-state-subtitle" class="muted">Un momento.</div>
+        </div>
+      </div>
+      <div id="account-details" class="account-details hidden"></div>
+    </div>
+    <div id="account-login-box" style="margin-top:16px">
+      <h3>Iniciar sesión o registrarse</h3>
       <div class="campaign-form">
         <input id="auth-email" type="email" placeholder="Email">
         <input id="auth-password" type="password" placeholder="Contraseña">
       </div>
       <div class="campaign-actions">
         <button id="auth-login">Iniciar sesión</button>
-        <button class="secondary" id="auth-register">Registrarme</button>
+        <button class="secondary" id="auth-register">Crear cuenta</button>
       </div>
+      <div class="account-help">Si ya te registraste, usá “Iniciar sesión”. Si es tu primera vez, usá “Crear cuenta”.</div>
     </div>
-    <div id="account-user-box" class="hidden">
+    <div id="account-user-box" class="hidden" style="margin-top:16px">
       <div class="campaign-actions">
         <button class="secondary hidden" id="migrate-local">Importar datos locales</button>
         <button class="secondary" id="auth-logout">Cerrar sesión</button>
@@ -652,18 +665,26 @@ async function loadSharedData(){
 }
 
 function renderAuth(){
-  const email=document.getElementById('auth-email'),pass=document.getElementById('auth-password');
-  const login=document.getElementById('auth-login'),reg=document.getElementById('auth-register'),logout=document.getElementById('auth-logout');
-  const status=document.getElementById('account-status'),mig=document.getElementById('migrate-local');
   const loginBox=document.getElementById('account-login-box'),userBox=document.getElementById('account-user-box');
+  const dot=document.getElementById('account-dot'),title=document.getElementById('account-state-title'),subtitle=document.getElementById('account-state-subtitle');
+  const details=document.getElementById('account-details'),mig=document.getElementById('migrate-local');
   if(currentUser){
     loginBox.classList.add('hidden');userBox.classList.remove('hidden');
-    status.innerHTML='Conectado como <b>'+esc(currentUser.email||'usuario')+'</b>'+(isAdmin?'<span class="admin-badge">ADMIN / GM</span>':'')+' <span class="sync-note">· sincronización activa</span>';
+    dot.classList.remove('off');
+    title.textContent='Sesión activa';
+    subtitle.textContent='Tu cuenta está conectada y sincronizando datos.';
+    details.classList.remove('hidden');
+    details.innerHTML='<div class="account-details-row"><span class="account-label">Correo</span><b>'+esc(currentUser.email||'—')+'</b></div>'+
+      '<div class="account-details-row"><span class="account-label">Rol</span><b>'+(isAdmin?'ADMIN / GM':'Jugador')+'</b></div>'+
+      '<div class="account-details-row"><span class="account-label">Estado</span><span class="sync-note">Sincronización activa</span></div>';
     const hasLocal=(localStorage.getItem('jjk-saved-characters')||localStorage.getItem('jjk-campaigns'))&&!localStorage.getItem('jjk-migrated-to-supabase');
     mig.classList.toggle('hidden',!hasLocal);
   }else{
     loginBox.classList.remove('hidden');userBox.classList.add('hidden');
-    status.textContent='Iniciá sesión o registrate para sincronizar personajes y campañas entre dispositivos.';
+    dot.classList.add('off');
+    title.textContent='No hay sesión iniciada';
+    subtitle.textContent='Iniciá sesión si ya tenés cuenta, o creá una nueva.';
+    details.classList.add('hidden');details.innerHTML='';
   }
   const createBox=document.getElementById('campaign-admin-create');
   if(createBox)createBox.classList.toggle('hidden',!isAdmin);
