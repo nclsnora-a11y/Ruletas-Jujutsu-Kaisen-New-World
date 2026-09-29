@@ -811,7 +811,8 @@ function renderAuth(){
     details.classList.remove('hidden');
     details.innerHTML='<div class="account-details-row"><span class="account-label">Correo</span><b>'+esc(currentUser.email||'—')+'</b></div>'+
       '<div class="account-details-row"><span class="account-label">Rol</span><b>'+(isAdmin?'ADMIN / GM':'Jugador')+'</b></div>'+
-      '<div class="account-details-row"><span class="account-label">Estado</span><span class="sync-note">Sincronización activa</span></div>';
+      '<div class="account-details-row"><span class="account-label">Estado</span><span class="sync-note">Sincronización activa</span></div>'+'<div class="account-details-row"><span class="account-label">Usuarios</span><b id="registered-users-count">Cargando...</b></div>';
+    loadRegisteredUsersCount();
     const hasLocal=(localStorage.getItem('jjk-saved-characters')||localStorage.getItem('jjk-campaigns'))&&!localStorage.getItem('jjk-migrated-to-supabase');
     mig.classList.toggle('hidden',!hasLocal);
   }else{
@@ -823,6 +824,19 @@ function renderAuth(){
   }
   const createBox=document.getElementById('campaign-admin-create');
   if(createBox)createBox.classList.toggle('hidden',!isAdmin);
+}
+
+async function loadRegisteredUsersCount(){
+  const el=document.getElementById('registered-users-count');
+  if(!el||!currentUser)return;
+  try{
+    const {count,error}=await sb.from('profiles').select('id',{count:'exact',head:true});
+    if(error)throw error;
+    el.textContent=String(count??0);
+  }catch(e){
+    console.error(e);
+    el.textContent='—';
+  }
 }
 
 async function initAuth(){
