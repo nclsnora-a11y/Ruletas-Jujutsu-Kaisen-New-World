@@ -20,19 +20,11 @@
 </head>
 <body>
 <header><h1>JJK New World</h1><div class="muted">Sistema de rol</div></header>
-<div class="auth-bar" id="auth-bar">
-  <span class="auth-status" id="auth-status">Conectando...</span>
-  <input id="auth-email" type="email" placeholder="Email">
-  <input id="auth-password" type="password" placeholder="Contraseña">
-  <button id="auth-login">Entrar</button>
-  <button class="secondary" id="auth-register">Registrarme</button>
-  <button class="secondary hidden" id="auth-logout">Salir</button>
-  <button class="secondary hidden" id="migrate-local">Importar datos locales</button>
-</div>
 <div class="top-nav">
   <button id="nav-roulette" class="active">Ruletas</button>
   <button id="nav-characters">Mis personajes</button>
   <button id="nav-campaigns">Campañas</button>
+  <button id="nav-account">Cuenta</button>
 </div>
 <main>
 <section id="roulette-section">
@@ -184,6 +176,28 @@
   </div>
   <div id="campaigns-list"></div>
 </section>
+<section id="account-section" class="hidden">
+  <div class="sheet-card">
+    <h2 style="margin-top:0">Cuenta</h2>
+    <div id="account-status" class="muted" style="margin-bottom:14px">Conectando...</div>
+    <div id="account-login-box">
+      <div class="campaign-form">
+        <input id="auth-email" type="email" placeholder="Email">
+        <input id="auth-password" type="password" placeholder="Contraseña">
+      </div>
+      <div class="campaign-actions">
+        <button id="auth-login">Iniciar sesión</button>
+        <button class="secondary" id="auth-register">Registrarme</button>
+      </div>
+    </div>
+    <div id="account-user-box" class="hidden">
+      <div class="campaign-actions">
+        <button class="secondary hidden" id="migrate-local">Importar datos locales</button>
+        <button class="secondary" id="auth-logout">Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+</section>
 </main>
 <div class="toast" id="toast">Ficha copiada.</div>
 <script>
@@ -254,20 +268,24 @@ function saveCharacters(){localStorage.setItem(CHARACTERS_KEY,JSON.stringify(sav
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function characterTotal(stats){return Object.values(stats||{}).reduce((a,v)=>a+(Number(v)||0),0)}
 function showTab(tab){
-  const roulette=tab==='roulette',characters=tab==='characters',campaigns=tab==='campaigns';
+  const roulette=tab==='roulette',characters=tab==='characters',campaigns=tab==='campaigns',account=tab==='account';
   document.getElementById('roulette-section').classList.toggle('hidden',!roulette);
   document.getElementById('characters-section').classList.toggle('hidden',!characters);
   document.getElementById('campaigns-section').classList.toggle('hidden',!campaigns);
+  document.getElementById('account-section').classList.toggle('hidden',!account);
   document.getElementById('nav-roulette').classList.toggle('active',roulette);
   document.getElementById('nav-characters').classList.toggle('active',characters);
   document.getElementById('nav-campaigns').classList.toggle('active',campaigns);
+  document.getElementById('nav-account').classList.toggle('active',account);
   if(characters)renderCharacters();
   if(campaigns)renderCampaigns();
+  if(account&&typeof renderAuth==='function')renderAuth();
   localStorage.setItem('jjk-active-tab',tab);
 }
 document.getElementById('nav-roulette').addEventListener('click',()=>showTab('roulette'));
 document.getElementById('nav-characters').addEventListener('click',()=>showTab('characters'));
 document.getElementById('nav-campaigns').addEventListener('click',()=>showTab('campaigns'));
+document.getElementById('nav-account').addEventListener('click',()=>showTab('account'));
 
 function makeCharacterFromSheet(){
   return {
@@ -531,7 +549,7 @@ function deleteCampaign(id){
 }
 renderCampaigns();
 const activeTab=localStorage.getItem('jjk-active-tab');
-if(activeTab==='characters')showTab('characters'); else if(activeTab==='campaigns')showTab('campaigns');
+if(activeTab==='characters')showTab('characters'); else if(activeTab==='campaigns')showTab('campaigns'); else if(activeTab==='account')showTab('account');
 
 function pick(c){const total=c.weights.reduce((a,b)=>a+b,0);let r=Math.random()*total;for(let i=0;i<c.values.length;i++){if(r<c.weights[i])return i;r-=c.weights[i]}return c.values.length-1}
 function angleCenter(c,idx){const total=c.weights.reduce((a,b)=>a+b,0);let before=0;for(let i=0;i<idx;i++)before+=c.weights[i];return ((before+c.weights[idx]/2)/total)*360}
@@ -619,15 +637,16 @@ async function loadSharedData(){
 function renderAuth(){
   const email=document.getElementById('auth-email'),pass=document.getElementById('auth-password');
   const login=document.getElementById('auth-login'),reg=document.getElementById('auth-register'),logout=document.getElementById('auth-logout');
-  const status=document.getElementById('auth-status'),mig=document.getElementById('migrate-local');
+  const status=document.getElementById('account-status'),mig=document.getElementById('migrate-local');
+  const loginBox=document.getElementById('account-login-box'),userBox=document.getElementById('account-user-box');
   if(currentUser){
-    email.classList.add('hidden');pass.classList.add('hidden');login.classList.add('hidden');reg.classList.add('hidden');logout.classList.remove('hidden');
+    loginBox.classList.add('hidden');userBox.classList.remove('hidden');
     status.innerHTML='Conectado como <b>'+esc(currentUser.email||'usuario')+'</b>'+(isAdmin?'<span class="admin-badge">ADMIN / GM</span>':'')+' <span class="sync-note">· sincronización activa</span>';
     const hasLocal=(localStorage.getItem('jjk-saved-characters')||localStorage.getItem('jjk-campaigns'))&&!localStorage.getItem('jjk-migrated-to-supabase');
     mig.classList.toggle('hidden',!hasLocal);
   }else{
-    email.classList.remove('hidden');pass.classList.remove('hidden');login.classList.remove('hidden');reg.classList.remove('hidden');logout.classList.add('hidden');mig.classList.add('hidden');
-    status.textContent='Iniciá sesión para sincronizar personajes y campañas entre dispositivos.';
+    loginBox.classList.remove('hidden');userBox.classList.add('hidden');
+    status.textContent='Iniciá sesión o registrate para sincronizar personajes y campañas entre dispositivos.';
   }
   const createBox=document.getElementById('campaign-admin-create');
   if(createBox)createBox.classList.toggle('hidden',!isAdmin);
