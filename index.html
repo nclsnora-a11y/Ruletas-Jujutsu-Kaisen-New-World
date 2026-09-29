@@ -1092,6 +1092,11 @@ removeCharacterFromZone=async function(campaignId,zoneId,charId){
     const ids=(zoneMaps||[]).map(m=>m.id);
     if(ids.length)await sb.from('combat_map_tokens').delete().in('map_id',ids).eq('character_id',charId);
   }
+  combatMapTokens=combatMapTokens.filter(t=>t.character_id!==charId);
+  document.querySelectorAll('.map-token').forEach(el=>{
+    const tok=combatMapTokens.find(t=>t.id===el.dataset.tokenId);
+    if(!tok)el.remove();
+  });
   await loadSharedData();
   if(selectedCombatCampaignId===campaignId)renderCombat();
   setTimeout(()=>toggleCampaign(campaignId),0);
@@ -1699,6 +1704,10 @@ async function ensureCombatMapTokens(map){
     await loadCombatMapTokens(map.id);
   }
 }
+function visibleCombatMapTokens(map){
+  const allowed=new Set(mapCharacterIds(map));
+  return combatMapTokens.filter(t=>allowed.has(t.character_id));
+}
 function combatTokenHtml(token){
   const ch=allCharacters.find(c=>c.id===token.character_id);if(!ch)return '';
   const canMove=isAdmin||ch.owner_id===currentUser?.id;
@@ -1715,13 +1724,14 @@ async function renderActiveCombatMap(campaignId){
   }
   root.innerHTML='<div class="map-empty">Cargando '+esc(map.name)+'...</div>';
   try{await ensureCombatMapTokens(map)}catch(e){console.error(e);root.innerHTML='<div class="map-empty">No pude cargar las fichas del mapa.</div>';return}
+  combatMapTokens=visibleCombatMapTokens(map);
   const zone=sharedZones.find(z=>z.id===map.zone_id);
   root.innerHTML='<div class="combat-map-tools" style="margin-bottom:8px"><b>'+esc(map.name)+'</b><span class="muted">'+(zone?'· '+esc(zone.name):'· Toda la campaña')+'</span><span class="map-scale-note">'+map.grid_size_px+' px = '+map.feet_per_cell+' pies</span>'+(isAdmin?'<button class="secondary danger" onclick="deleteCombatMap(\''+campaignId+'\',\''+map.id+'\')">Eliminar mapa</button>':'')+'</div>'+
     '<div class="combat-map-stage-shell"><div class="tactical-map" id="tactical-map">'+
       '<img id="tactical-map-image" src="'+map.image+'" alt="'+esc(map.name)+'" draggable="false">'+
       '<svg class="map-ruler-svg"><line id="map-ruler-line" class="map-ruler-line" x1="0" y1="0" x2="0" y2="0" style="display:none"></line></svg>'+
       '<div id="map-measure-label" class="map-measure-label"></div>'+
-      combatMapTokens.map(combatTokenHtml).join('')+
+      visibleCombatMapTokens(map).map(combatTokenHtml).join('')+
     '</div></div>';
   bindCombatMapInteractions(map);
   subscribeCombatMap(map);
@@ -1891,6 +1901,12 @@ function subscribeCombatMap(map){
       const idx=combatMapTokens.findIndex(t=>t.id===row.id);
       if(idx>=0)combatMapTokens[idx]={...combatMapTokens[idx],...row};
       const el=document.getElementById('map-token-'+row.id);
+      const allowed=new Set(mapCharacterIds(map));
+      if(!allowed.has(row.character_id)){
+        if(el)el.remove();
+        combatMapTokens=combatMapTokens.filter(t=>t.id!==row.id);
+        return;
+      }
       if(el&&!el.classList.contains('dragging')){el.style.left=Number(row.x_pct)+'%';el.style.top=Number(row.y_pct)+'%';el.style.width=Number(row.size_pct)+'%'}
     })
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'combat_map_tokens',filter:'map_id=eq.'+map.id},async()=>{await loadCombatMapTokens(map.id);renderActiveCombatMap(map.campaign_id)})
