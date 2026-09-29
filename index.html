@@ -1068,8 +1068,7 @@ function combatRollMessageHtml(r){
   const ch=allCharacters.find(c=>c.id===r.character_id);
   const name=ch?.sorcererName||'Personaje';
   const time=new Date(r.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  const avatar=ch?.photo?'<img class="roll-msg-avatar" src="'+ch.photo+'" alt="">':'<div class="roll-msg-avatar">術</div>';
-  return '<div class="roll-msg"><div class="roll-msg-row">'+avatar+'<div class="roll-msg-content"><div class="roll-msg-top"><span><b>'+esc(name)+'</b> · '+esc(r.stat_name)+'</span><span>'+esc(time)+'</span></div><div class="roll-msg-main"><span class="roll-d20">'+r.die_result+'</span><span class="roll-op">+'+r.stat_bonus+'</span><span class="roll-op">=</span><span class="roll-total">'+r.total+'</span></div></div></div></div>';
+  return '<div class="roll-msg"><div class="roll-msg-content"><div class="roll-msg-top"><span><b>'+esc(name)+'</b> · '+esc(r.stat_name)+'</span><span>'+esc(time)+'</span></div><div class="roll-msg-main"><span class="roll-d20">'+r.die_result+'</span><span class="roll-op">+'+r.stat_bonus+'</span><span class="roll-op">=</span><span class="roll-total">'+r.total+'</span></div></div></div>';
 }
 function scrollRollChat(){
   const el=document.getElementById('roll-chat-list');if(el)el.scrollTop=el.scrollHeight;
