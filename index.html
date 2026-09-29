@@ -9,12 +9,19 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}header{padding:24px;border-bottom:1px solid var(--border)}main{max-width:1100px;margin:auto;padding:24px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:22px}.card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px}.muted{color:var(--muted);font-size:14px;line-height:1.45}.wheel{position:relative;width:min(92vw,480px);aspect-ratio:1;margin:18px auto}.pointer{position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:31px solid #ef4444;z-index:2}canvas{width:100%;height:100%;border-radius:50%;background:#fff}.actions{display:flex;gap:10px;margin-top:14px}button{flex:1;border:0;border-radius:10px;padding:12px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white}.secondary{max-width:110px;background:#262633}.result{margin-top:12px;background:var(--panel2);border:1px solid var(--border);padding:12px;border-radius:10px;text-align:center;font-size:18px;font-weight:800;min-height:48px;display:flex;align-items:center;justify-content:center}.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.chip{padding:6px 8px;border-radius:8px;background:#252532;border:1px solid #343443;font-size:12px}.legend{display:grid;grid-template-columns:1fr auto;gap:6px 12px;margin-top:12px;font-size:13px}.legend span:nth-child(even){color:#c4b5fd;font-weight:700}.passive-detail{margin-top:10px;padding:13px 14px;border:1px solid #343443;border-radius:10px;background:#111119;line-height:1.5}.passive-detail .pd-cat{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#c4b5fd;font-weight:700}.passive-detail .pd-name{font-size:18px;font-weight:800;margin:3px 0 6px}.passive-detail .pd-desc{font-size:14px;color:#d4d4dc}.sheet-card{background:linear-gradient(180deg,#171721,#111118);border:1px solid #3a3154;border-radius:18px;padding:20px;margin-bottom:22px;box-shadow:0 10px 35px rgba(0,0,0,.2)}
 .sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}.sheet-head h2{margin:0 0 5px}.sheet-actions{display:flex;gap:8px;flex-wrap:wrap}.sheet-actions button{flex:none;padding:10px 14px}.sheet-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:16px}.sheet-block{background:#0e0e15;border:1px solid var(--border);border-radius:12px;padding:13px}.sheet-block h3{margin:0 0 9px;font-size:14px;color:#c4b5fd;text-transform:uppercase;letter-spacing:.05em}.sheet-row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid #242431}.sheet-row:last-child{border-bottom:0}.sheet-value{font-weight:800;text-align:right}.sheet-passives{display:grid;gap:7px}.sheet-passive{background:#171722;border:1px solid #292938;border-radius:9px;padding:9px;font-size:13px}.sheet-passive b{display:block;margin-bottom:2px}.identity-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:14px}.identity-field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.identity-field input{width:100%;background:#0f0f16;color:var(--text);border:1px solid #343443;border-radius:9px;padding:10px;font-weight:700}.tech-desc{margin-top:9px;padding:10px;background:#171722;border:1px solid #292938;border-radius:9px;color:#d4d4dc;font-size:13px;line-height:1.45}.stat-total{margin-top:9px;padding-top:9px;border-top:1px solid #343443;font-size:15px;font-weight:800;display:flex;justify-content:space-between}.select-wrap{margin:10px 0 2px}.select-wrap label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}.select-wrap select{width:100%;background:#0f0f16;color:var(--text);border:1px solid #343443;border-radius:9px;padding:10px;font-weight:700}
 .toast{position:fixed;right:18px;bottom:18px;background:#232334;border:1px solid #44445a;color:#fff;padding:11px 14px;border-radius:10px;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s;z-index:99}.toast.show{opacity:1;transform:none}
-@media(max-width:720px){main{padding:16px}.grid{grid-template-columns:1fr}.sheet-actions{width:100%}.sheet-actions button{flex:1}}
+.top-nav{max-width:1100px;margin:0 auto;padding:14px 24px 0;display:flex;gap:10px}.top-nav button{flex:none;padding:11px 18px;background:#232330}.top-nav button.active{background:linear-gradient(135deg,var(--accent),var(--accent2))}.hidden{display:none!important}
+.characters-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}.characters-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}.character-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px}.character-card h3{margin:0 0 4px;font-size:21px}.character-meta{color:var(--muted);font-size:13px;margin-bottom:12px}.character-summary{display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:13px}.character-summary strong{text-align:right}.character-actions{display:flex;gap:8px;margin-top:14px}.character-actions button{padding:9px}.danger{background:#3a171d!important}.editor{margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}.editor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.editor label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.editor input,.editor select,.editor textarea{width:100%;background:#0f0f16;color:var(--text);border:1px solid #343443;border-radius:8px;padding:9px}.editor textarea{min-height:70px;resize:vertical}.editor-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.editor-stat{background:#101018;border:1px solid #292938;border-radius:8px;padding:8px}.editor-stat small{display:block;color:var(--muted);margin-bottom:4px}.initial-note{font-size:11px;color:#9c9cac;margin-top:3px}.passive-edit{display:flex;gap:8px;align-items:flex-start;padding:8px;background:#101018;border:1px solid #292938;border-radius:8px;margin-top:7px}.passive-edit div{flex:1}.passive-edit button{flex:none;padding:7px 9px}.empty-characters{padding:30px;text-align:center;background:var(--panel);border:1px dashed #3c3c4c;border-radius:16px;color:var(--muted)}
+@media(max-width:720px){main{padding:16px}.top-nav{padding:12px 16px 0}.grid{grid-template-columns:1fr}.sheet-actions{width:100%}.sheet-actions button{flex:1}.editor-grid,.editor-stats{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <header><h1>Ruletas JJK — New World</h1><div class="muted">Centro de ruletas del sistema de rol</div></header>
+<div class="top-nav">
+  <button id="nav-roulette" class="active">Ruletas</button>
+  <button id="nav-characters">Mis personajes</button>
+</div>
 <main>
+<section id="roulette-section">
 
 <section class="sheet-card" id="character-sheet">
   <div class="sheet-head">
@@ -29,7 +36,7 @@
     <div class="sheet-actions">
       <button class="secondary" id="undo-sheet">Deshacer última</button>
       <button class="secondary" id="new-sheet">Nuevo personaje</button>
-      <button id="copy-sheet">Copiar ficha</button>
+      <button id="save-character">Guardar personaje</button><button id="copy-sheet">Copiar ficha</button>
     </div>
   </div>
   <div class="sheet-grid">
@@ -132,6 +139,16 @@
 <h3>Historial</h3><div class="chips" id="history-passives"></div>
 </section>
 </div>
+</section>
+<section id="characters-section" class="hidden">
+  <div class="characters-head">
+    <div>
+      <h2 style="margin:0 0 5px">Mis personajes</h2>
+      <div class="muted">Personajes guardados en este dispositivo. Podés modificar su progreso sin perder sus estadísticas iniciales.</div>
+    </div>
+  </div>
+  <div id="characters-list"></div>
+</section>
 </main>
 <div class="toast" id="toast">Ficha copiada.</div>
 <script>
@@ -194,6 +211,133 @@ document.getElementById('new-sheet').addEventListener('click',()=>{pushUndo();sh
 document.getElementById('sorcerer-name').addEventListener('input',e=>{sheetState.sorcererName=e.target.value;saveSheet()});document.getElementById('user-name').addEventListener('input',e=>{sheetState.userName=e.target.value;saveSheet()});
 document.getElementById('copy-sheet').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(sheetText());toast('Ficha copiada para Discord.')}catch(e){const ta=document.createElement('textarea');ta.value=sheetText();document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Ficha copiada para Discord.')}});
 renderSheet();
+
+const CHARACTERS_KEY='jjk-saved-characters';
+let savedCharacters=[];
+try{savedCharacters=JSON.parse(localStorage.getItem(CHARACTERS_KEY)||'[]');if(!Array.isArray(savedCharacters))savedCharacters=[]}catch(e){savedCharacters=[]}
+function saveCharacters(){localStorage.setItem(CHARACTERS_KEY,JSON.stringify(savedCharacters))}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function characterTotal(stats){return Object.values(stats||{}).reduce((a,v)=>a+(Number(v)||0),0)}
+function showTab(tab){
+  const roulette=tab==='roulette';
+  document.getElementById('roulette-section').classList.toggle('hidden',!roulette);
+  document.getElementById('characters-section').classList.toggle('hidden',roulette);
+  document.getElementById('nav-roulette').classList.toggle('active',roulette);
+  document.getElementById('nav-characters').classList.toggle('active',!roulette);
+  if(!roulette)renderCharacters();
+  localStorage.setItem('jjk-active-tab',tab);
+}
+document.getElementById('nav-roulette').addEventListener('click',()=>showTab('roulette'));
+document.getElementById('nav-characters').addEventListener('click',()=>showTab('characters'));
+
+function makeCharacterFromSheet(){
+  return {
+    id:'char-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
+    sorcererName:(sheetState.sorcererName||'').trim()||'Hechicero sin nombre',
+    userName:(sheetState.userName||'').trim()||'—',
+    initialStats:{...sheetState.stats},
+    currentStats:{...sheetState.stats},
+    type:sheetState.type||null,
+    grade:sheetState.grade||null,
+    control:sheetState.control||null,
+    passives:sheetState.passives.map(p=>({...p})),
+    createdAt:new Date().toISOString()
+  };
+}
+document.getElementById('save-character').addEventListener('click',()=>{
+  const ch=makeCharacterFromSheet();
+  savedCharacters.unshift(ch);saveCharacters();renderCharacters();toast('Personaje guardado en Mis personajes.');
+});
+
+function characterCard(ch){
+  const total=characterTotal(ch.currentStats);
+  const initialTotal=characterTotal(ch.initialStats);
+  return `<article class="character-card" id="card-${esc(ch.id)}">
+    <h3>${esc(ch.sorcererName)}</h3>
+    <div class="character-meta">Usuario: ${esc(ch.userName)} · Creado: ${new Date(ch.createdAt).toLocaleDateString('es-AR')}</div>
+    <div class="character-summary">
+      <span>Tipo de técnica</span><strong>${esc(ch.type||'—')}</strong>
+      <span>Grado</span><strong>${esc(ch.grade||'—')}</strong>
+      <span>Control de EM</span><strong>${esc(ch.control||'—')}</strong>
+      <span>Total inicial</span><strong>${initialTotal}</strong>
+      <span>Total actual</span><strong>${total}</strong>
+      <span>Pasivas</span><strong>${ch.passives?.length||0}</strong>
+    </div>
+    <div class="character-actions">
+      <button onclick="toggleEditor('${esc(ch.id)}')">Editar</button>
+      <button class="secondary danger" onclick="deleteCharacter('${esc(ch.id)}')">Eliminar</button>
+    </div>
+    <div class="editor hidden" id="editor-${esc(ch.id)}"></div>
+  </article>`;
+}
+function renderCharacters(){
+  const root=document.getElementById('characters-list');
+  if(!savedCharacters.length){root.innerHTML='<div class="empty-characters"><b>No hay personajes guardados todavía.</b><br><br>Creá uno en Ruletas y tocá <b>Guardar personaje</b>.</div>';return}
+  root.innerHTML='<div class="characters-grid">'+savedCharacters.map(characterCard).join('')+'</div>';
+}
+function optionList(values,current){
+  return values.map(v=>'<option '+(v===current?'selected':'')+'>'+esc(v)+'</option>').join('');
+}
+function toggleEditor(id){
+  const ch=savedCharacters.find(c=>c.id===id);if(!ch)return;
+  const el=document.getElementById('editor-'+id);
+  if(!el.classList.contains('hidden')){el.classList.add('hidden');return}
+  const statsHtml=statNames.map(n=>`<div class="editor-stat"><small>${esc(n)}</small><input type="number" id="edit-${id}-stat-${statNames.indexOf(n)}" value="${esc(ch.currentStats?.[n]??'')}" min="0"><div class="initial-note">Inicial: ${esc(ch.initialStats?.[n]??'—')}</div></div>`).join('');
+  const passivesHtml=(ch.passives||[]).map((p,i)=>`<div class="passive-edit" id="pe-${id}-${i}"><div><b>${esc(p.category)} — ${esc(p.name)}</b><div class="muted">${esc(p.description||'')}</div></div><button class="secondary danger" onclick="removePassive('${id}',${i})">Quitar</button></div>`).join('')||'<div class="muted">Sin pasivas.</div>';
+  el.innerHTML=`
+    <div class="editor-grid">
+      <div><label>Nombre del hechicero</label><input id="edit-${id}-name" value="${esc(ch.sorcererName)}"></div>
+      <div><label>Usuario</label><input id="edit-${id}-user" value="${esc(ch.userName)}"></div>
+      <div><label>Tipo de técnica</label><select id="edit-${id}-type"><option value="">—</option>${optionList(configs.type.values,ch.type)}</select></div>
+      <div><label>Grado</label><select id="edit-${id}-grade"><option value="">—</option>${optionList(configs.grade.values,ch.grade)}</select></div>
+      <div><label>Control de EM</label><select id="edit-${id}-control"><option value="">—</option>${optionList(configs.control.values,ch.control)}</select></div>
+    </div>
+    <h4>Estadísticas actuales</h4>
+    <div class="editor-stats">${statsHtml}</div>
+    <h4>Pasivas</h4>
+    <div id="edit-passives-${id}">${passivesHtml}</div>
+    <div class="editor-grid" style="margin-top:10px">
+      <div><label>Nueva pasiva — categoría</label><input id="add-${id}-pcat" placeholder="General, Fuerza, etc."></div>
+      <div><label>Nueva pasiva — nombre</label><input id="add-${id}-pname" placeholder="Nombre de la pasiva"></div>
+    </div>
+    <div style="margin-top:8px"><label>Descripción opcional</label><textarea id="add-${id}-pdesc" placeholder="Efecto de la pasiva"></textarea></div>
+    <div class="character-actions">
+      <button onclick="addPassive('${id}')">Agregar pasiva</button>
+      <button onclick="saveCharacterEdit('${id}')">Guardar cambios</button>
+      <button class="secondary" onclick="toggleEditor('${id}')">Cerrar</button>
+    </div>`;
+  el.classList.remove('hidden');
+}
+function saveCharacterEdit(id){
+  const ch=savedCharacters.find(c=>c.id===id);if(!ch)return;
+  ch.sorcererName=document.getElementById('edit-'+id+'-name').value.trim()||'Hechicero sin nombre';
+  ch.userName=document.getElementById('edit-'+id+'-user').value.trim()||'—';
+  ch.type=document.getElementById('edit-'+id+'-type').value||null;
+  ch.grade=document.getElementById('edit-'+id+'-grade').value||null;
+  ch.control=document.getElementById('edit-'+id+'-control').value||null;
+  ch.currentStats=ch.currentStats||{};
+  statNames.forEach((n,i)=>{const v=document.getElementById('edit-'+id+'-stat-'+i).value;ch.currentStats[n]=v===''?null:Number(v)});
+  saveCharacters();renderCharacters();toast('Cambios guardados.');
+}
+function deleteCharacter(id){
+  if(!confirm('¿Eliminar este personaje de Mis personajes?'))return;
+  savedCharacters=savedCharacters.filter(c=>c.id!==id);saveCharacters();renderCharacters();toast('Personaje eliminado.');
+}
+function removePassive(id,index){
+  const ch=savedCharacters.find(c=>c.id===id);if(!ch)return;
+  ch.passives.splice(index,1);saveCharacters();renderCharacters();setTimeout(()=>toggleEditor(id),0);toast('Pasiva eliminada.');
+}
+function addPassive(id){
+  const ch=savedCharacters.find(c=>c.id===id);if(!ch)return;
+  const cat=document.getElementById('add-'+id+'-pcat').value.trim()||'General';
+  const name=document.getElementById('add-'+id+'-pname').value.trim();
+  const desc=document.getElementById('add-'+id+'-pdesc').value.trim();
+  if(!name){toast('Escribí el nombre de la pasiva.');return}
+  ch.passives=ch.passives||[];ch.passives.push({category:cat,name,description:desc});saveCharacters();renderCharacters();setTimeout(()=>toggleEditor(id),0);toast('Pasiva agregada.');
+}
+renderCharacters();
+if(localStorage.getItem('jjk-active-tab')==='characters')showTab('characters');
+
 function pick(c){const total=c.weights.reduce((a,b)=>a+b,0);let r=Math.random()*total;for(let i=0;i<c.values.length;i++){if(r<c.weights[i])return i;r-=c.weights[i]}return c.values.length-1}
 function angleCenter(c,idx){const total=c.weights.reduce((a,b)=>a+b,0);let before=0;for(let i=0;i<idx;i++)before+=c.weights[i];return ((before+c.weights[idx]/2)/total)*360}
 function draw(key){const c=configs[key],s=states[key],cv=document.getElementById(c.canvas),x=cv.getContext('2d'),total=c.weights.reduce((a,b)=>a+b,0),R=300;x.clearRect(0,0,700,700);x.save();x.translate(350,350);x.rotate(s.rot);let acc=-Math.PI/2;for(let i=0;i<c.values.length;i++){const ang=c.weights[i]/total*Math.PI*2,a=acc,b=a+ang;x.beginPath();x.moveTo(0,0);x.arc(0,0,R,a,b);x.closePath();x.fillStyle=colors[i%colors.length];x.fill();x.strokeStyle='#fff';x.lineWidth=4;x.stroke();x.save();x.rotate(a+ang/2);x.textAlign='center';x.textBaseline='middle';x.fillStyle='#fff';x.font='bold 24px Arial';let label=c.values[i];if(key==='type'){const short=['Potenciación','Invocación','Creación','Control','Soporte','Marca','Téc. Existente','Restricción','Extraordinaria'];label=short[i]}if(key==='grade'){const short=['Grado 4','Semi 4','Grado 3','Semi 3','Grado 2','Semi 2','Grado 1','Especial'];label=short[i]}if(key==='passives'){label=(i+1)%10===0?String(i+1):'';x.font='bold 14px Arial';}x.fillText(label,210,0);x.restore();acc=b}x.beginPath();x.arc(0,0,42,0,Math.PI*2);x.fillStyle='#111827';x.fill();x.restore()}
