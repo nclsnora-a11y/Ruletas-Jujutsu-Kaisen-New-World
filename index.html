@@ -1668,7 +1668,8 @@ function refreshCombatMapSection(campaignId){
   renderActiveCombatMap(campaignId);
 }
 function mapCharacterIds(map){
-  const memberships=sharedMemberships.filter(m=>m.campaign_id===map.campaign_id&&(map.zone_id?m.zone_id===map.zone_id:true));
+  const zoneId=map.zone_id||selectedCombatZoneId||null;
+  const memberships=sharedMemberships.filter(m=>m.campaign_id===map.campaign_id&&(zoneId?m.zone_id===zoneId:true));
   return [...new Set(memberships.map(m=>m.character_id))];
 }
 async function loadCombatMapTokens(mapId){
