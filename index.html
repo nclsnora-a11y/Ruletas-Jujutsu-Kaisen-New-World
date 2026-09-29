@@ -19,6 +19,8 @@
 .combat-campaign-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.combat-campaign-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden}.combat-campaign-card img,.combat-campaign-placeholder{width:100%;height:135px;object-fit:cover;background:#0e0e15;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:900;color:#77778a}.combat-campaign-body{padding:14px}.combat-toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}.combat-roster{display:grid;gap:14px}.combat-char{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px}.combat-char-head{display:flex;gap:12px;align-items:center;margin-bottom:12px}.combat-avatar{width:58px;height:58px;border-radius:12px;object-fit:cover;background:#0d0d14;border:1px solid #3a3a4b;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px}.combat-char-title{flex:1}.combat-char-title h3{margin:0 0 4px}.combat-bars{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.combat-resource{background:#111119;border:1px solid #2c2c3a;border-radius:12px;padding:10px}.combat-resource-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:7px;font-size:13px}.combat-bar{height:13px;border-radius:999px;background:#262633;overflow:hidden;border:1px solid #3a3a48}.combat-bar-fill{height:100%;background:linear-gradient(90deg,#6d28d9,#a78bfa);width:0%}.combat-resource input[type=range]{width:100%;margin-top:7px}.combat-number-row{display:flex;gap:6px;margin-top:6px;align-items:center}.combat-number-row input{width:72px;background:#0f0f16;color:var(--text);border:1px solid #343443;border-radius:7px;padding:6px}.combat-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:7px;margin-top:12px}.combat-stat{background:#101018;border:1px solid #292938;border-radius:9px;padding:8px;font-size:12px}.combat-stat b{display:block;font-size:16px;margin-top:2px}.combat-admin-row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:10px}.combat-hidden-card{opacity:.58}.visibility-pill{font-size:11px;padding:4px 8px;border-radius:999px;background:#252535;color:#d4d4df}.visibility-pill.on{background:#12351f;color:#bbf7d0}@media(max-width:720px){.combat-bars{grid-template-columns:1fr}.combat-char-head{align-items:flex-start}}
 
 .account-card{background:#111119;border:1px solid #2d2d3a;border-radius:14px;padding:16px;margin-top:12px}.account-state{display:flex;gap:12px;align-items:center}.account-dot{width:12px;height:12px;border-radius:50%;background:#4ade80;box-shadow:0 0 12px rgba(74,222,128,.45)}.account-dot.off{background:#71717a;box-shadow:none}.account-details{display:grid;gap:5px;margin-top:12px}.account-details-row{display:flex;gap:8px;flex-wrap:wrap}.account-label{color:var(--muted);min-width:70px}.account-help{font-size:12px;color:var(--muted);margin-top:10px}
+
+.password-wrap{position:relative;display:flex;align-items:center}.password-wrap input{width:100%;padding-right:42px}.password-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:transparent;border:0;color:var(--muted);padding:6px 8px;cursor:pointer;font-size:16px}.password-toggle:hover{color:var(--text)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 </head>
@@ -208,7 +210,7 @@
       <h3>Iniciar sesión o registrarse</h3>
       <div class="campaign-form">
         <input id="auth-email" type="email" placeholder="Email">
-        <input id="auth-password" type="password" placeholder="Contraseña">
+        <div class="password-wrap"><input id="auth-password" type="password" placeholder="Contraseña"><button type="button" id="toggle-password" class="password-toggle" aria-label="Mostrar contraseña" title="Mostrar/ocultar contraseña">👁</button></div>
       </div>
       <div class="campaign-actions">
         <button id="auth-login">Iniciar sesión</button>
@@ -691,17 +693,76 @@ function renderAuth(){
 }
 
 async function initAuth(){
-  const {data:{session}}=await sb.auth.getSession();
-  currentUser=session?.user||null;
-  if(currentUser){try{currentProfile=await getProfile();isAdmin=currentProfile?.role==='admin';await loadSharedData()}catch(e){console.error(e);toast('Error cargando datos compartidos.')}}
+  // Mostrar estado conocido inmediatamente para evitar quedarse en "Comprobando sesión..."
+  const cachedSessionRaw=localStorage.getItem('sb-qaagrybxkxverxvgaimb-auth-token');
+  if(cachedSessionRaw){
+    try{
+      const parsed=JSON.parse(cachedSessionRaw);
+      const cachedUser=parsed?.user||parsed?.currentSession?.user||parsed?.session?.user||null;
+      if(cachedUser){
+        currentUser=cachedUser;
+        document.getElementById('account-state-title').textContent='Restaurando sesión...';
+        document.getElementById('account-state-subtitle').textContent='Ya encontramos una sesión guardada en este dispositivo.';
+      }
+    }catch(e){}
+  }
+
+  try{
+    const sessionPromise=sb.auth.getSession();
+    const timeoutPromise=new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),3500));
+    const {data:{session}}=await Promise.race([sessionPromise,timeoutPromise]);
+    currentUser=session?.user||null;
+    currentProfile=null;isAdmin=false;
+
+    if(currentUser){
+      try{
+        currentProfile=await getProfile();
+        isAdmin=currentProfile?.role==='admin';
+        await loadSharedData();
+      }catch(e){
+        console.error(e);
+        toast('La cuenta está conectada, pero hubo un problema cargando datos compartidos.');
+      }
+    }else{
+      allCharacters=[];savedCharacters=[];campaigns=[];
+      renderCharacters();renderCampaigns();
+    }
+  }catch(e){
+    console.error('Error comprobando sesión',e);
+    // Si había sesión cacheada, conservarla visualmente; si no, mostrar estado claro
+    if(!currentUser){
+      const title=document.getElementById('account-state-title');
+      const subtitle=document.getElementById('account-state-subtitle');
+      const dot=document.getElementById('account-dot');
+      if(title)title.textContent='No pude comprobar la sesión';
+      if(subtitle)subtitle.textContent='Podés intentar iniciar sesión nuevamente.';
+      if(dot)dot.classList.add('off');
+    }
+  }
+
   renderAuth();
+
   sb.auth.onAuthStateChange(async(_event,session)=>{
     currentUser=session?.user||null;currentProfile=null;isAdmin=false;
-    if(currentUser){try{currentProfile=await getProfile();isAdmin=currentProfile?.role==='admin';await loadSharedData()}catch(e){console.error(e)}}
-    else{allCharacters=[];savedCharacters=[];campaigns=[];renderCharacters();renderCampaigns()}
+    if(currentUser){
+      try{
+        currentProfile=await getProfile();isAdmin=currentProfile?.role==='admin';await loadSharedData();
+      }catch(e){console.error(e)}
+    }else{
+      allCharacters=[];savedCharacters=[];campaigns=[];renderCharacters();renderCampaigns();
+    }
     renderAuth();
   });
 }
+
+document.getElementById('toggle-password').onclick=()=>{
+  const input=document.getElementById('auth-password');
+  const btn=document.getElementById('toggle-password');
+  const showing=input.type==='text';
+  input.type=showing?'password':'text';
+  btn.textContent=showing?'👁':'🙈';
+  btn.setAttribute('aria-label',showing?'Mostrar contraseña':'Ocultar contraseña');
+};
 
 document.getElementById('auth-login').onclick=async()=>{
   const email=document.getElementById('auth-email').value.trim(),password=document.getElementById('auth-password').value;
