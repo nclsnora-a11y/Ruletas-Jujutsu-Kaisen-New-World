@@ -1627,14 +1627,45 @@ function bindCombatMapInteractions(map){
       if(mapMeasureMode)return;
       ev.preventDefault();ev.stopPropagation();
       el.classList.add('dragging');el.setPointerCapture(ev.pointerId);
+
+      const startRect=canvas.getBoundingClientRect();
+      const startX=(parseFloat(el.style.left)||0)/100*startRect.width;
+      const startY=(parseFloat(el.style.top)||0)/100*startRect.height;
+      const line=document.getElementById('map-ruler-line');
+      const label=document.getElementById('map-measure-label');
+      if(line){
+        line.style.display='block';
+        line.setAttribute('x1',startX);line.setAttribute('y1',startY);
+        line.setAttribute('x2',startX);line.setAttribute('y2',startY);
+      }
+      if(label){
+        label.style.display='block';
+        label.style.left=startX+'px';label.style.top=startY+'px';
+        label.textContent='0 pies';
+      }
+
       const move=e=>{
         const r=canvas.getBoundingClientRect();
-        const x=Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100));
-        const y=Math.max(0,Math.min(100,(e.clientY-r.top)/r.height*100));
+        const px=Math.max(0,Math.min(r.width,e.clientX-r.left));
+        const py=Math.max(0,Math.min(r.height,e.clientY-r.top));
+        const x=px/r.width*100;
+        const y=py/r.height*100;
         el.style.left=x+'%';el.style.top=y+'%';
+
+        if(line){line.setAttribute('x2',px);line.setAttribute('y2',py)}
+        if(label){
+          const displayPx=Math.hypot(px-startX,py-startY);
+          const sourceScale=(img.naturalWidth||img.clientWidth)/Math.max(1,img.clientWidth);
+          const feet=(displayPx*sourceScale/Number(map.grid_size_px))*Number(map.feet_per_cell);
+          label.style.left=((startX+px)/2)+'px';
+          label.style.top=((startY+py)/2)+'px';
+          label.textContent=feet.toFixed(1)+' pies';
+        }
       };
+
       const up=async e=>{
-        move(e);el.classList.remove('dragging');el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);
+        move(e);el.classList.remove('dragging');
+        el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',up);
         const r=canvas.getBoundingClientRect();
         const x=Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100));
         const y=Math.max(0,Math.min(100,(e.clientY-r.top)/r.height*100));
@@ -1642,10 +1673,19 @@ function bindCombatMapInteractions(map){
         const tok=combatMapTokens.find(t=>t.id===id);if(tok){tok.x_pct=x;tok.y_pct=y}
         const {error}=await sb.from('combat_map_tokens').update({x_pct:x,y_pct:y,updated_at:new Date().toISOString()}).eq('id',id);
         if(error)toast(error.message);
+
+        setTimeout(()=>{
+          if(!mapMeasureMode){
+            if(line)line.style.display='none';
+            if(label)label.style.display='none';
+          }
+        },650);
       };
+
       el.addEventListener('pointermove',move);el.addEventListener('pointerup',up);
     });
   });
+
   let start=null;
   canvas.onpointerdown=e=>{
     if(!mapMeasureMode||e.target.closest('.map-token'))return;
