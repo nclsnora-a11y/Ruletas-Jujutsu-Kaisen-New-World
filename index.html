@@ -15,6 +15,8 @@
 @media(max-width:720px){main{padding:16px}.top-nav{padding:12px 16px 0}.grid{grid-template-columns:1fr}.sheet-actions{width:100%}.sheet-actions button{flex:1}.editor-grid,.editor-stats{grid-template-columns:1fr}}
 
 .auth-bar{max-width:1100px;margin:12px auto 0;padding:0 24px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.auth-bar input{background:#0f0f16;color:var(--text);border:1px solid #343443;border-radius:9px;padding:9px 10px;min-width:190px}.auth-bar button{flex:none;padding:9px 12px}.auth-status{font-size:13px;color:var(--muted);margin-right:auto}.admin-badge{display:inline-block;background:#4c1d95;color:#e9d5ff;border:1px solid #7c3aed;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:800;margin-left:6px}.sync-note{font-size:12px;color:#a7f3d0}.auth-required{padding:28px;text-align:center;background:var(--panel);border:1px dashed #3c3c4c;border-radius:16px;color:var(--muted)}
+
+.combat-campaign-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.combat-campaign-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden}.combat-campaign-card img,.combat-campaign-placeholder{width:100%;height:135px;object-fit:cover;background:#0e0e15;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:900;color:#77778a}.combat-campaign-body{padding:14px}.combat-toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}.combat-roster{display:grid;gap:14px}.combat-char{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px}.combat-char-head{display:flex;gap:12px;align-items:center;margin-bottom:12px}.combat-avatar{width:58px;height:58px;border-radius:12px;object-fit:cover;background:#0d0d14;border:1px solid #3a3a4b;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px}.combat-char-title{flex:1}.combat-char-title h3{margin:0 0 4px}.combat-bars{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.combat-resource{background:#111119;border:1px solid #2c2c3a;border-radius:12px;padding:10px}.combat-resource-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:7px;font-size:13px}.combat-bar{height:13px;border-radius:999px;background:#262633;overflow:hidden;border:1px solid #3a3a48}.combat-bar-fill{height:100%;background:linear-gradient(90deg,#6d28d9,#a78bfa);width:0%}.combat-resource input[type=range]{width:100%;margin-top:7px}.combat-number-row{display:flex;gap:6px;margin-top:6px;align-items:center}.combat-number-row input{width:72px;background:#0f0f16;color:var(--text);border:1px solid #343443;border-radius:7px;padding:6px}.combat-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:7px;margin-top:12px}.combat-stat{background:#101018;border:1px solid #292938;border-radius:9px;padding:8px;font-size:12px}.combat-stat b{display:block;font-size:16px;margin-top:2px}.combat-admin-row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:10px}.combat-hidden-card{opacity:.58}.visibility-pill{font-size:11px;padding:4px 8px;border-radius:999px;background:#252535;color:#d4d4df}.visibility-pill.on{background:#12351f;color:#bbf7d0}@media(max-width:720px){.combat-bars{grid-template-columns:1fr}.combat-char-head{align-items:flex-start}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 </head>
@@ -178,14 +180,14 @@
   <div id="campaigns-list"></div>
 </section>
 <section id="combat-section" class="hidden">
-  <div class="sheet-card">
-    <h2 style="margin-top:0">Combate</h2>
-    <div class="muted" style="margin-bottom:14px">Panel de combate de JJK New World.</div>
-    <div class="empty-characters">
-      <b>La sala de combate está preparada.</b><br><br>
-      Ahora vamos a definir qué datos, recursos, dados y acciones va a mostrar cada personaje dentro de una campaña.
+  <div class="combat-toolbar">
+    <div>
+      <h2 style="margin:0 0 5px">Combate</h2>
+      <div class="muted">Entrá a una campaña para ver y administrar sus personajes en combate.</div>
     </div>
+    <button id="combat-back" class="secondary hidden">← Volver a campañas</button>
   </div>
+  <div id="combat-root"></div>
 </section>
 <section id="account-section" class="hidden">
   <div class="sheet-card">
@@ -292,6 +294,7 @@ function showTab(tab){
   document.getElementById('nav-account').classList.toggle('active',account);
   if(characters)renderCharacters();
   if(campaigns)renderCampaigns();
+  if(combat&&typeof renderCombat==='function')renderCombat();
   if(account&&typeof renderAuth==='function')renderAuth();
   localStorage.setItem('jjk-active-tab',tab);
 }
@@ -645,7 +648,7 @@ async function loadSharedData(){
       characterIds:sharedMemberships.filter(m=>m.campaign_id===c.id&&m.zone_id===z.id).map(m=>m.character_id)
     }));
   });
-  renderCharacters();renderCampaigns();
+  renderCharacters();renderCampaigns();if(selectedCombatCampaignId&&typeof renderCombat==='function')renderCombat();
 }
 
 function renderAuth(){
@@ -875,6 +878,106 @@ document.getElementById('migrate-local').onclick=async()=>{
     localStorage.setItem('jjk-migrated-to-supabase','1');await loadSharedData();renderAuth();toast('Datos locales importados correctamente.');
   }catch(e){console.error(e);toast('Hubo un error importando datos locales: '+e.message)}
 };
+
+
+let selectedCombatCampaignId=null;
+let combatStates=[];
+
+function campaignCharacterIds(campaignId){
+  const ids=[];
+  sharedMemberships.filter(m=>m.campaign_id===campaignId).forEach(m=>{if(!ids.includes(m.character_id))ids.push(m.character_id)});
+  return ids;
+}
+function combatDefaultMax(ch,key){
+  const v=Number(ch?.currentStats?.[key]??ch?.initialStats?.[key]??1);
+  return Math.max(50,(Number.isFinite(v)?v:1)*50);
+}
+async function loadCombatStates(campaignId){
+  const {data,error}=await sb.from('combat_states').select('*').eq('campaign_id',campaignId);
+  if(error)throw error;combatStates=data||[];return combatStates;
+}
+async function ensureCombatStates(campaignId){
+  if(!isAdmin)return loadCombatStates(campaignId);
+  const ids=campaignCharacterIds(campaignId);
+  await loadCombatStates(campaignId);
+  const existing=new Set(combatStates.map(s=>s.character_id));
+  const rows=ids.filter(id=>!existing.has(id)).map(id=>{
+    const ch=allCharacters.find(c=>c.id===id);
+    const hp=combatDefaultMax(ch,'Resistencia'),ce=combatDefaultMax(ch,'Energía Maldita'),du=combatDefaultMax(ch,'Durabilidad');
+    return {campaign_id:campaignId,character_id:id,visible:true,hp_current:hp,hp_max:hp,ce_current:ce,ce_max:ce,durability_current:du,durability_max:du};
+  });
+  if(rows.length){const {error}=await sb.from('combat_states').insert(rows);if(error)throw error}
+  return loadCombatStates(campaignId);
+}
+function renderCombat(){
+  const root=document.getElementById('combat-root'),back=document.getElementById('combat-back');if(!root)return;
+  back.classList.toggle('hidden',!selectedCombatCampaignId);
+  if(!currentUser){root.innerHTML='<div class="auth-required"><b>Iniciá sesión para entrar a Combate.</b><br><br>Las salas de combate son compartidas entre todos los jugadores.</div>';return}
+  if(selectedCombatCampaignId){renderCombatCampaign(selectedCombatCampaignId);return}
+  if(!campaigns.length){root.innerHTML='<div class="empty-characters"><b>No hay campañas disponibles.</b></div>';return}
+  root.innerHTML='<div class="combat-campaign-grid">'+campaigns.map(c=>{
+    const chars=campaignCharacterIds(c.id).length;
+    return '<article class="combat-campaign-card">'+(c.photo?'<img src="'+c.photo+'" alt="">':'<div class="combat-campaign-placeholder">呪</div>')+'<div class="combat-campaign-body"><h3 style="margin:0 0 5px">'+esc(c.name)+'</h3><div class="muted" style="margin-bottom:12px">'+chars+' personaje(s) en campaña</div><button onclick="enterCombatCampaign(\\''+c.id+'\\')">Entrar al combate</button></div></article>';
+  }).join('')+'</div>';
+}
+async function enterCombatCampaign(id){
+  selectedCombatCampaignId=id;renderCombat();
+}
+document.getElementById('combat-back').onclick=()=>{selectedCombatCampaignId=null;combatStates=[];renderCombat()};
+
+async function renderCombatCampaign(campaignId){
+  const root=document.getElementById('combat-root'),camp=campaigns.find(c=>c.id===campaignId);
+  if(!camp){selectedCombatCampaignId=null;renderCombat();return}
+  root.innerHTML='<div class="empty-characters">Cargando combate de <b>'+esc(camp.name)+'</b>...</div>';
+  try{await ensureCombatStates(campaignId)}catch(e){console.error(e);root.innerHTML='<div class="empty-characters">No pude cargar el estado de combate.</div>';return}
+  const ids=campaignCharacterIds(campaignId);
+  let chars=ids.map(id=>allCharacters.find(c=>c.id===id)).filter(Boolean);
+  if(!isAdmin)chars=chars.filter(ch=>combatStates.find(s=>s.character_id===ch.id)?.visible!==false);
+  if(!chars.length){root.innerHTML='<div class="empty-characters"><b>'+esc(camp.name)+'</b><br><br>No hay personajes visibles en esta campaña.</div>';return}
+  root.innerHTML='<div style="margin-bottom:14px"><h3 style="margin:0">'+esc(camp.name)+'</h3><div class="muted">'+chars.length+' personaje(s) en combate'+(isAdmin?' · controles de GM activos':'')+'</div></div><div class="combat-roster">'+chars.map(ch=>combatCharacterHtml(campaignId,ch)).join('')+'</div>';
+  chars.forEach(ch=>updateCombatBars(ch.id));
+}
+function combatCharacterHtml(campaignId,ch){
+  const s=combatStates.find(x=>x.character_id===ch.id)||{visible:true,hp_current:combatDefaultMax(ch,'Resistencia'),hp_max:combatDefaultMax(ch,'Resistencia'),ce_current:combatDefaultMax(ch,'Energía Maldita'),ce_max:combatDefaultMax(ch,'Energía Maldita'),durability_current:combatDefaultMax(ch,'Durabilidad'),durability_max:combatDefaultMax(ch,'Durabilidad')};
+  const stats=[...statNames.map(n=>[n,ch.currentStats?.[n]??ch.initialStats?.[n]??'—']),['Control EM',ch.control??'—']];
+  const resource=(label,prefix,cur,max)=>'<div class="combat-resource"><div class="combat-resource-top"><b>'+label+'</b><span id="'+prefix+'-text-'+ch.id+'">'+cur+' / '+max+'</span></div><div class="combat-bar"><div class="combat-bar-fill" id="'+prefix+'-bar-'+ch.id+'"></div></div>'+(isAdmin?'<input type="range" id="'+prefix+'-range-'+ch.id+'" min="0" max="'+max+'" value="'+Math.min(cur,max)+'" oninput="combatRangeInput(\\''+ch.id+'\\',\\''+prefix+'\\')"><div class="combat-number-row"><input type="number" min="0" id="'+prefix+'-current-'+ch.id+'" value="'+cur+'" oninput="combatNumberInput(\\''+ch.id+'\\',\\''+prefix+'\\')"><span>/</span><input type="number" min="1" id="'+prefix+'-max-'+ch.id+'" value="'+max+'" oninput="combatMaxInput(\\''+ch.id+'\\',\\''+prefix+'\\')"></div>':'')+'</div>';
+  return '<article class="combat-char '+(!s.visible?'combat-hidden-card':'')+'" id="combat-char-'+ch.id+'"><div class="combat-char-head">'+(ch.photo?'<img class="combat-avatar" src="'+ch.photo+'" alt="">':'<div class="combat-avatar">術</div>')+'<div class="combat-char-title"><h3>'+esc(ch.sorcererName)+'</h3><div class="muted">'+esc(ch.userName)+' · '+esc(ch.grade||'Sin grado')+'</div></div><span class="visibility-pill '+(s.visible?'on':'')+'">'+(s.visible?'Visible':'Oculto')+'</span></div><div class="combat-bars">'+resource('Vida','hp',s.hp_current,s.hp_max)+resource('Energía Maldita','ce',s.ce_current,s.ce_max)+resource('Durabilidad','du',s.durability_current,s.durability_max)+'</div><div class="combat-stats">'+stats.map(([n,v])=>'<div class="combat-stat">'+esc(n)+'<b>'+esc(String(v))+'</b></div>').join('')+'</div>'+(isAdmin?'<div class="combat-admin-row"><button class="secondary" onclick="toggleCombatVisibility(\\''+campaignId+'\\',\\''+ch.id+'\\')">'+(s.visible?'Ocultar personaje':'Mostrar personaje')+'</button><button onclick="saveCombatCharacterState(\\''+campaignId+'\\',\\''+ch.id+'\\')">Guardar barras</button></div>':'')+'</article>';
+}
+function combatStateByChar(id){return combatStates.find(s=>s.character_id===id)}
+function updateCombatBars(charId){
+  ['hp','ce','du'].forEach(prefix=>{
+    const s=combatStateByChar(charId);if(!s)return;
+    const map=prefix==='hp'?['hp_current','hp_max']:prefix==='ce'?['ce_current','ce_max']:['durability_current','durability_max'];
+    const currentInput=document.getElementById(prefix+'-current-'+charId),maxInput=document.getElementById(prefix+'-max-'+charId);
+    const cur=currentInput?Number(currentInput.value):Number(s[map[0]]),max=Math.max(1,maxInput?Number(maxInput.value):Number(s[map[1]]));
+    const pct=Math.max(0,Math.min(100,(cur/max)*100));
+    const bar=document.getElementById(prefix+'-bar-'+charId),txt=document.getElementById(prefix+'-text-'+charId);
+    if(bar)bar.style.width=pct+'%';if(txt)txt.textContent=cur+' / '+max;
+  });
+}
+function combatRangeInput(charId,prefix){
+  const r=document.getElementById(prefix+'-range-'+charId),c=document.getElementById(prefix+'-current-'+charId);if(r&&c)c.value=r.value;updateCombatBars(charId)
+}
+function combatNumberInput(charId,prefix){
+  const c=document.getElementById(prefix+'-current-'+charId),r=document.getElementById(prefix+'-range-'+charId),m=document.getElementById(prefix+'-max-'+charId);
+  if(c&&r){r.max=Math.max(1,Number(m?.value||r.max));r.value=Math.min(Number(c.value||0),Number(r.max))}updateCombatBars(charId)
+}
+function combatMaxInput(charId,prefix){
+  const m=document.getElementById(prefix+'-max-'+charId),r=document.getElementById(prefix+'-range-'+charId);if(m&&r)r.max=Math.max(1,Number(m.value||1));updateCombatBars(charId)
+}
+async function saveCombatCharacterState(campaignId,charId){
+  if(!isAdmin)return;
+  const val=(p,t)=>Math.max(t==='max'?1:0,Number(document.getElementById(p+'-'+t+'-'+charId)?.value||0));
+  const payload={hp_current:val('hp','current'),hp_max:val('hp','max'),ce_current:val('ce','current'),ce_max:val('ce','max'),durability_current:val('du','current'),durability_max:val('du','max'),updated_at:new Date().toISOString()};
+  payload.hp_current=Math.min(payload.hp_current,payload.hp_max);payload.ce_current=Math.min(payload.ce_current,payload.ce_max);payload.durability_current=Math.min(payload.durability_current,payload.durability_max);
+  const {error}=await sb.from('combat_states').update(payload).eq('campaign_id',campaignId).eq('character_id',charId);
+  if(error){toast(error.message);return}await loadCombatStates(campaignId);renderCombatCampaign(campaignId);toast('Estado de combate guardado.');
+}
+async function toggleCombatVisibility(campaignId,charId){
+  if(!isAdmin)return;const s=combatStateByChar(charId);if(!s)return;
+  const {error}=await sb.from('combat_states').update({visible:!s.visible,updated_at:new Date().toISOString()}).eq('campaign_id',campaignId).eq('character_id',charId);
+  if(error){toast(error.message);return}await loadCombatStates(campaignId);renderCombatCampaign(campaignId);toast(!s.visible?'Personaje visible.':'Personaje oculto.');
+}
 
 initAuth();
 </script>
