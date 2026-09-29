@@ -110,6 +110,10 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
 .combat-quick-subtract{display:flex;gap:4px;margin-top:4px}
 .combat-quick-subtract input{min-width:0;width:100%;padding:4px 5px!important;font-size:10px!important;background:#0d0d14;color:var(--text);border:1px solid #343443;border-radius:6px}
 .combat-quick-subtract button{flex:0 0 auto;padding:4px 7px!important;font-size:9px!important;border-radius:6px!important;background:#3a1f2a}
+
+.combat-zone-selector{display:flex;align-items:end;gap:7px;flex-wrap:wrap}
+.combat-zone-selector label{font-size:10px;color:var(--muted);display:block}
+.combat-zone-selector select{min-width:210px;background:#101018;color:var(--text);border:1px solid #343443;border-radius:8px;padding:8px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 </head>
@@ -1072,9 +1076,26 @@ addCharacterToZone=async function(campaignId,zoneId){
   await loadSharedData();setTimeout(()=>toggleCampaign(campaignId),0);toast('Personaje agregado a la campaña.');
 };
 removeCharacterFromZone=async function(campaignId,zoneId,charId){
-  const {error}=await sb.from('campaign_characters').delete().eq('campaign_id',campaignId).eq('character_id',charId);
+  const {error}=await sb.from('campaign_characters').delete().eq('campaign_id',campaignId).eq('zone_id',zoneId).eq('character_id',charId);
   if(error){toast(error.message);return}
-  await loadSharedData();setTimeout(()=>toggleCampaign(campaignId),0);toast('Personaje quitado de la campaña.');
+  const {data:remaining,error:remErr}=await sb.from('campaign_characters').select('id').eq('campaign_id',campaignId).eq('character_id',charId).limit(1);
+  if(remErr){toast(remErr.message);return}
+  if(!(remaining||[]).length){
+    await sb.from('combat_states').delete().eq('campaign_id',campaignId).eq('character_id',charId);
+    if(isAdmin){
+      const {data:maps}=await sb.from('combat_maps').select('id').eq('campaign_id',campaignId);
+      const ids=(maps||[]).map(m=>m.id);
+      if(ids.length)await sb.from('combat_map_tokens').delete().in('map_id',ids).eq('character_id',charId);
+    }
+  }else if(isAdmin){
+    const {data:zoneMaps}=await sb.from('combat_maps').select('id').eq('campaign_id',campaignId).eq('zone_id',zoneId);
+    const ids=(zoneMaps||[]).map(m=>m.id);
+    if(ids.length)await sb.from('combat_map_tokens').delete().in('map_id',ids).eq('character_id',charId);
+  }
+  await loadSharedData();
+  if(selectedCombatCampaignId===campaignId)renderCombat();
+  setTimeout(()=>toggleCampaign(campaignId),0);
+  toast('Personaje quitado de la zona.');
 };
 updateCampaignPhoto=async function(campaignId){
   if(!isAdmin)return;const input=document.getElementById('campaign-photo-'+campaignId);if(!input?.files?.[0]){toast('Elegí una imagen.');return}
@@ -1119,6 +1140,7 @@ let combatRolls=[];
 let combatRollChannel=null;
 let combatMaps=[];
 let combatMapTokens=[];
+let selectedCombatZoneId=null;
 let selectedCombatMapId=localStorage.getItem('jjk-combat-map')||null;
 let combatMapChannel=null;
 let mapMeasureMode=false;
@@ -1128,6 +1150,16 @@ function campaignCharacterIds(campaignId){
   sharedMemberships.filter(m=>m.campaign_id===campaignId).forEach(m=>{if(!ids.includes(m.character_id))ids.push(m.character_id)});
   return ids;
 }
+function combatZoneCharacterIds(campaignId,zoneId){
+  if(!zoneId)return [];
+  return [...new Set(sharedMemberships.filter(m=>m.campaign_id===campaignId&&m.zone_id===zoneId).map(m=>m.character_id))];
+}
+function restoreCombatZone(campaignId){
+  const zones=sharedZones.filter(z=>z.campaign_id===campaignId);
+  const saved=localStorage.getItem('jjk-combat-zone-'+campaignId);
+  selectedCombatZoneId=saved&&zones.some(z=>z.id===saved)?saved:null;
+}
+
 function combatDefaultMax(ch,key){
   const v=Number(ch?.currentStats?.[key]??ch?.initialStats?.[key]??1);
   return Math.max(50,(Number.isFinite(v)?v:1)*50);
@@ -1138,7 +1170,7 @@ async function loadCombatStates(campaignId){
 }
 async function ensureCombatStates(campaignId){
   if(!isAdmin)return loadCombatStates(campaignId);
-  const ids=campaignCharacterIds(campaignId);
+  const ids=selectedCombatZoneId?combatZoneCharacterIds(campaignId,selectedCombatZoneId):campaignCharacterIds(campaignId);
   await loadCombatStates(campaignId);
   const existing=new Set(combatStates.map(s=>s.character_id));
   const rows=ids.filter(id=>!existing.has(id)).map(id=>{
@@ -1154,8 +1186,11 @@ function renderCombat(){
   back.classList.toggle('hidden',!selectedCombatCampaignId);
   if(!currentUser){root.innerHTML='<div class="auth-required"><b>Iniciá sesión para entrar a Combate.</b><br><br>Las salas de combate son compartidas entre todos los jugadores.</div>';return}
   if(selectedCombatCampaignId){
-    if(campaigns.some(c=>c.id===selectedCombatCampaignId)){renderCombatCampaign(selectedCombatCampaignId);return}
-    selectedCombatCampaignId=null;localStorage.removeItem('jjk-combat-campaign');
+    if(campaigns.some(c=>c.id===selectedCombatCampaignId)){
+      if(!selectedCombatZoneId)restoreCombatZone(selectedCombatCampaignId);
+      renderCombatCampaign(selectedCombatCampaignId);return
+    }
+    selectedCombatCampaignId=null;selectedCombatZoneId=null;localStorage.removeItem('jjk-combat-campaign');
   }
   if(!campaigns.length){root.innerHTML='<div class="empty-characters"><b>No hay campañas disponibles.</b></div>';return}
   root.innerHTML='<div class="combat-campaign-grid">'+campaigns.map(c=>{
@@ -1166,13 +1201,21 @@ function renderCombat(){
 async function enterCombatCampaign(id){
   selectedCombatCampaignId=id;
   localStorage.setItem('jjk-combat-campaign',id);
+  restoreCombatZone(id);
+  selectedCombatMapId=null;
+  localStorage.removeItem('jjk-combat-map');
   renderCombat();
 }
-document.getElementById('combat-back').onclick=()=>{selectedCombatCampaignId=null;localStorage.removeItem('jjk-combat-campaign');localStorage.removeItem('jjk-combat-map');combatStates=[];combatRolls=[];combatMaps=[];combatMapTokens=[];selectedCombatMapId=null;if(combatRollChannel){sb.removeChannel(combatRollChannel);combatRollChannel=null}if(combatMapChannel){sb.removeChannel(combatMapChannel);combatMapChannel=null}renderCombat()};
+document.getElementById('combat-back').onclick=()=>{selectedCombatCampaignId=null;selectedCombatZoneId=null;localStorage.removeItem('jjk-combat-campaign');localStorage.removeItem('jjk-combat-map');combatStates=[];combatRolls=[];combatMaps=[];combatMapTokens=[];selectedCombatMapId=null;if(combatRollChannel){sb.removeChannel(combatRollChannel);combatRollChannel=null}if(combatMapChannel){sb.removeChannel(combatMapChannel);combatMapChannel=null}renderCombat()};
 
 async function renderCombatCampaign(campaignId){
   const root=document.getElementById('combat-root'),camp=campaigns.find(c=>c.id===campaignId);
-  if(!camp){selectedCombatCampaignId=null;localStorage.removeItem('jjk-combat-campaign');localStorage.removeItem('jjk-combat-map');renderCombat();return}
+  if(!camp){selectedCombatCampaignId=null;selectedCombatZoneId=null;localStorage.removeItem('jjk-combat-campaign');localStorage.removeItem('jjk-combat-map');renderCombat();return}
+  const zones=sharedZones.filter(z=>z.campaign_id===campaignId);
+  if(selectedCombatZoneId&&!zones.some(z=>z.id===selectedCombatZoneId)){
+    selectedCombatZoneId=null;
+    localStorage.removeItem('jjk-combat-zone-'+campaignId);
+  }
   root.innerHTML='<div class="empty-characters">Cargando combate de <b>'+esc(camp.name)+'</b>...</div>';
   try{
     await ensureCombatStates(campaignId);
@@ -1184,16 +1227,39 @@ async function renderCombatCampaign(campaignId){
     root.innerHTML='<div class="empty-characters">No pude cargar el estado de combate.</div>';
     return;
   }
-  const ids=campaignCharacterIds(campaignId);
-  let chars=ids.map(id=>allCharacters.find(c=>c.id===id)).filter(Boolean);
-  if(!isAdmin)chars=chars.filter(ch=>combatStates.find(s=>s.character_id===ch.id)?.visible!==false);
-  const roster=chars.length?'<div class="combat-roster" id="combat-roster">'+chars.map(ch=>combatCharacterHtml(campaignId,ch)).join('')+'</div>':'<div class="empty-characters"><b>'+esc(camp.name)+'</b><br><br>No hay personajes visibles en esta campaña.</div>';
-  root.innerHTML='<div style="margin-bottom:14px"><h3 style="margin:0">'+esc(camp.name)+'</h3><div class="muted">'+chars.length+' personaje(s) en combate'+(isAdmin?' · controles de GM activos':'')+'</div></div>'+
+
+  const zoneOptions=zones.map(z=>'<option value="'+z.id+'" '+(z.id===selectedCombatZoneId?'selected':'')+'>'+esc(z.name)+'</option>').join('');
+  const zoneSelector='<div class="combat-zone-selector"><label>Zona de combate</label><select onchange="selectCombatZone(\''+campaignId+'\',this.value)"><option value="">Elegir zona...</option>'+zoneOptions+'</select></div>';
+
+  let chars=[];
+  if(selectedCombatZoneId){
+    const ids=combatZoneCharacterIds(campaignId,selectedCombatZoneId);
+    chars=ids.map(id=>allCharacters.find(c=>c.id===id)).filter(Boolean);
+    if(!isAdmin)chars=chars.filter(ch=>combatStates.find(s=>s.character_id===ch.id)?.visible!==false);
+  }
+
+  const roster=selectedCombatZoneId
+    ?(chars.length?'<div class="combat-roster" id="combat-roster">'+chars.map(ch=>combatCharacterHtml(campaignId,ch)).join('')+'</div>':'<div class="empty-characters">No hay personajes en esta zona.</div>')
+    :'<div class="empty-characters"><b>Elegí la zona donde se está peleando.</b><br><br>Los personajes y mapas se cargarán según esa zona.</div>';
+
+  const zoneName=selectedCombatZoneId?(zones.find(z=>z.id===selectedCombatZoneId)?.name||'Zona'):'Sin zona elegida';
+  root.innerHTML='<div style="margin-bottom:14px;display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap"><div><h3 style="margin:0">'+esc(camp.name)+'</h3><div class="muted">'+esc(zoneName)+' · '+chars.length+' personaje(s)'+(isAdmin?' · controles de GM activos':'')+'</div></div>'+zoneSelector+'</div>'+
     '<div class="combat-layout"><div>'+roster+'</div>'+combatRollChatHtml(campaignId)+'</div>'+
     combatMapSectionHtml(campaignId);
+
   chars.forEach(ch=>updateCombatBars(ch.id));
   scrollRollChat();
   await renderActiveCombatMap(campaignId);
+}
+async function selectCombatZone(campaignId,zoneId){
+  selectedCombatZoneId=zoneId||null;
+  if(selectedCombatZoneId)localStorage.setItem('jjk-combat-zone-'+campaignId,selectedCombatZoneId);
+  else localStorage.removeItem('jjk-combat-zone-'+campaignId);
+  selectedCombatMapId=null;
+  localStorage.removeItem('jjk-combat-map');
+  combatStates=[];
+  combatMapTokens=[];
+  renderCombatCampaign(campaignId);
 }
 function combatStatAbbr(name){
   const map={
@@ -1522,20 +1588,22 @@ async function loadCombatMaps(campaignId){
   const {data,error}=await sb.from('combat_maps').select('*').eq('campaign_id',campaignId).order('created_at',{ascending:true});
   if(error)throw error;
   combatMaps=(data||[]).map(m=>({...m,image:mapImageUrl(m.image_path)}));
-  if(selectedCombatMapId&&!combatMaps.some(m=>m.id===selectedCombatMapId)){selectedCombatMapId=null;localStorage.removeItem('jjk-combat-map')}
-  if(!selectedCombatMapId&&combatMaps.length){selectedCombatMapId=combatMaps[0].id;localStorage.setItem('jjk-combat-map',selectedCombatMapId)}
+  const eligible=selectedCombatZoneId?combatMaps.filter(m=>!m.zone_id||m.zone_id===selectedCombatZoneId):[];
+  if(selectedCombatMapId&&!eligible.some(m=>m.id===selectedCombatMapId)){selectedCombatMapId=null;localStorage.removeItem('jjk-combat-map')}
+  if(!selectedCombatMapId&&eligible.length){selectedCombatMapId=eligible[0].id;localStorage.setItem('jjk-combat-map',selectedCombatMapId)}
 }
 function combatMapSectionHtml(campaignId){
   const campZones=sharedZones.filter(z=>z.campaign_id===campaignId);
-  const mapOptions=combatMaps.map(m=>{
+  const eligibleMaps=selectedCombatZoneId?combatMaps.filter(m=>!m.zone_id||m.zone_id===selectedCombatZoneId):[];
+  const mapOptions=eligibleMaps.map(m=>{
     const z=sharedZones.find(x=>x.id===m.zone_id);
     return '<option value="'+m.id+'" '+(m.id===selectedCombatMapId?'selected':'')+'>'+esc(m.name)+(z?' — '+esc(z.name):'')+'</option>';
   }).join('');
   const zoneOptions=campZones.map(z=>'<option value="'+z.id+'">'+esc(z.name)+'</option>').join('');
   return '<section class="combat-map-section">'+
-    '<div class="combat-map-head"><div><h3>Mapa táctico</h3><div class="muted">Solo se carga el mapa activo.</div></div>'+
+    '<div class="combat-map-head"><div><h3>Mapa táctico</h3><div class="muted">'+(selectedCombatZoneId?'Mapas de la zona activa.':'Elegí una zona arriba para cargar el mapa.')+'</div></div>'+
       '<div class="combat-map-tools">'+
-        (combatMaps.length?'<select id="combat-map-select" onchange="selectCombatMap(\''+campaignId+'\',this.value)">'+mapOptions+'</select>':'')+
+        (eligibleMaps.length?'<select id="combat-map-select" onchange="selectCombatMap(\''+campaignId+'\',this.value)">'+mapOptions+'</select>':'')+
         '<button class="secondary" id="map-ruler-btn" onclick="toggleMapRuler()">📏 Regla</button>'+
       '</div>'+
     '</div>'+
@@ -1610,8 +1678,18 @@ async function loadCombatMapTokens(mapId){
 }
 async function ensureCombatMapTokens(map){
   await loadCombatMapTokens(map.id);
-  if(!isAdmin)return;
-  const ids=mapCharacterIds(map),existing=new Set(combatMapTokens.map(t=>t.character_id));
+  const ids=mapCharacterIds(map);
+  if(!isAdmin){
+    combatMapTokens=combatMapTokens.filter(t=>ids.includes(t.character_id));
+    return;
+  }
+  const stale=combatMapTokens.filter(t=>!ids.includes(t.character_id)).map(t=>t.id);
+  if(stale.length){
+    const {error:de}=await sb.from('combat_map_tokens').delete().in('id',stale);
+    if(de)throw de;
+    combatMapTokens=combatMapTokens.filter(t=>ids.includes(t.character_id));
+  }
+  const existing=new Set(combatMapTokens.map(t=>t.character_id));
   const missing=ids.filter(id=>!existing.has(id));
   if(missing.length){
     const rows=missing.map((id,i)=>({map_id:map.id,character_id:id,x_pct:12+(i%7)*11,y_pct:15+Math.floor(i/7)*13,size_pct:5,updated_at:new Date().toISOString()}));
@@ -1628,7 +1706,7 @@ function combatTokenHtml(token){
 }
 async function renderActiveCombatMap(campaignId){
   const root=document.getElementById('combat-map-root');if(!root)return;
-  const map=combatMaps.find(m=>m.id===selectedCombatMapId);
+  const map=selectedCombatZoneId?combatMaps.find(m=>m.id===selectedCombatMapId&&(!m.zone_id||m.zone_id===selectedCombatZoneId)):null;
   if(!map){
     root.innerHTML='<div class="map-empty">'+(isAdmin?'Todavía no hay mapas. Subí uno arriba.':'El GM todavía no cargó un mapa para esta campaña.')+'</div>';
     if(combatMapChannel){sb.removeChannel(combatMapChannel);combatMapChannel=null}
