@@ -27,6 +27,22 @@
 .dice-overlay{position:fixed;inset:0;background:radial-gradient(circle at center,rgba(44,18,72,.38),rgba(5,5,10,.78));display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(3px)}.dice-overlay.hidden{display:none}.d20-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;perspective:900px}.d20-stage{position:relative;display:flex;align-items:center;justify-content:center}.d20-glow{position:absolute;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.34),rgba(124,58,237,.08) 55%,transparent 72%);filter:blur(6px);opacity:.8;animation:glowPulse 1.4s ease-in-out infinite}.d20{position:relative;width:132px;height:132px;clip-path:polygon(50% 0%,95% 28%,82% 88%,18% 88%,5% 28%);background:linear-gradient(145deg,#3a1d5a,#8b5cf6 48%,#4c1d95 72%,#1c1230);display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:900;color:white;box-shadow:0 22px 50px rgba(0,0,0,.52),0 0 36px rgba(124,58,237,.52);transform-style:preserve-3d;border:2px solid rgba(221,214,254,.9);text-shadow:0 2px 8px rgba(0,0,0,.65)}.d20:before,.d20:after{content:"";position:absolute;inset:14px;clip-path:polygon(50% 0%,95% 28%,82% 88%,18% 88%,5% 28%);border:1px solid rgba(255,255,255,.22)}.d20:after{inset:29px;border-color:rgba(255,255,255,.12)}.d20.rolling{animation:d20EpicRoll 1.8s cubic-bezier(.16,.84,.27,1)}.d20.resolved{animation:d20Land .42s ease-out}.d20.crit20{background:linear-gradient(145deg,#5b3b00,#f59e0b 48%,#fde68a 68%,#78350f);box-shadow:0 0 55px rgba(245,158,11,.85),0 26px 60px rgba(0,0,0,.5)}.d20.crit1{background:linear-gradient(145deg,#3f0d12,#991b1b 48%,#ef4444 68%,#2b0709);box-shadow:0 0 48px rgba(239,68,68,.72),0 26px 60px rgba(0,0,0,.5)}.d20-label{font-size:13px;color:#ede9fe;font-weight:800;letter-spacing:.02em;text-shadow:0 1px 6px rgba(0,0,0,.7)}.dice-result-burst{position:absolute;width:18px;height:18px;border-radius:50%;background:white;opacity:0;box-shadow:0 0 22px 8px rgba(255,255,255,.7)}.dice-result-burst.show{animation:resultBurst .5s ease-out}.dice-crit-text{font-size:15px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;opacity:0;transform:translateY(4px)}.dice-crit-text.show{animation:critText .6s ease-out forwards}@keyframes d20EpicRoll{0%{transform:translateY(-20px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(.72)}18%{transform:translateY(-34px) rotateX(160deg) rotateY(120deg) rotateZ(90deg) scale(1.03)}42%{transform:translateY(-16px) rotateX(330deg) rotateY(270deg) rotateZ(190deg) scale(.98)}68%{transform:translateY(-6px) rotateX(500deg) rotateY(430deg) rotateZ(315deg) scale(1.05)}88%{transform:translateY(5px) rotateX(650deg) rotateY(590deg) rotateZ(345deg) scale(.97)}100%{transform:translateY(0) rotateX(720deg) rotateY(720deg) rotateZ(360deg) scale(1)}}@keyframes d20Land{0%{transform:scale(1.08) translateY(-2px)}55%{transform:scale(.94) translateY(3px)}100%{transform:scale(1) translateY(0)}}@keyframes glowPulse{0%,100%{transform:scale(.92);opacity:.52}50%{transform:scale(1.08);opacity:.9}}@keyframes resultBurst{0%{opacity:.95;transform:scale(.4)}100%{opacity:0;transform:scale(7)}}@keyframes critText{0%{opacity:0;transform:translateY(6px) scale(.9)}100%{opacity:1;transform:translateY(0) scale(1)}}
 
 .technique-box{margin-top:14px;padding:12px;border:1px solid var(--border);border-radius:12px;background:#101018}.technique-box h4{margin:0 0 8px}.technique-use-list{display:grid;gap:8px;margin-top:8px}.technique-use-item{border:1px solid #2d2d3a;border-radius:9px;padding:9px;background:#0e0e15}.technique-use-row{display:grid;grid-template-columns:1.1fr 1fr 1.4fr auto;gap:8px;align-items:end}.technique-use-row input,.technique-use-row select,.technique-use-row textarea{width:100%}.technique-use-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.combat-technique-box{margin-top:8px;padding-top:8px;border-top:1px solid #2b2b39}.combat-technique-title{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:6px}.combat-technique-desc{font-size:11px;color:var(--muted);margin-bottom:7px}.combat-technique-actions{display:flex;gap:6px;flex-wrap:wrap}.combat-technique-btn{font-size:11px;padding:6px 9px}.technique-count{font-size:11px;color:var(--muted)}@media(max-width:720px){.technique-use-row{grid-template-columns:1fr}.combat-technique-actions{display:grid;grid-template-columns:1fr 1fr}}
+
+.combat-char-head{cursor:pointer}
+.combat-quick-menu{margin-top:8px;border-top:1px solid #2b2b39;padding-top:8px}
+.combat-quick-nav{display:flex;gap:7px;justify-content:center}
+.combat-quick-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:78px;padding:7px 10px;background:#14141d;border:1px solid #323242;border-radius:9px;color:var(--text);font-size:10px}
+.combat-quick-tab .qicon{font-size:18px;line-height:1}
+.combat-quick-tab.active{border-color:#7c3aed;background:#1b1530}
+.combat-quick-panel{margin-top:8px;padding:9px;background:#0f0f16;border:1px solid #2d2d3a;border-radius:9px}
+.combat-quick-panel.hidden{display:none}
+.quick-tech-desc{font-size:11px;color:var(--muted);line-height:1.45}
+.quick-action-list{display:flex;gap:6px;flex-wrap:wrap}
+.quick-passive-list{display:grid;gap:6px}
+.quick-passive-item{padding:7px 8px;border:1px solid #292938;border-radius:8px;background:#101018}
+.quick-passive-item b{font-size:11px}
+.quick-passive-item div{font-size:10px;color:var(--muted);margin-top:2px}
+@media(max-width:720px){.combat-quick-nav{justify-content:flex-start;overflow-x:auto}.combat-quick-tab{min-width:72px}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 </head>
@@ -1099,22 +1115,56 @@ function combatCharacterHtml(campaignId,ch){
   const resource=(label,prefix,cur,max)=>'<div class="combat-resource"><div class="combat-resource-top"><b>'+label+'</b><span id="'+prefix+'-text-'+ch.id+'">'+cur+' / '+max+'</span></div><div class="combat-bar"><div class="combat-bar-fill" id="'+prefix+'-bar-'+ch.id+'"></div></div>'+(canEditCombat?'<input type="range" id="'+prefix+'-range-'+ch.id+'" min="0" max="'+max+'" value="'+Math.min(cur,max)+'" oninput="combatRangeInput(\''+ch.id+'\',\''+prefix+'\')"><div class="combat-number-row"><input type="number" min="0" id="'+prefix+'-current-'+ch.id+'" value="'+cur+'" oninput="combatNumberInput(\''+ch.id+'\',\''+prefix+'\')"><span>/</span><input type="number" min="1" id="'+prefix+'-max-'+ch.id+'" value="'+max+'" oninput="combatMaxInput(\''+ch.id+'\',\''+prefix+'\')"></div>':'')+'</div>';
   const statsHtml=stats.map(([n,v])=>{
     const num=Number(v),rollable=canRoll&&Number.isFinite(num);
-    return '<div class="combat-stat '+(rollable?'rollable':'')+'" '+(rollable?'onclick="rollCombatStat(\''+campaignId+'\',\''+ch.id+'\',\''+esc(n)+'\','+num+')"':'')+'>'+esc(n)+'<b>'+esc(String(v))+'</b>'+(rollable?'<small>Click: 1d20 + '+num+'</small>':'')+'</div>';
+    return '<div class="combat-stat '+(rollable?'rollable':'')+'" '+(rollable?'onclick="event.stopPropagation();rollCombatStat(\''+campaignId+'\',\''+ch.id+'\',\''+esc(n)+'\','+num+')"':'')+'>'+esc(combatStatAbbr(n))+'<b>'+esc(String(v))+'</b>'+(rollable?'<small>d20+'+num+'</small>':'')+'</div>';
   }).join('');
-  return '<article class="combat-char '+(!s.visible?'combat-hidden-card':'')+'" id="combat-char-'+ch.id+'"><div class="combat-char-head">'+(ch.photo?'<img class="combat-avatar" src="'+ch.photo+'" alt="">':'<div class="combat-avatar">術</div>')+'<div class="combat-char-title"><h3>'+esc(ch.sorcererName)+'</h3><div class="muted">'+esc(ch.userName)+' · '+esc(ch.grade||'Sin grado')+'</div></div><span class="visibility-pill '+(s.visible?'on':'')+'">'+(s.visible?'Visible':'Oculto')+'</span></div><div class="combat-bars">'+resource('Vida','hp',s.hp_current,s.hp_max)+resource('Energía Maldita','ce',s.ce_current,s.ce_max)+resource('Durabilidad','du',s.durability_current,s.durability_max)+'</div><div class="combat-stats">'+statsHtml+'</div>'+combatTechniqueHtml(campaignId,ch,canRoll)+(canEditCombat?'<div class="combat-admin-row">'+(isAdmin?'<button class="secondary" onclick="toggleCombatVisibility(\''+campaignId+'\',\''+ch.id+'\')">'+(s.visible?'Ocultar personaje':'Mostrar personaje')+'</button>':'')+'<button onclick="saveCombatCharacterState(\''+campaignId+'\',\''+ch.id+'\')">Guardar barras</button></div>':'')+'</article>';
+  return '<article class="combat-char '+(!s.visible?'combat-hidden-card':'')+'" id="combat-char-'+ch.id+'">'+
+    '<div class="combat-char-head" onclick="toggleCombatQuickMenu(\''+ch.id+'\')">'+
+      (ch.photo?'<img class="combat-avatar" src="'+ch.photo+'" alt="">':'<div class="combat-avatar">術</div>')+
+      '<div class="combat-char-title"><h3>'+esc(ch.sorcererName)+'</h3><div class="muted">'+esc(ch.userName)+' · '+esc(ch.grade||'Sin grado')+'</div></div>'+
+      '<span class="visibility-pill '+(s.visible?'on':'')+'">'+(s.visible?'Visible':'Oculto')+'</span>'+
+    '</div>'+
+    '<div class="combat-bars" onclick="event.stopPropagation()">'+resource('Vida','hp',s.hp_current,s.hp_max)+resource('Energía Maldita','ce',s.ce_current,s.ce_max)+resource('Durabilidad','du',s.durability_current,s.durability_max)+'</div>'+
+    '<div class="combat-stats">'+statsHtml+'</div>'+
+    combatQuickMenuHtml(campaignId,ch,canRoll)+
+    (canEditCombat?'<div class="combat-admin-row" onclick="event.stopPropagation()">'+(isAdmin?'<button class="secondary" onclick="toggleCombatVisibility(\''+campaignId+'\',\''+ch.id+'\')">'+(s.visible?'Ocultar personaje':'Mostrar personaje')+'</button>':'')+'<button onclick="saveCombatCharacterState(\''+campaignId+'\',\''+ch.id+'\')">Guardar barras</button></div>':'')+
+  '</article>';
 }
 function techniqueStatValue(ch,stat){
   if(stat==='Control EM')return Number(ch.control||0);
   return Number(ch.currentStats?.[stat]??ch.initialStats?.[stat]??0);
 }
-function combatTechniqueHtml(campaignId,ch,canRoll){
+function combatQuickMenuHtml(campaignId,ch,canRoll){
   const actions=Array.isArray(ch.techniqueActions)?ch.techniqueActions:[];
-  if(!actions.length&&!ch.techniqueDescription)return '';
-  const buttons=actions.map((a,i)=>{
+  const passives=Array.isArray(ch.passives)?ch.passives:[];
+  const actionButtons=actions.length?actions.map((a,i)=>{
     const bonus=techniqueStatValue(ch,a.stat||'Energía Maldita');
-    return '<button class="combat-technique-btn" '+(canRoll?'onclick="rollTechniqueAction(\''+campaignId+'\',\''+ch.id+'\','+i+')"':'disabled')+'>'+esc(a.name)+' · d20+'+bonus+'</button>';
-  }).join('');
-  return '<div class="combat-technique-box"><div class="combat-technique-title"><b>Técnica</b><span class="technique-count">'+actions.length+' uso(s)</span></div>'+(ch.techniqueDescription?'<div class="combat-technique-desc">'+esc(ch.techniqueDescription)+'</div>':'')+'<div class="combat-technique-actions">'+buttons+'</div></div>';
+    return '<button class="combat-technique-btn" '+(canRoll?'onclick="event.stopPropagation();rollTechniqueAction(\''+campaignId+'\',\''+ch.id+'\','+i+')"':'disabled')+'>'+esc(a.name)+' · d20+'+bonus+'</button>';
+  }).join(''):'<span class="muted">Sin acciones configuradas.</span>';
+  const passiveHtml=passives.length?passives.map(p=>'<div class="quick-passive-item"><b>'+esc((p.category?p.category+' — ':'')+(p.name||'Pasiva'))+'</b>'+(p.description?'<div>'+esc(p.description)+'</div>':'')+'</div>').join(''):'<span class="muted">Sin pasivas.</span>';
+  return '<div class="combat-quick-menu hidden" id="quick-menu-'+ch.id+'" onclick="event.stopPropagation()">'+
+    '<div class="combat-quick-nav">'+
+      '<button class="combat-quick-tab active" id="quick-tab-tech-'+ch.id+'" onclick="showCombatQuickTab(\''+ch.id+'\',\'tech\')"><span class="qicon">✦</span><span>Técnica</span></button>'+
+      '<button class="combat-quick-tab" id="quick-tab-actions-'+ch.id+'" onclick="showCombatQuickTab(\''+ch.id+'\',\'actions\')"><span class="qicon">⚡</span><span>Acciones</span></button>'+
+      '<button class="combat-quick-tab" id="quick-tab-passives-'+ch.id+'" onclick="showCombatQuickTab(\''+ch.id+'\',\'passives\')"><span class="qicon">◈</span><span>Pasivas</span></button>'+
+    '</div>'+
+    '<div class="combat-quick-panel" id="quick-panel-tech-'+ch.id+'">'+
+      (ch.techniqueDescription?'<div class="quick-tech-desc">'+esc(ch.techniqueDescription)+'</div>':'<div class="muted">Sin descripción de técnica.</div>')+
+    '</div>'+
+    '<div class="combat-quick-panel hidden" id="quick-panel-actions-'+ch.id+'"><div class="quick-action-list">'+actionButtons+'</div></div>'+
+    '<div class="combat-quick-panel hidden" id="quick-panel-passives-'+ch.id+'"><div class="quick-passive-list">'+passiveHtml+'</div></div>'+
+  '</div>';
+}
+function toggleCombatQuickMenu(charId){
+  const menu=document.getElementById('quick-menu-'+charId);if(!menu)return;
+  menu.classList.toggle('hidden');
+}
+function showCombatQuickTab(charId,tab){
+  ['tech','actions','passives'].forEach(t=>{
+    const btn=document.getElementById('quick-tab-'+t+'-'+charId);
+    const panel=document.getElementById('quick-panel-'+t+'-'+charId);
+    if(btn)btn.classList.toggle('active',t===tab);
+    if(panel)panel.classList.toggle('hidden',t!==tab);
+  });
 }
 async function rollTechniqueAction(campaignId,charId,index){
   const ch=allCharacters.find(c=>c.id===charId);if(!ch)return;
