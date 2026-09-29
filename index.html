@@ -106,6 +106,10 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
 #roulette-section{max-width:1100px;margin-left:auto;margin-right:auto}
 #roulette-section .wheel{width:min(100%,480px)!important;max-width:100%!important}
 #roulette-section canvas{max-width:100%;display:block}
+
+.combat-quick-subtract{display:flex;gap:4px;margin-top:4px}
+.combat-quick-subtract input{min-width:0;width:100%;padding:4px 5px!important;font-size:10px!important;background:#0d0d14;color:var(--text);border:1px solid #343443;border-radius:6px}
+.combat-quick-subtract button{flex:0 0 auto;padding:4px 7px!important;font-size:9px!important;border-radius:6px!important;background:#3a1f2a}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 </head>
@@ -1204,7 +1208,7 @@ function combatCharacterHtml(campaignId,ch){
   const stats=[...statNames.map(n=>[n,ch.currentStats?.[n]??ch.initialStats?.[n]??'—']),['Control EM',ch.control??'—']];
   const canEditCombat=isAdmin||ch.owner_id===currentUser?.id;
   const canRoll=canEditCombat;
-  const resource=(label,prefix,cur,max)=>'<div class="combat-resource"><div class="combat-resource-top"><b>'+label+'</b><span id="'+prefix+'-text-'+ch.id+'">'+cur+' / '+max+'</span></div><div class="combat-bar"><div class="combat-bar-fill" id="'+prefix+'-bar-'+ch.id+'"></div></div>'+(canEditCombat?'<input type="range" id="'+prefix+'-range-'+ch.id+'" min="0" max="'+max+'" value="'+Math.min(cur,max)+'" oninput="combatRangeInput(\''+ch.id+'\',\''+prefix+'\')"><div class="combat-number-row"><input type="number" min="0" id="'+prefix+'-current-'+ch.id+'" value="'+cur+'" oninput="combatNumberInput(\''+ch.id+'\',\''+prefix+'\')"><span>/</span><input type="number" min="1" id="'+prefix+'-max-'+ch.id+'" value="'+max+'" oninput="combatMaxInput(\''+ch.id+'\',\''+prefix+'\')"></div>':'')+'</div>';
+  const resource=(label,prefix,cur,max)=>'<div class="combat-resource"><div class="combat-resource-top"><b>'+label+'</b><span id="'+prefix+'-text-'+ch.id+'">'+cur+' / '+max+'</span></div><div class="combat-bar"><div class="combat-bar-fill" id="'+prefix+'-bar-'+ch.id+'"></div></div>'+(canEditCombat?'<input type="range" id="'+prefix+'-range-'+ch.id+'" min="0" max="'+max+'" value="'+Math.min(cur,max)+'" oninput="combatRangeInput(\''+ch.id+'\',\''+prefix+'\')"><div class="combat-number-row"><input type="number" min="0" id="'+prefix+'-current-'+ch.id+'" value="'+cur+'" oninput="combatNumberInput(\''+ch.id+'\',\''+prefix+'\')"><span>/</span><input type="number" min="1" id="'+prefix+'-max-'+ch.id+'" value="'+max+'" oninput="combatMaxInput(\''+ch.id+'\',\''+prefix+'\')"></div><div class="combat-quick-subtract"><input type="number" min="0" step="1" id="'+prefix+'-subtract-'+ch.id+'" placeholder="Restar"><button onclick="quickSubtractCombatResource(\''+campaignId+'\',\''+ch.id+'\',\''+prefix+'\')">− Restar</button></div>':'')+'</div>';
   const statsHtml=stats.map(([n,v])=>{
     const num=Number(v),rollable=canRoll&&Number.isFinite(num);
     return '<div class="combat-stat '+(rollable?'rollable':'')+'" '+(rollable?'onclick="event.stopPropagation();rollCombatStat(\''+campaignId+'\',\''+ch.id+'\',\''+esc(n)+'\','+num+')"':'')+'>'+esc(combatStatAbbr(n))+'<b>'+esc(String(v))+'</b>'+(rollable?'<small>d20+'+num+'</small>':'')+'</div>';
@@ -1452,6 +1456,39 @@ function combatNumberInput(charId,prefix){
 function combatMaxInput(charId,prefix){
   const m=document.getElementById(prefix+'-max-'+charId),r=document.getElementById(prefix+'-range-'+charId);if(m&&r)r.max=Math.max(1,Number(m.value||1));updateCombatBars(charId)
 }
+async function quickSubtractCombatResource(campaignId,charId,prefix){
+  const ch=allCharacters.find(c=>c.id===charId);
+  if(!ch||(!isAdmin&&ch.owner_id!==currentUser?.id))return;
+  const amountInput=document.getElementById(prefix+'-subtract-'+charId);
+  const amount=Math.max(0,Number(amountInput?.value||0));
+  if(!Number.isFinite(amount)||amount<=0){toast('Ingresá un valor mayor a 0 para restar.');return}
+
+  const state=combatStateByChar(charId);if(!state)return;
+  const map={
+    hp:['hp_current','Vida'],
+    ce:['ce_current','Energía Maldita'],
+    du:['durability_current','Durabilidad']
+  };
+  const cfg=map[prefix];if(!cfg)return;
+  const [field,label]=cfg;
+
+  const currentInput=document.getElementById(prefix+'-current-'+charId);
+  const current=Math.max(0,Number(currentInput?.value??state[field]??0));
+  const next=Math.max(0,current-amount);
+
+  const {error}=await sb.from('combat_states')
+    .update({[field]:next,updated_at:new Date().toISOString()})
+    .eq('campaign_id',campaignId)
+    .eq('character_id',charId);
+  if(error){toast(error.message);return}
+
+  state[field]=next;
+  if(currentInput)currentInput.value=next;
+  if(amountInput)amountInput.value='';
+  updateCombatBarsFromState(charId);
+  toast(label+': '+current+' − '+amount+' = '+next);
+}
+
 async function saveCombatCharacterState(campaignId,charId){
   const ch=allCharacters.find(c=>c.id===charId);
   if(!ch||(!isAdmin&&ch.owner_id!==currentUser?.id))return;
