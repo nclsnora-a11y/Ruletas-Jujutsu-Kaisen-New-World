@@ -25,6 +25,8 @@
 .combat-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}.roll-chat{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;position:sticky;top:12px}.roll-chat-head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px;align-items:center}.roll-chat-list{max-height:620px;overflow:auto;padding:10px;display:grid;gap:8px}.roll-msg{background:#101018;border:1px solid #292938;border-radius:10px;padding:9px}.roll-msg-top{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--muted);margin-bottom:4px}.roll-msg-main{font-size:13px}.roll-total{font-size:18px;font-weight:900;margin-left:4px}.combat-stat.rollable{cursor:pointer;transition:.15s ease}.combat-stat.rollable:hover{transform:translateY(-1px);border-color:#7c3aed;background:#171326}.combat-stat.rollable:active{transform:translateY(0)}.combat-stat small{display:block;color:var(--muted);margin-top:4px;font-size:10px}.roll-empty{padding:18px;text-align:center;color:var(--muted)}@media(max-width:900px){.combat-layout{grid-template-columns:1fr}.roll-chat{position:static}.roll-chat-list{max-height:330px}}
 
 .dice-overlay{position:fixed;inset:0;background:radial-gradient(circle at center,rgba(44,18,72,.38),rgba(5,5,10,.78));display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(3px)}.dice-overlay.hidden{display:none}.d20-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;perspective:900px}.d20-stage{position:relative;display:flex;align-items:center;justify-content:center}.d20-glow{position:absolute;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.34),rgba(124,58,237,.08) 55%,transparent 72%);filter:blur(6px);opacity:.8;animation:glowPulse 1.4s ease-in-out infinite}.d20{position:relative;width:132px;height:132px;clip-path:polygon(50% 0%,95% 28%,82% 88%,18% 88%,5% 28%);background:linear-gradient(145deg,#3a1d5a,#8b5cf6 48%,#4c1d95 72%,#1c1230);display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:900;color:white;box-shadow:0 22px 50px rgba(0,0,0,.52),0 0 36px rgba(124,58,237,.52);transform-style:preserve-3d;border:2px solid rgba(221,214,254,.9);text-shadow:0 2px 8px rgba(0,0,0,.65)}.d20:before,.d20:after{content:"";position:absolute;inset:14px;clip-path:polygon(50% 0%,95% 28%,82% 88%,18% 88%,5% 28%);border:1px solid rgba(255,255,255,.22)}.d20:after{inset:29px;border-color:rgba(255,255,255,.12)}.d20.rolling{animation:d20EpicRoll 1.8s cubic-bezier(.16,.84,.27,1)}.d20.resolved{animation:d20Land .42s ease-out}.d20.crit20{background:linear-gradient(145deg,#5b3b00,#f59e0b 48%,#fde68a 68%,#78350f);box-shadow:0 0 55px rgba(245,158,11,.85),0 26px 60px rgba(0,0,0,.5)}.d20.crit1{background:linear-gradient(145deg,#3f0d12,#991b1b 48%,#ef4444 68%,#2b0709);box-shadow:0 0 48px rgba(239,68,68,.72),0 26px 60px rgba(0,0,0,.5)}.d20-label{font-size:13px;color:#ede9fe;font-weight:800;letter-spacing:.02em;text-shadow:0 1px 6px rgba(0,0,0,.7)}.dice-result-burst{position:absolute;width:18px;height:18px;border-radius:50%;background:white;opacity:0;box-shadow:0 0 22px 8px rgba(255,255,255,.7)}.dice-result-burst.show{animation:resultBurst .5s ease-out}.dice-crit-text{font-size:15px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;opacity:0;transform:translateY(4px)}.dice-crit-text.show{animation:critText .6s ease-out forwards}@keyframes d20EpicRoll{0%{transform:translateY(-20px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(.72)}18%{transform:translateY(-34px) rotateX(160deg) rotateY(120deg) rotateZ(90deg) scale(1.03)}42%{transform:translateY(-16px) rotateX(330deg) rotateY(270deg) rotateZ(190deg) scale(.98)}68%{transform:translateY(-6px) rotateX(500deg) rotateY(430deg) rotateZ(315deg) scale(1.05)}88%{transform:translateY(5px) rotateX(650deg) rotateY(590deg) rotateZ(345deg) scale(.97)}100%{transform:translateY(0) rotateX(720deg) rotateY(720deg) rotateZ(360deg) scale(1)}}@keyframes d20Land{0%{transform:scale(1.08) translateY(-2px)}55%{transform:scale(.94) translateY(3px)}100%{transform:scale(1) translateY(0)}}@keyframes glowPulse{0%,100%{transform:scale(.92);opacity:.52}50%{transform:scale(1.08);opacity:.9}}@keyframes resultBurst{0%{opacity:.95;transform:scale(.4)}100%{opacity:0;transform:scale(7)}}@keyframes critText{0%{opacity:0;transform:translateY(6px) scale(.9)}100%{opacity:1;transform:translateY(0) scale(1)}}
+
+.technique-box{margin-top:14px;padding:12px;border:1px solid var(--border);border-radius:12px;background:#101018}.technique-box h4{margin:0 0 8px}.technique-use-list{display:grid;gap:8px;margin-top:8px}.technique-use-item{border:1px solid #2d2d3a;border-radius:9px;padding:9px;background:#0e0e15}.technique-use-row{display:grid;grid-template-columns:1.1fr 1fr 1.4fr auto;gap:8px;align-items:end}.technique-use-row input,.technique-use-row select,.technique-use-row textarea{width:100%}.technique-use-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.combat-technique-box{margin-top:8px;padding-top:8px;border-top:1px solid #2b2b39}.combat-technique-title{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:6px}.combat-technique-desc{font-size:11px;color:var(--muted);margin-bottom:7px}.combat-technique-actions{display:flex;gap:6px;flex-wrap:wrap}.combat-technique-btn{font-size:11px;padding:6px 9px}.technique-count{font-size:11px;color:var(--muted)}@media(max-width:720px){.technique-use-row{grid-template-columns:1fr}.combat-technique-actions{display:grid;grid-template-columns:1fr 1fr}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 </head>
@@ -358,6 +360,7 @@ function characterCard(ch){
       <span>Total inicial</span><strong>${initialTotal}</strong>
       <span>Total actual</span><strong>${total}</strong>
       <span>Pasivas</span><strong>${ch.passives?.length||0}</strong>
+      <span>Usos de técnica</span><strong>${ch.techniqueActions?.length||0}</strong>
     </div>
     <div class="character-actions">
       <button onclick="toggleEditor('${esc(ch.id)}')">Editar</button>
@@ -391,6 +394,17 @@ function toggleEditor(id){
     </div>
     <h4>Estadísticas actuales</h4>
     <div class="editor-stats">${statsHtml}</div>
+    <div class="technique-box">
+      <h4>Técnica</h4>
+      <label>Descripción general de la técnica</label>
+      <textarea id="tech-desc-${id}" placeholder="Explicá qué hace la técnica, sus reglas y su funcionamiento.">${esc(ch.techniqueDescription||'')}</textarea>
+      <div class="technique-use-list" id="tech-use-list-${id}">
+        ${(ch.techniqueActions||[]).map((a,i)=>techniqueUseEditorHtml(id,a,i)).join('')||'<div class="muted">Todavía no agregaste usos de técnica.</div>'}
+      </div>
+      <div class="character-actions" style="margin-top:8px">
+        <button type="button" class="secondary" onclick="addTechniqueUseEditor('${id}')">+ Agregar uso</button>
+      </div>
+    </div>
     <h4>Pasivas</h4>
     <div id="edit-passives-${id}">${passivesHtml}</div>
     <div class="editor-grid" style="margin-top:10px">
@@ -404,6 +418,40 @@ function toggleEditor(id){
       <button class="secondary" onclick="toggleEditor('${id}')">Cerrar</button>
     </div>`;
   el.classList.remove('hidden');
+}
+function techniqueStatOptions(current){
+  return statNames.concat(['Control EM']).map(n=>'<option value="'+esc(n)+'" '+(n===current?'selected':'')+'>'+esc(n)+'</option>').join('');
+}
+function techniqueUseEditorHtml(id,a,i){
+  a=a||{};
+  return '<div class="technique-use-item" id="tech-use-'+id+'-'+i+'"><div class="technique-use-row">'+
+    '<div><label>Nombre del uso</label><input id="tech-use-'+id+'-'+i+'-name" value="'+esc(a.name||'')+'" placeholder="Ej: Disparo"></div>'+
+    '<div><label>Tirada con</label><select id="tech-use-'+id+'-'+i+'-stat">'+techniqueStatOptions(a.stat||'Energía Maldita')+'</select></div>'+
+    '<div><label>Descripción</label><textarea id="tech-use-'+id+'-'+i+'-desc" placeholder="Qué hace este uso">'+esc(a.description||'')+'</textarea></div>'+
+    '<div><button type="button" class="secondary danger" onclick="removeTechniqueUseEditor(\''+id+'\','+i+')">Quitar</button></div>'+
+    '</div></div>';
+}
+function collectTechniqueUses(id){
+  const list=document.getElementById('tech-use-list-'+id);
+  if(!list)return [];
+  const rows=[...list.querySelectorAll('.technique-use-item')];
+  return rows.map(row=>{
+    const parts=row.id.split('-'),i=parts[parts.length-1];
+    return {
+      name:(document.getElementById('tech-use-'+id+'-'+i+'-name')?.value||'').trim(),
+      stat:document.getElementById('tech-use-'+id+'-'+i+'-stat')?.value||'Energía Maldita',
+      description:(document.getElementById('tech-use-'+id+'-'+i+'-desc')?.value||'').trim()
+    };
+  }).filter(a=>a.name);
+}
+function addTechniqueUseEditor(id){
+  const list=document.getElementById('tech-use-list-'+id);if(!list)return;
+  const count=list.querySelectorAll('.technique-use-item').length;
+  if(!count)list.innerHTML='';
+  list.insertAdjacentHTML('beforeend',techniqueUseEditorHtml(id,{name:'',stat:'Energía Maldita',description:''},count));
+}
+function removeTechniqueUseEditor(id,index){
+  const el=document.getElementById('tech-use-'+id+'-'+index);if(el)el.remove();
 }
 async function resizeCharacterPhoto(file){
   return new Promise((resolve,reject)=>{
@@ -614,7 +662,7 @@ function normalizeCharacter(r){
   return {
     id:r.id,owner_id:r.owner_id,sorcererName:r.sorcerer_name,userName:r.user_name||'—',
     initialStats:r.initial_stats||{},currentStats:r.current_stats||{},type:r.technique_type||null,
-    grade:r.grade||null,control:r.control_em==null?null:String(r.control_em),passives:r.passives||[],
+    grade:r.grade||null,control:r.control_em==null?null:String(r.control_em),passives:r.passives||[],techniqueDescription:r.technique_description||'',techniqueActions:Array.isArray(r.technique_actions)?r.technique_actions:[],
     photo_path:r.photo_path||null,photo:imageUrl(r.photo_path),createdAt:r.created_at
   };
 }
@@ -843,7 +891,7 @@ zoneHtmlFor=function(c,z){
  if(old){const btn=old.cloneNode(true);old.replaceWith(btn);btn.onclick=async()=>{
    if(!currentUser){toast('Iniciá sesión para guardar el personaje.');return}
    const ch=makeCharacterFromSheet();
-   const payload={owner_id:currentUser.id,sorcerer_name:ch.sorcererName,user_name:ch.userName,initial_stats:ch.initialStats,current_stats:ch.currentStats,technique_type:ch.type,grade:ch.grade,control_em:ch.control?Number(ch.control):null,passives:ch.passives};
+   const payload={owner_id:currentUser.id,sorcerer_name:ch.sorcererName,user_name:ch.userName,initial_stats:ch.initialStats,current_stats:ch.currentStats,technique_type:ch.type,grade:ch.grade,control_em:ch.control?Number(ch.control):null,passives:ch.passives,technique_description:'',technique_actions:[]};
    const {error}=await sb.from('characters').insert(payload);if(error){toast(error.message);return}
    await loadSharedData();toast('Personaje guardado y sincronizado.');
  }}
@@ -858,7 +906,7 @@ saveCharacterEdit=async function(id){
   if(photoInput?.files?.[0]){
     try{photoPath=await uploadInputFile(photoInput.files[0],currentUser.id+'/characters/'+id+'.jpg')}catch(e){toast('No pude subir la foto.');return}
   }
-  const payload={sorcerer_name:document.getElementById('edit-'+id+'-name').value.trim()||'Hechicero sin nombre',user_name:document.getElementById('edit-'+id+'-user').value.trim()||'—',technique_type:document.getElementById('edit-'+id+'-type').value||null,grade:document.getElementById('edit-'+id+'-grade').value||null,control_em:document.getElementById('edit-'+id+'-control').value?Number(document.getElementById('edit-'+id+'-control').value):null,current_stats:currentStats,photo_path:photoPath,updated_at:new Date().toISOString()};
+  const payload={sorcerer_name:document.getElementById('edit-'+id+'-name').value.trim()||'Hechicero sin nombre',user_name:document.getElementById('edit-'+id+'-user').value.trim()||'—',technique_type:document.getElementById('edit-'+id+'-type').value||null,grade:document.getElementById('edit-'+id+'-grade').value||null,control_em:document.getElementById('edit-'+id+'-control').value?Number(document.getElementById('edit-'+id+'-control').value):null,current_stats:currentStats,technique_description:document.getElementById('tech-desc-'+id)?.value.trim()||'',technique_actions:collectTechniqueUses(id),photo_path:photoPath,updated_at:new Date().toISOString()};
   const {error}=await sb.from('characters').update(payload).eq('id',id);if(error){toast(error.message);return}
   await loadSharedData();toast('Cambios guardados y sincronizados.');
 };
@@ -947,7 +995,7 @@ document.getElementById('migrate-local').onclick=async()=>{
   try{
     for(const ch of localChars){
       let path=null;
-      const {data,error}=await sb.from('characters').insert({owner_id:currentUser.id,sorcerer_name:ch.sorcererName||'Hechicero sin nombre',user_name:ch.userName||'—',initial_stats:ch.initialStats||{},current_stats:ch.currentStats||ch.initialStats||{},technique_type:ch.type||null,grade:ch.grade||null,control_em:ch.control?Number(ch.control):null,passives:ch.passives||[]}).select().single();
+      const {data,error}=await sb.from('characters').insert({owner_id:currentUser.id,sorcerer_name:ch.sorcererName||'Hechicero sin nombre',user_name:ch.userName||'—',initial_stats:ch.initialStats||{},current_stats:ch.currentStats||ch.initialStats||{},technique_type:ch.type||null,grade:ch.grade||null,control_em:ch.control?Number(ch.control):null,passives:ch.passives||[],technique_description:ch.techniqueDescription||'',technique_actions:ch.techniqueActions||[]}).select().single();
       if(error)throw error;idMap[ch.id]=data.id;
       if(ch.photo?.startsWith('data:')){path=await uploadDataUrl(ch.photo,currentUser.id+'/characters/'+data.id+'.jpg');await sb.from('characters').update({photo_path:path}).eq('id',data.id)}
     }
@@ -1053,7 +1101,33 @@ function combatCharacterHtml(campaignId,ch){
     const num=Number(v),rollable=canRoll&&Number.isFinite(num);
     return '<div class="combat-stat '+(rollable?'rollable':'')+'" '+(rollable?'onclick="rollCombatStat(\''+campaignId+'\',\''+ch.id+'\',\''+esc(n)+'\','+num+')"':'')+'>'+esc(n)+'<b>'+esc(String(v))+'</b>'+(rollable?'<small>Click: 1d20 + '+num+'</small>':'')+'</div>';
   }).join('');
-  return '<article class="combat-char '+(!s.visible?'combat-hidden-card':'')+'" id="combat-char-'+ch.id+'"><div class="combat-char-head">'+(ch.photo?'<img class="combat-avatar" src="'+ch.photo+'" alt="">':'<div class="combat-avatar">術</div>')+'<div class="combat-char-title"><h3>'+esc(ch.sorcererName)+'</h3><div class="muted">'+esc(ch.userName)+' · '+esc(ch.grade||'Sin grado')+'</div></div><span class="visibility-pill '+(s.visible?'on':'')+'">'+(s.visible?'Visible':'Oculto')+'</span></div><div class="combat-bars">'+resource('Vida','hp',s.hp_current,s.hp_max)+resource('Energía Maldita','ce',s.ce_current,s.ce_max)+resource('Durabilidad','du',s.durability_current,s.durability_max)+'</div><div class="combat-stats">'+statsHtml+'</div>'+(canEditCombat?'<div class="combat-admin-row">'+(isAdmin?'<button class="secondary" onclick="toggleCombatVisibility(\''+campaignId+'\',\''+ch.id+'\')">'+(s.visible?'Ocultar personaje':'Mostrar personaje')+'</button>':'')+'<button onclick="saveCombatCharacterState(\''+campaignId+'\',\''+ch.id+'\')">Guardar barras</button></div>':'')+'</article>';
+  return '<article class="combat-char '+(!s.visible?'combat-hidden-card':'')+'" id="combat-char-'+ch.id+'"><div class="combat-char-head">'+(ch.photo?'<img class="combat-avatar" src="'+ch.photo+'" alt="">':'<div class="combat-avatar">術</div>')+'<div class="combat-char-title"><h3>'+esc(ch.sorcererName)+'</h3><div class="muted">'+esc(ch.userName)+' · '+esc(ch.grade||'Sin grado')+'</div></div><span class="visibility-pill '+(s.visible?'on':'')+'">'+(s.visible?'Visible':'Oculto')+'</span></div><div class="combat-bars">'+resource('Vida','hp',s.hp_current,s.hp_max)+resource('Energía Maldita','ce',s.ce_current,s.ce_max)+resource('Durabilidad','du',s.durability_current,s.durability_max)+'</div><div class="combat-stats">'+statsHtml+'</div>'+combatTechniqueHtml(campaignId,ch,canRoll)+(canEditCombat?'<div class="combat-admin-row">'+(isAdmin?'<button class="secondary" onclick="toggleCombatVisibility(\''+campaignId+'\',\''+ch.id+'\')">'+(s.visible?'Ocultar personaje':'Mostrar personaje')+'</button>':'')+'<button onclick="saveCombatCharacterState(\''+campaignId+'\',\''+ch.id+'\')">Guardar barras</button></div>':'')+'</article>';
+}
+function techniqueStatValue(ch,stat){
+  if(stat==='Control EM')return Number(ch.control||0);
+  return Number(ch.currentStats?.[stat]??ch.initialStats?.[stat]??0);
+}
+function combatTechniqueHtml(campaignId,ch,canRoll){
+  const actions=Array.isArray(ch.techniqueActions)?ch.techniqueActions:[];
+  if(!actions.length&&!ch.techniqueDescription)return '';
+  const buttons=actions.map((a,i)=>{
+    const bonus=techniqueStatValue(ch,a.stat||'Energía Maldita');
+    return '<button class="combat-technique-btn" '+(canRoll?'onclick="rollTechniqueAction(\''+campaignId+'\',\''+ch.id+'\','+i+')"':'disabled')+'>'+esc(a.name)+' · d20+'+bonus+'</button>';
+  }).join('');
+  return '<div class="combat-technique-box"><div class="combat-technique-title"><b>Técnica</b><span class="technique-count">'+actions.length+' uso(s)</span></div>'+(ch.techniqueDescription?'<div class="combat-technique-desc">'+esc(ch.techniqueDescription)+'</div>':'')+'<div class="combat-technique-actions">'+buttons+'</div></div>';
+}
+async function rollTechniqueAction(campaignId,charId,index){
+  const ch=allCharacters.find(c=>c.id===charId);if(!ch)return;
+  if(!isAdmin&&ch.owner_id!==currentUser?.id){toast('Solo podés usar técnicas de tus personajes.');return}
+  const action=(ch.techniqueActions||[])[index];if(!action)return;
+  const bonus=techniqueStatValue(ch,action.stat||'Energía Maldita');
+  const die=Math.floor(Math.random()*20)+1,total=die+bonus;
+  await animateD20(die,ch.sorcererName,action.name);
+  const {error}=await sb.from('combat_rolls').insert({
+    campaign_id:campaignId,character_id:charId,rolled_by:currentUser.id,
+    stat_name:'Técnica · '+action.name,die_result:die,stat_bonus:bonus,total
+  });
+  if(error)toast(error.message);
 }
 async function loadCombatRolls(campaignId){
   const {data,error}=await sb.from('combat_rolls').select('*').eq('campaign_id',campaignId).order('created_at',{ascending:true}).limit(100);
