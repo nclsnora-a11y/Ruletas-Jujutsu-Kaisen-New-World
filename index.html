@@ -11,6 +11,7 @@
 .toast{position:fixed;right:18px;bottom:18px;background:#232334;border:1px solid #44445a;color:#fff;padding:11px 14px;border-radius:10px;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s;z-index:99}.toast.show{opacity:1;transform:none}
 .top-nav{max-width:1100px;margin:0 auto;padding:14px 24px 0;display:flex;gap:10px}.top-nav button{flex:none;padding:11px 18px;background:#232330}.top-nav button.active{background:linear-gradient(135deg,var(--accent),var(--accent2))}.hidden{display:none!important}
 .characters-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}.characters-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}.character-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px}.character-card h3{margin:0 0 4px;font-size:21px}.character-top{display:flex;gap:12px;align-items:center;margin-bottom:10px}.character-avatar{width:74px;height:74px;border-radius:14px;object-fit:cover;border:1px solid #3a3a4b;background:#0d0d14;flex:none}.character-avatar.placeholder{display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#7f7f91}.photo-preview{width:120px;height:120px;border-radius:14px;object-fit:cover;border:1px solid #3a3a4b;background:#0d0d14;display:block;margin:8px 0}.photo-note{font-size:11px;color:var(--muted);margin-top:5px}.character-meta{color:var(--muted);font-size:13px;margin-bottom:12px}.character-summary{display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:13px}.character-summary strong{text-align:right}.character-actions{display:flex;gap:8px;margin-top:14px}.character-actions button{padding:9px}.danger{background:#3a171d!important}.editor{margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}.editor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.editor label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.editor input,.editor select,.editor textarea{width:100%;background:#0f0f16;color:var(--text);border:1px solid #343443;border-radius:8px;padding:9px}.editor textarea{min-height:70px;resize:vertical}.editor-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.editor-stat{background:#101018;border:1px solid #292938;border-radius:8px;padding:8px}.editor-stat small{display:block;color:var(--muted);margin-bottom:4px}.initial-note{font-size:11px;color:#9c9cac;margin-top:3px}.passive-edit{display:flex;gap:8px;align-items:flex-start;padding:8px;background:#101018;border:1px solid #292938;border-radius:8px;margin-top:7px}.passive-edit div{flex:1}.passive-edit button{flex:none;padding:7px 9px}.empty-characters{padding:30px;text-align:center;background:var(--panel);border:1px dashed #3c3c4c;border-radius:16px;color:var(--muted)}
+.campaigns-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}.campaigns-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}.campaign-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px}.campaign-card h3{margin:0 0 6px}.campaign-meta{font-size:13px;color:var(--muted);margin-bottom:12px}.campaign-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.campaign-actions button{flex:none}.campaign-panel{margin-top:14px;border-top:1px solid var(--border);padding-top:14px}.zone-card{background:#101018;border:1px solid #292938;border-radius:10px;padding:10px;margin-top:8px}.zone-head{display:flex;justify-content:space-between;gap:10px;align-items:center}.zone-players{display:grid;gap:7px;margin-top:8px}.zone-player{display:flex;align-items:center;gap:9px;background:#171722;border:1px solid #292938;border-radius:8px;padding:8px}.zone-player img,.zone-player .mini-avatar{width:42px;height:42px;border-radius:9px;object-fit:cover;background:#0d0d14;border:1px solid #3a3a4b;display:flex;align-items:center;justify-content:center;font-weight:900}.zone-player .zp-main{flex:1}.zone-player .zp-main b{display:block}.campaign-form{display:grid;grid-template-columns:1fr auto;gap:10px;margin:10px 0}.campaign-form input,.campaign-form select{background:#0f0f16;color:var(--text);border:1px solid #343443;border-radius:9px;padding:10px}.campaign-form button{flex:none}.campaign-note{font-size:12px;color:var(--muted);margin-top:8px}
 @media(max-width:720px){main{padding:16px}.top-nav{padding:12px 16px 0}.grid{grid-template-columns:1fr}.sheet-actions{width:100%}.sheet-actions button{flex:1}.editor-grid,.editor-stats{grid-template-columns:1fr}}
 </style>
 </head>
@@ -19,6 +20,7 @@
 <div class="top-nav">
   <button id="nav-roulette" class="active">Ruletas</button>
   <button id="nav-characters">Mis personajes</button>
+  <button id="nav-campaigns">Campañas</button>
 </div>
 <main>
 <section id="roulette-section">
@@ -149,6 +151,23 @@
   </div>
   <div id="characters-list"></div>
 </section>
+<section id="campaigns-section" class="hidden">
+  <div class="campaigns-head">
+    <div>
+      <h2 style="margin:0 0 5px">Campañas</h2>
+      <div class="muted">Creá campañas, dividilas en zonas y agregá personajes guardados.</div>
+    </div>
+  </div>
+  <div class="sheet-card">
+    <h3 style="margin-top:0">Crear campaña</h3>
+    <div class="campaign-form">
+      <input id="new-campaign-name" placeholder="Ej: Shibuya">
+      <button id="create-campaign">Crear campaña</button>
+    </div>
+    <div class="campaign-note">Por ahora las campañas se guardan en este dispositivo, igual que los personajes. Los permisos reales los podremos agregar cuando conectemos una base de datos/login.</div>
+  </div>
+  <div id="campaigns-list"></div>
+</section>
 </main>
 <div class="toast" id="toast">Ficha copiada.</div>
 <script>
@@ -219,16 +238,20 @@ function saveCharacters(){localStorage.setItem(CHARACTERS_KEY,JSON.stringify(sav
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function characterTotal(stats){return Object.values(stats||{}).reduce((a,v)=>a+(Number(v)||0),0)}
 function showTab(tab){
-  const roulette=tab==='roulette';
+  const roulette=tab==='roulette',characters=tab==='characters',campaigns=tab==='campaigns';
   document.getElementById('roulette-section').classList.toggle('hidden',!roulette);
-  document.getElementById('characters-section').classList.toggle('hidden',roulette);
+  document.getElementById('characters-section').classList.toggle('hidden',!characters);
+  document.getElementById('campaigns-section').classList.toggle('hidden',!campaigns);
   document.getElementById('nav-roulette').classList.toggle('active',roulette);
-  document.getElementById('nav-characters').classList.toggle('active',!roulette);
-  if(!roulette)renderCharacters();
+  document.getElementById('nav-characters').classList.toggle('active',characters);
+  document.getElementById('nav-campaigns').classList.toggle('active',campaigns);
+  if(characters)renderCharacters();
+  if(campaigns)renderCampaigns();
   localStorage.setItem('jjk-active-tab',tab);
 }
 document.getElementById('nav-roulette').addEventListener('click',()=>showTab('roulette'));
 document.getElementById('nav-characters').addEventListener('click',()=>showTab('characters'));
+document.getElementById('nav-campaigns').addEventListener('click',()=>showTab('campaigns'));
 
 function makeCharacterFromSheet(){
   return {
@@ -367,7 +390,86 @@ function addPassive(id){
   ch.passives=ch.passives||[];ch.passives.push({category:cat,name,description:desc});saveCharacters();renderCharacters();setTimeout(()=>toggleEditor(id),0);toast('Pasiva agregada.');
 }
 renderCharacters();
-if(localStorage.getItem('jjk-active-tab')==='characters')showTab('characters');
+
+const CAMPAIGNS_KEY='jjk-campaigns';
+let campaigns=[];
+try{campaigns=JSON.parse(localStorage.getItem(CAMPAIGNS_KEY)||'[]');if(!Array.isArray(campaigns))campaigns=[]}catch(e){campaigns=[]}
+function saveCampaigns(){localStorage.setItem(CAMPAIGNS_KEY,JSON.stringify(campaigns))}
+function campaignById(id){return campaigns.find(c=>c.id===id)}
+function totalCampaignCharacters(c){const ids=new Set();(c.zones||[]).forEach(z=>(z.characterIds||[]).forEach(id=>ids.add(id)));return ids.size}
+function renderCampaigns(){
+  const root=document.getElementById('campaigns-list');
+  if(!campaigns.length){root.innerHTML='<div class="empty-characters"><b>No hay campañas todavía.</b><br><br>Creá la primera arriba, por ejemplo <b>Shibuya</b>.</div>';return}
+  root.innerHTML='<div class="campaigns-grid">'+campaigns.map(c=>campaignCard(c)).join('')+'</div>';
+}
+function campaignCard(c){
+  return `<article class="campaign-card" id="campaign-${esc(c.id)}">
+    <h3>${esc(c.name)}</h3>
+    <div class="campaign-meta">${(c.zones||[]).length} zona(s) · ${totalCampaignCharacters(c)} personaje(s)</div>
+    <div class="campaign-actions">
+      <button onclick="toggleCampaign('\${c.id}')">Abrir</button>
+      <button class="secondary danger" onclick="deleteCampaign('\${c.id}')">Eliminar</button>
+    </div>
+    <div class="campaign-panel hidden" id="campaign-panel-${esc(c.id)}"></div>
+  </article>`;
+}
+document.getElementById('create-campaign').addEventListener('click',()=>{
+  const input=document.getElementById('new-campaign-name'),name=input.value.trim();
+  if(!name){toast('Escribí un nombre para la campaña.');return}
+  campaigns.unshift({id:'camp-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),name,zones:[],createdAt:new Date().toISOString()});
+  saveCampaigns();input.value='';renderCampaigns();toast('Campaña creada.');
+});
+function toggleCampaign(id){
+  const c=campaignById(id);if(!c)return;
+  const el=document.getElementById('campaign-panel-'+id);
+  if(!el.classList.contains('hidden')){el.classList.add('hidden');return}
+  el.innerHTML=campaignPanelHtml(c);el.classList.remove('hidden');
+}
+function campaignPanelHtml(c){
+  const zoneHtml=(c.zones||[]).map(z=>zoneHtmlFor(c,z)).join('')||'<div class="muted">Todavía no hay zonas.</div>';
+  return `
+    <h4 style="margin:0 0 8px">Crear zona</h4>
+    <div class="campaign-form"><input id="zone-name-${c.id}" placeholder="Ej: Primera zona"><button onclick="addZone('${c.id}')">Agregar zona</button></div>
+    <div id="zones-${c.id}">${zoneHtml}</div>`;
+}
+function addZone(campaignId){
+  const c=campaignById(campaignId),input=document.getElementById('zone-name-'+campaignId);if(!c||!input)return;
+  const name=input.value.trim();if(!name){toast('Escribí un nombre para la zona.');return}
+  c.zones=c.zones||[];c.zones.push({id:'zone-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),name,characterIds:[]});
+  saveCampaigns();renderCampaigns();setTimeout(()=>toggleCampaign(campaignId),0);toast('Zona creada.');
+}
+function zoneHtmlFor(c,z){
+  const available=savedCharacters.filter(ch=>!(z.characterIds||[]).includes(ch.id));
+  const options=available.map(ch=>'<option value="'+esc(ch.id)+'">'+esc(ch.sorcererName)+' — '+esc(ch.userName)+'</option>').join('');
+  const players=(z.characterIds||[]).map(id=>savedCharacters.find(ch=>ch.id===id)).filter(Boolean);
+  const playersHtml=players.length?players.map(ch=>`<div class="zone-player">${ch.photo?'<img src="'+ch.photo+'" alt="">':'<div class="mini-avatar">術</div>'}<div class="zp-main"><b>${esc(ch.sorcererName)}</b><span class="muted">Usuario: ${esc(ch.userName)} · ${esc(ch.grade||'Sin grado')}</span></div><button class="secondary danger" onclick="removeCharacterFromZone('${c.id}','${z.id}','${ch.id}')">Quitar</button></div>`).join(''):'<div class="muted">Sin personajes en esta zona.</div>';
+  return `<div class="zone-card">
+    <div class="zone-head"><b>${esc(z.name)}</b><button class="secondary danger" onclick="deleteZone('${c.id}','${z.id}')">Eliminar zona</button></div>
+    <div class="campaign-form"><select id="addchar-${z.id}"><option value="">Seleccionar personaje...</option>${options}</select><button onclick="addCharacterToZone('${c.id}','${z.id}')">Agregar personaje</button></div>
+    <div class="zone-players">${playersHtml}</div>
+  </div>`;
+}
+function addCharacterToZone(campaignId,zoneId){
+  const c=campaignById(campaignId),z=c?.zones?.find(z=>z.id===zoneId),sel=document.getElementById('addchar-'+zoneId);
+  if(!z||!sel||!sel.value){toast('Elegí un personaje.');return}
+  z.characterIds=z.characterIds||[];if(!z.characterIds.includes(sel.value))z.characterIds.push(sel.value);
+  saveCampaigns();renderCampaigns();setTimeout(()=>toggleCampaign(campaignId),0);toast('Personaje agregado a la zona.');
+}
+function removeCharacterFromZone(campaignId,zoneId,charId){
+  const c=campaignById(campaignId),z=c?.zones?.find(z=>z.id===zoneId);if(!z)return;
+  z.characterIds=(z.characterIds||[]).filter(id=>id!==charId);saveCampaigns();renderCampaigns();setTimeout(()=>toggleCampaign(campaignId),0);toast('Personaje quitado de la zona.');
+}
+function deleteZone(campaignId,zoneId){
+  if(!confirm('¿Eliminar esta zona?'))return;
+  const c=campaignById(campaignId);if(!c)return;c.zones=(c.zones||[]).filter(z=>z.id!==zoneId);saveCampaigns();renderCampaigns();setTimeout(()=>toggleCampaign(campaignId),0);toast('Zona eliminada.');
+}
+function deleteCampaign(id){
+  if(!confirm('¿Eliminar esta campaña y sus zonas?'))return;
+  campaigns=campaigns.filter(c=>c.id!==id);saveCampaigns();renderCampaigns();toast('Campaña eliminada.');
+}
+renderCampaigns();
+const activeTab=localStorage.getItem('jjk-active-tab');
+if(activeTab==='characters')showTab('characters'); else if(activeTab==='campaigns')showTab('campaigns');
 
 function pick(c){const total=c.weights.reduce((a,b)=>a+b,0);let r=Math.random()*total;for(let i=0;i<c.values.length;i++){if(r<c.weights[i])return i;r-=c.weights[i]}return c.values.length-1}
 function angleCenter(c,idx){const total=c.weights.reduce((a,b)=>a+b,0);let before=0;for(let i=0;i<idx;i++)before+=c.weights[i];return ((before+c.weights[idx]/2)/total)*360}
