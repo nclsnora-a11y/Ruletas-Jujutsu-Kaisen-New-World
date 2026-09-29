@@ -60,6 +60,22 @@
 </div>
 <h3>Historial</h3><div class="chips" id="history-grade"></div>
 </section>
+
+<section class="card" id="card-control">
+<h2>Control de Energía Maldita 1–5</h2>
+<p class="muted">Todos los niveles tienen exactamente 20% de probabilidad.</p>
+<div class="wheel"><div class="pointer"></div><canvas id="canvas-control" width="700" height="700"></canvas></div>
+<div class="actions"><button id="spin-control">Girar ruleta</button><button class="secondary" id="clear-control">Limpiar</button></div>
+<div class="result" id="result-control">Resultado: —</div>
+<div class="legend">
+<span>Control 1</span><span>20%</span>
+<span>Control 2</span><span>20%</span>
+<span>Control 3</span><span>20%</span>
+<span>Control 4</span><span>20%</span>
+<span>Control 5</span><span>20%</span>
+</div>
+<h3>Historial</h3><div class="chips" id="history-control"></div>
+</section>
 </div>
 </main>
 <script>
@@ -67,9 +83,10 @@ const colors=['#ef4444','#f97316','#f59e0b','#eab308','#84cc16','#22c55e','#14b8
 const configs={
 stats:{values:['1','2','3','4','5','6','7','8','9','10'],weights:[10,10,10,10,10,10,10,10,10,10],canvas:'canvas-stats',spin:'spin-stats',clear:'clear-stats',result:'result-stats',history:'history-stats'},
 type:{values:['Potenciación','Invocación','Creación','Control','Soporte','Marca','Técnica Existente','Restricción Celestial','Extraordinaria'],weights:[90/7,90/7,90/7,90/7,90/7,90/7,90/7,7,3],canvas:'canvas-type',spin:'spin-type',clear:'clear-type',result:'result-type',history:'history-type'},
-grade:{values:['Grado 4','Semigrado 4','Grado 3','Semigrado 3','Grado 2','Semigrado 2','Grado 1','Grado Especial'],weights:[32,22,16,11,8,5,4,2],canvas:'canvas-grade',spin:'spin-grade',clear:'clear-grade',result:'result-grade',history:'history-grade'}
+grade:{values:['Grado 4','Semigrado 4','Grado 3','Semigrado 3','Grado 2','Semigrado 2','Grado 1','Grado Especial'],weights:[32,22,16,11,8,5,4,2],canvas:'canvas-grade',spin:'spin-grade',clear:'clear-grade',result:'result-grade',history:'history-grade'},
+control:{values:['1','2','3','4','5'],weights:[20,20,20,20,20],canvas:'canvas-control',spin:'spin-control',clear:'clear-control',result:'result-control',history:'history-control'}
 };
-const states={stats:{rot:0,busy:false,h:[]},type:{rot:0,busy:false,h:[]},grade:{rot:0,busy:false,h:[]}};
+const states={stats:{rot:0,busy:false,h:[]},type:{rot:0,busy:false,h:[]},grade:{rot:0,busy:false,h:[]},control:{rot:0,busy:false,h:[]}};
 function pick(c){const total=c.weights.reduce((a,b)=>a+b,0);let r=Math.random()*total;for(let i=0;i<c.values.length;i++){if(r<c.weights[i])return i;r-=c.weights[i]}return c.values.length-1}
 function angleCenter(c,idx){const total=c.weights.reduce((a,b)=>a+b,0);let before=0;for(let i=0;i<idx;i++)before+=c.weights[i];return ((before+c.weights[idx]/2)/total)*360}
 function draw(key){const c=configs[key],s=states[key],cv=document.getElementById(c.canvas),x=cv.getContext('2d'),total=c.weights.reduce((a,b)=>a+b,0),R=300;x.clearRect(0,0,700,700);x.save();x.translate(350,350);x.rotate(s.rot);let acc=-Math.PI/2;for(let i=0;i<c.values.length;i++){const ang=c.weights[i]/total*Math.PI*2,a=acc,b=a+ang;x.beginPath();x.moveTo(0,0);x.arc(0,0,R,a,b);x.closePath();x.fillStyle=colors[i%colors.length];x.fill();x.strokeStyle='#fff';x.lineWidth=4;x.stroke();x.save();x.rotate(a+ang/2);x.textAlign='center';x.textBaseline='middle';x.fillStyle='#fff';x.font='bold 24px Arial';let label=c.values[i];if(key==='type'){const short=['Potenciación','Invocación','Creación','Control','Soporte','Marca','Téc. Existente','Restricción','Extraordinaria'];label=short[i]}if(key==='grade'){const short=['Grado 4','Semi 4','Grado 3','Semi 3','Grado 2','Semi 2','Grado 1','Especial'];label=short[i]}x.fillText(label,210,0);x.restore();acc=b}x.beginPath();x.arc(0,0,42,0,Math.PI*2);x.fillStyle='#111827';x.fill();x.restore()}
