@@ -43,6 +43,7 @@
 .quick-passive-item b{font-size:11px}
 .quick-passive-item div{font-size:10px;color:var(--muted);margin-top:2px}
 @media(max-width:720px){.combat-quick-nav{justify-content:flex-start;overflow-x:auto}.combat-quick-tab{min-width:72px}}
+.combat-char{transition:opacity .18s ease,transform .18s ease,border-color .18s ease}.combat-char.live-updated{border-color:#7c3aed}.combat-char.live-removing{opacity:0;transform:translateY(-6px)}.combat-bar-fill{transition:width .22s ease}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 </head>
@@ -1095,7 +1096,7 @@ async function renderCombatCampaign(campaignId){
   const ids=campaignCharacterIds(campaignId);
   let chars=ids.map(id=>allCharacters.find(c=>c.id===id)).filter(Boolean);
   if(!isAdmin)chars=chars.filter(ch=>combatStates.find(s=>s.character_id===ch.id)?.visible!==false);
-  const roster=chars.length?'<div class="combat-roster">'+chars.map(ch=>combatCharacterHtml(campaignId,ch)).join('')+'</div>':'<div class="empty-characters"><b>'+esc(camp.name)+'</b><br><br>No hay personajes visibles en esta campaña.</div>';
+  const roster=chars.length?'<div class="combat-roster" id="combat-roster">'+chars.map(ch=>combatCharacterHtml(campaignId,ch)).join('')+'</div>':'<div class="empty-characters"><b>'+esc(camp.name)+'</b><br><br>No hay personajes visibles en esta campaña.</div>';
   root.innerHTML='<div style="margin-bottom:14px"><h3 style="margin:0">'+esc(camp.name)+'</h3><div class="muted">'+chars.length+' personaje(s) en combate'+(isAdmin?' · controles de GM activos':'')+'</div></div>'+
     '<div class="combat-layout"><div>'+roster+'</div>'+combatRollChatHtml(campaignId)+'</div>';
   chars.forEach(ch=>updateCombatBars(ch.id));
@@ -1201,8 +1202,7 @@ async function rollTechniqueAction(campaignId,charId,index){
   });
   if(error){toast(error.message);return}
   if(cost>0){
-    await loadCombatStates(campaignId);
-    renderCombatCampaign(campaignId);
+    updateCombatBarsFromState(charId);
   }
 }
 async function loadCombatRolls(campaignId){
@@ -1281,7 +1281,7 @@ function animateD20(finalValue,charName,statName){
 
 function subscribeCombatRolls(campaignId){
   if(combatRollChannel){sb.removeChannel(combatRollChannel);combatRollChannel=null}
-  combatRollChannel=sb.channel('combat-rolls-'+campaignId)
+  combatRollChannel=sb.channel('combat-live-'+campaignId)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'combat_rolls',filter:'campaign_id=eq.'+campaignId},payload=>{
       const row=payload.new;
       if(!combatRolls.some(r=>r.id===row.id))combatRolls.push(row);
@@ -1291,7 +1291,54 @@ function subscribeCombatRolls(campaignId){
         list.insertAdjacentHTML('beforeend',combatRollMessageHtml(row));
         scrollRollChat();
       }
-    }).subscribe();
+    })
+    .on('postgres_changes',{event:'*',schema:'public',table:'combat_states',filter:'campaign_id=eq.'+campaignId},payload=>{
+      if(payload.new)syncCombatStateRow(payload.new);
+    })
+    .subscribe();
+}
+function syncCombatStateRow(row){
+  const idx=combatStates.findIndex(s=>s.character_id===row.character_id);
+  if(idx>=0)combatStates[idx]={...combatStates[idx],...row};else combatStates.push(row);
+  if(selectedCombatCampaignId!==row.campaign_id)return;
+  const ch=allCharacters.find(c=>c.id===row.character_id);
+  if(!ch)return;
+  const card=document.getElementById('combat-char-'+row.character_id);
+  if(!isAdmin&&row.visible===false){
+    if(card){card.classList.add('live-removing');setTimeout(()=>card.remove(),190)}
+    return;
+  }
+  if(!card&&row.visible!==false){
+    const roster=document.getElementById('combat-roster');
+    if(roster){roster.insertAdjacentHTML('beforeend',combatCharacterHtml(row.campaign_id,ch));updateCombatBarsFromState(row.character_id)}
+    return;
+  }
+  if(card){
+    const pill=card.querySelector('.visibility-pill');
+    if(pill){pill.textContent=row.visible?'Visible':'Oculto';pill.classList.toggle('on',!!row.visible)}
+    card.classList.toggle('combat-hidden-card',!row.visible);
+    updateCombatBarsFromState(row.character_id);
+    card.classList.add('live-updated');
+    setTimeout(()=>card.classList.remove('live-updated'),350);
+  }
+}
+function updateCombatBarsFromState(charId){
+  const s=combatStateByChar(charId);if(!s)return;
+  const defs=[['hp','hp_current','hp_max'],['ce','ce_current','ce_max'],['du','durability_current','durability_max']];
+  defs.forEach(([prefix,curKey,maxKey])=>{
+    const cur=Number(s[curKey]),max=Math.max(1,Number(s[maxKey]));
+    const active=document.activeElement;
+    const curInput=document.getElementById(prefix+'-current-'+charId);
+    const maxInput=document.getElementById(prefix+'-max-'+charId);
+    const range=document.getElementById(prefix+'-range-'+charId);
+    if(curInput&&active!==curInput)curInput.value=cur;
+    if(maxInput&&active!==maxInput)maxInput.value=max;
+    if(range&&active!==range){range.max=max;range.value=Math.min(cur,max)}
+    const bar=document.getElementById(prefix+'-bar-'+charId);
+    const txt=document.getElementById(prefix+'-text-'+charId);
+    if(bar)bar.style.width=Math.max(0,Math.min(100,(cur/max)*100))+'%';
+    if(txt)txt.textContent=cur+' / '+max;
+  });
 }
 function combatStateByChar(id){return combatStates.find(s=>s.character_id===id)}
 function updateCombatBars(charId){
@@ -1320,15 +1367,26 @@ async function saveCombatCharacterState(campaignId,charId){
   if(!ch||(!isAdmin&&ch.owner_id!==currentUser?.id))return;
   const val=(p,t)=>Math.max(t==='max'?1:0,Number(document.getElementById(p+'-'+t+'-'+charId)?.value||0));
   const payload={hp_current:val('hp','current'),hp_max:val('hp','max'),ce_current:val('ce','current'),ce_max:val('ce','max'),durability_current:val('du','current'),durability_max:val('du','max'),updated_at:new Date().toISOString()};
-  payload.hp_current=Math.min(payload.hp_current,payload.hp_max);payload.ce_current=Math.min(payload.ce_current,payload.ce_max);payload.durability_current=Math.min(payload.durability_current,payload.durability_max);
+  payload.hp_current=Math.min(payload.hp_current,payload.hp_max);
+  payload.ce_current=Math.min(payload.ce_current,payload.ce_max);
+  payload.durability_current=Math.min(payload.durability_current,payload.durability_max);
   const {error}=await sb.from('combat_states').update(payload).eq('campaign_id',campaignId).eq('character_id',charId);
-  if(error){toast(error.message);return}await loadCombatStates(campaignId);renderCombatCampaign(campaignId);toast('Estado de combate guardado.');
+  if(error){toast(error.message);return}
+  const s=combatStateByChar(charId);if(s)Object.assign(s,payload);
+  updateCombatBarsFromState(charId);
+  toast('Estado de combate guardado.');
 }
 async function toggleCombatVisibility(campaignId,charId){
-  if(!isAdmin)return;const s=combatStateByChar(charId);if(!s)return;
-  const {error}=await sb.from('combat_states').update({visible:!s.visible,updated_at:new Date().toISOString()}).eq('campaign_id',campaignId).eq('character_id',charId);
-  if(error){toast(error.message);return}await loadCombatStates(campaignId);renderCombatCampaign(campaignId);toast(!s.visible?'Personaje visible.':'Personaje oculto.');
+  if(!isAdmin)return;
+  const s=combatStateByChar(charId);if(!s)return;
+  const next=!s.visible;
+  const {error}=await sb.from('combat_states').update({visible:next,updated_at:new Date().toISOString()}).eq('campaign_id',campaignId).eq('character_id',charId);
+  if(error){toast(error.message);return}
+  s.visible=next;
+  syncCombatStateRow({...s,campaign_id:campaignId,character_id:charId,visible:next});
+  toast(next?'Personaje visible.':'Personaje oculto.');
 }
+
 
 initAuth();
 </script>
