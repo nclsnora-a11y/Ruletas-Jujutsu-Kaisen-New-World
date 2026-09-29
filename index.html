@@ -21,10 +21,11 @@
 <body>
 <header><h1>JJK New World</h1><div class="muted">Sistema de rol</div></header>
 <div class="top-nav">
+  <button id="nav-account">Cuenta</button>
   <button id="nav-roulette" class="active">Ruletas</button>
   <button id="nav-characters">Mis personajes</button>
   <button id="nav-campaigns">Campañas</button>
-  <button id="nav-account">Cuenta</button>
+  <button id="nav-combat">Combate</button>
 </div>
 <main>
 <section id="roulette-section">
@@ -176,6 +177,16 @@
   </div>
   <div id="campaigns-list"></div>
 </section>
+<section id="combat-section" class="hidden">
+  <div class="sheet-card">
+    <h2 style="margin-top:0">Combate</h2>
+    <div class="muted" style="margin-bottom:14px">Panel de combate de JJK New World.</div>
+    <div class="empty-characters">
+      <b>La sala de combate está preparada.</b><br><br>
+      Ahora vamos a definir qué datos, recursos, dados y acciones va a mostrar cada personaje dentro de una campaña.
+    </div>
+  </div>
+</section>
 <section id="account-section" class="hidden">
   <div class="sheet-card">
     <h2 style="margin-top:0">Cuenta</h2>
@@ -268,14 +279,16 @@ function saveCharacters(){localStorage.setItem(CHARACTERS_KEY,JSON.stringify(sav
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function characterTotal(stats){return Object.values(stats||{}).reduce((a,v)=>a+(Number(v)||0),0)}
 function showTab(tab){
-  const roulette=tab==='roulette',characters=tab==='characters',campaigns=tab==='campaigns',account=tab==='account';
+  const roulette=tab==='roulette',characters=tab==='characters',campaigns=tab==='campaigns',account=tab==='account',combat=tab==='combat';
   document.getElementById('roulette-section').classList.toggle('hidden',!roulette);
   document.getElementById('characters-section').classList.toggle('hidden',!characters);
   document.getElementById('campaigns-section').classList.toggle('hidden',!campaigns);
+  document.getElementById('combat-section').classList.toggle('hidden',!combat);
   document.getElementById('account-section').classList.toggle('hidden',!account);
   document.getElementById('nav-roulette').classList.toggle('active',roulette);
   document.getElementById('nav-characters').classList.toggle('active',characters);
   document.getElementById('nav-campaigns').classList.toggle('active',campaigns);
+  document.getElementById('nav-combat').classList.toggle('active',combat);
   document.getElementById('nav-account').classList.toggle('active',account);
   if(characters)renderCharacters();
   if(campaigns)renderCampaigns();
@@ -286,6 +299,7 @@ document.getElementById('nav-roulette').addEventListener('click',()=>showTab('ro
 document.getElementById('nav-characters').addEventListener('click',()=>showTab('characters'));
 document.getElementById('nav-campaigns').addEventListener('click',()=>showTab('campaigns'));
 document.getElementById('nav-account').addEventListener('click',()=>showTab('account'));
+document.getElementById('nav-combat').addEventListener('click',()=>showTab('combat'));
 
 function makeCharacterFromSheet(){
   return {
@@ -549,7 +563,7 @@ function deleteCampaign(id){
 }
 renderCampaigns();
 const activeTab=localStorage.getItem('jjk-active-tab');
-if(activeTab==='characters')showTab('characters'); else if(activeTab==='campaigns')showTab('campaigns'); else if(activeTab==='account')showTab('account');
+if(activeTab==='characters')showTab('characters'); else if(activeTab==='campaigns')showTab('campaigns'); else if(activeTab==='account')showTab('account'); else if(activeTab==='combat')showTab('combat');
 
 function pick(c){const total=c.weights.reduce((a,b)=>a+b,0);let r=Math.random()*total;for(let i=0;i<c.values.length;i++){if(r<c.weights[i])return i;r-=c.weights[i]}return c.values.length-1}
 function angleCenter(c,idx){const total=c.weights.reduce((a,b)=>a+b,0);let before=0;for(let i=0;i<idx;i++)before+=c.weights[i];return ((before+c.weights[idx]/2)/total)*360}
