@@ -1109,13 +1109,13 @@ document.getElementById('migrate-local').onclick=async()=>{
 };
 
 
-let selectedCombatCampaignId=null;
+let selectedCombatCampaignId=localStorage.getItem('jjk-combat-campaign')||null;
 let combatStates=[];
 let combatRolls=[];
 let combatRollChannel=null;
 let combatMaps=[];
 let combatMapTokens=[];
-let selectedCombatMapId=null;
+let selectedCombatMapId=localStorage.getItem('jjk-combat-map')||null;
 let combatMapChannel=null;
 let mapMeasureMode=false;
 
@@ -1149,7 +1149,10 @@ function renderCombat(){
   const root=document.getElementById('combat-root'),back=document.getElementById('combat-back');if(!root)return;
   back.classList.toggle('hidden',!selectedCombatCampaignId);
   if(!currentUser){root.innerHTML='<div class="auth-required"><b>Iniciá sesión para entrar a Combate.</b><br><br>Las salas de combate son compartidas entre todos los jugadores.</div>';return}
-  if(selectedCombatCampaignId){renderCombatCampaign(selectedCombatCampaignId);return}
+  if(selectedCombatCampaignId){
+    if(campaigns.some(c=>c.id===selectedCombatCampaignId)){renderCombatCampaign(selectedCombatCampaignId);return}
+    selectedCombatCampaignId=null;localStorage.removeItem('jjk-combat-campaign');
+  }
   if(!campaigns.length){root.innerHTML='<div class="empty-characters"><b>No hay campañas disponibles.</b></div>';return}
   root.innerHTML='<div class="combat-campaign-grid">'+campaigns.map(c=>{
     const chars=campaignCharacterIds(c.id).length;
@@ -1157,13 +1160,15 @@ function renderCombat(){
   }).join('')+'</div>';
 }
 async function enterCombatCampaign(id){
-  selectedCombatCampaignId=id;renderCombat();
+  selectedCombatCampaignId=id;
+  localStorage.setItem('jjk-combat-campaign',id);
+  renderCombat();
 }
-document.getElementById('combat-back').onclick=()=>{selectedCombatCampaignId=null;combatStates=[];combatRolls=[];combatMaps=[];combatMapTokens=[];selectedCombatMapId=null;if(combatRollChannel){sb.removeChannel(combatRollChannel);combatRollChannel=null}if(combatMapChannel){sb.removeChannel(combatMapChannel);combatMapChannel=null}renderCombat()};
+document.getElementById('combat-back').onclick=()=>{selectedCombatCampaignId=null;localStorage.removeItem('jjk-combat-campaign');localStorage.removeItem('jjk-combat-map');combatStates=[];combatRolls=[];combatMaps=[];combatMapTokens=[];selectedCombatMapId=null;if(combatRollChannel){sb.removeChannel(combatRollChannel);combatRollChannel=null}if(combatMapChannel){sb.removeChannel(combatMapChannel);combatMapChannel=null}renderCombat()};
 
 async function renderCombatCampaign(campaignId){
   const root=document.getElementById('combat-root'),camp=campaigns.find(c=>c.id===campaignId);
-  if(!camp){selectedCombatCampaignId=null;renderCombat();return}
+  if(!camp){selectedCombatCampaignId=null;localStorage.removeItem('jjk-combat-campaign');localStorage.removeItem('jjk-combat-map');renderCombat();return}
   root.innerHTML='<div class="empty-characters">Cargando combate de <b>'+esc(camp.name)+'</b>...</div>';
   try{
     await ensureCombatStates(campaignId);
@@ -1480,8 +1485,8 @@ async function loadCombatMaps(campaignId){
   const {data,error}=await sb.from('combat_maps').select('*').eq('campaign_id',campaignId).order('created_at',{ascending:true});
   if(error)throw error;
   combatMaps=(data||[]).map(m=>({...m,image:mapImageUrl(m.image_path)}));
-  if(selectedCombatMapId&&!combatMaps.some(m=>m.id===selectedCombatMapId))selectedCombatMapId=null;
-  if(!selectedCombatMapId&&combatMaps.length)selectedCombatMapId=combatMaps[0].id;
+  if(selectedCombatMapId&&!combatMaps.some(m=>m.id===selectedCombatMapId)){selectedCombatMapId=null;localStorage.removeItem('jjk-combat-map')}
+  if(!selectedCombatMapId&&combatMaps.length){selectedCombatMapId=combatMaps[0].id;localStorage.setItem('jjk-combat-map',selectedCombatMapId)}
 }
 function combatMapSectionHtml(campaignId){
   const campZones=sharedZones.filter(z=>z.campaign_id===campaignId);
@@ -1540,13 +1545,14 @@ async function createCombatMap(campaignId){
     await uploadBlob(blob,path);
     const {error}=await sb.from('combat_maps').insert({id,campaign_id:campaignId,zone_id:zoneId,name,image_path:path,grid_size_px:grid,feet_per_cell:feet,created_by:currentUser.id});
     if(error)throw error;
-    await loadCombatMaps(campaignId);selectedCombatMapId=id;
+    await loadCombatMaps(campaignId);selectedCombatMapId=id;localStorage.setItem('jjk-combat-map',id);
     refreshCombatMapSection(campaignId);
     toast('Mapa cargado.');
   }catch(e){console.error(e);toast('No pude cargar el mapa: '+e.message)}
 }
 async function selectCombatMap(campaignId,mapId){
   selectedCombatMapId=mapId||null;
+  if(selectedCombatMapId)localStorage.setItem('jjk-combat-map',selectedCombatMapId);else localStorage.removeItem('jjk-combat-map');
   await renderActiveCombatMap(campaignId);
 }
 function refreshCombatMapSection(campaignId){
@@ -1610,7 +1616,7 @@ async function deleteCombatMap(campaignId,mapId){
   const {error}=await sb.from('combat_maps').delete().eq('id',mapId);
   if(error){toast(error.message);return}
   if(map?.image_path)await sb.storage.from('jjk-images').remove([map.image_path]);
-  selectedCombatMapId=null;await loadCombatMaps(campaignId);refreshCombatMapSection(campaignId);toast('Mapa eliminado.');
+  selectedCombatMapId=null;localStorage.removeItem('jjk-combat-map');await loadCombatMaps(campaignId);refreshCombatMapSection(campaignId);toast('Mapa eliminado.');
 }
 function toggleMapRuler(){
   mapMeasureMode=!mapMeasureMode;
