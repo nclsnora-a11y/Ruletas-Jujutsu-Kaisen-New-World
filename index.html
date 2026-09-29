@@ -7,7 +7,7 @@
 <style>
 :root{--bg:#0b0b10;--panel:#15151d;--panel2:#1d1d28;--border:#2d2d3a;--text:#f5f5f5;--muted:#a8a8b3;--accent:#7c3aed;--accent2:#a855f7}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}header{padding:24px;border-bottom:1px solid var(--border)}main{max-width:1100px;margin:auto;padding:24px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:22px}.card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px}.muted{color:var(--muted);font-size:14px;line-height:1.45}.wheel{position:relative;width:min(92vw,480px);aspect-ratio:1;margin:18px auto}.pointer{position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:31px solid #ef4444;z-index:2}canvas{width:100%;height:100%;border-radius:50%;background:#fff}.actions{display:flex;gap:10px;margin-top:14px}button{flex:1;border:0;border-radius:10px;padding:12px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white}.secondary{max-width:110px;background:#262633}.result{margin-top:12px;background:var(--panel2);border:1px solid var(--border);padding:12px;border-radius:10px;text-align:center;font-size:18px;font-weight:800;min-height:48px;display:flex;align-items:center;justify-content:center}.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.chip{padding:6px 8px;border-radius:8px;background:#252532;border:1px solid #343443;font-size:12px}.legend{display:grid;grid-template-columns:1fr auto;gap:6px 12px;margin-top:12px;font-size:13px}.legend span:nth-child(even){color:#c4b5fd;font-weight:700}.passive-detail{margin-top:10px;padding:13px 14px;border:1px solid #343443;border-radius:10px;background:#111119;line-height:1.5}.passive-detail .pd-cat{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#c4b5fd;font-weight:700}.passive-detail .pd-name{font-size:18px;font-weight:800;margin:3px 0 6px}.passive-detail .pd-desc{font-size:14px;color:#d4d4dc}.sheet-card{background:linear-gradient(180deg,#171721,#111118);border:1px solid #3a3154;border-radius:18px;padding:20px;margin-bottom:22px;box-shadow:0 10px 35px rgba(0,0,0,.2)}
-.sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}.sheet-head h2{margin:0 0 5px}.sheet-actions{display:flex;gap:8px;flex-wrap:wrap}.sheet-actions button{flex:none;padding:10px 14px}.sheet-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:16px}.sheet-block{background:#0e0e15;border:1px solid var(--border);border-radius:12px;padding:13px}.sheet-block h3{margin:0 0 9px;font-size:14px;color:#c4b5fd;text-transform:uppercase;letter-spacing:.05em}.sheet-row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid #242431}.sheet-row:last-child{border-bottom:0}.sheet-value{font-weight:800;text-align:right}.sheet-passives{display:grid;gap:7px}.sheet-passive{background:#171722;border:1px solid #292938;border-radius:9px;padding:9px;font-size:13px}.sheet-passive b{display:block;margin-bottom:2px}.select-wrap{margin:10px 0 2px}.select-wrap label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}.select-wrap select{width:100%;background:#0f0f16;color:var(--text);border:1px solid #343443;border-radius:9px;padding:10px;font-weight:700}
+.sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}.sheet-head h2{margin:0 0 5px}.sheet-actions{display:flex;gap:8px;flex-wrap:wrap}.sheet-actions button{flex:none;padding:10px 14px}.sheet-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:16px}.sheet-block{background:#0e0e15;border:1px solid var(--border);border-radius:12px;padding:13px}.sheet-block h3{margin:0 0 9px;font-size:14px;color:#c4b5fd;text-transform:uppercase;letter-spacing:.05em}.sheet-row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid #242431}.sheet-row:last-child{border-bottom:0}.sheet-value{font-weight:800;text-align:right}.sheet-passives{display:grid;gap:7px}.sheet-passive{background:#171722;border:1px solid #292938;border-radius:9px;padding:9px;font-size:13px}.sheet-passive b{display:block;margin-bottom:2px}.identity-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:14px}.identity-field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}.identity-field input{width:100%;background:#0f0f16;color:var(--text);border:1px solid #343443;border-radius:9px;padding:10px;font-weight:700}.tech-desc{margin-top:9px;padding:10px;background:#171722;border:1px solid #292938;border-radius:9px;color:#d4d4dc;font-size:13px;line-height:1.45}.stat-total{margin-top:9px;padding-top:9px;border-top:1px solid #343443;font-size:15px;font-weight:800;display:flex;justify-content:space-between}.select-wrap{margin:10px 0 2px}.select-wrap label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}.select-wrap select{width:100%;background:#0f0f16;color:var(--text);border:1px solid #343443;border-radius:9px;padding:10px;font-weight:700}
 .toast{position:fixed;right:18px;bottom:18px;background:#232334;border:1px solid #44445a;color:#fff;padding:11px 14px;border-radius:10px;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s;z-index:99}.toast.show{opacity:1;transform:none}
 @media(max-width:720px){main{padding:16px}.grid{grid-template-columns:1fr}.sheet-actions{width:100%}.sheet-actions button{flex:1}}
 </style>
@@ -21,6 +21,10 @@
     <div>
       <h2>Ficha automática de personaje</h2>
       <div class="muted">Cada resultado que saques se guarda acá automáticamente.</div>
+<div class="identity-grid">
+  <div class="identity-field"><label for="sorcerer-name">Nombre del hechicero</label><input id="sorcerer-name" type="text" placeholder="Ej: Ren Kuroda"></div>
+  <div class="identity-field"><label for="user-name">Nombre del usuario</label><input id="user-name" type="text" placeholder="Ej: Nico"></div>
+</div>
     </div>
     <div class="sheet-actions">
       <button class="secondary" id="undo-sheet">Deshacer última</button>
@@ -31,11 +35,11 @@
   <div class="sheet-grid">
     <div class="sheet-block">
       <h3>Estadísticas</h3>
-      <div id="sheet-stats"></div>
+      <div id="sheet-stats"></div><div class="stat-total"><span>Total estadísticas</span><span id="sheet-stat-total">0</span></div>
     </div>
     <div class="sheet-block">
       <h3>Técnica</h3>
-      <div class="sheet-row"><span>Tipo</span><span class="sheet-value" id="sheet-type">—</span></div>
+      <div class="sheet-row"><span>Tipo</span><span class="sheet-value" id="sheet-type">—</span></div><div class="tech-desc" id="sheet-type-desc">La descripción del tipo aparecerá cuando gires la ruleta.</div>
       <div class="sheet-row"><span>Grado inicial</span><span class="sheet-value" id="sheet-grade">—</span></div>
       <div class="sheet-row"><span>Control de EM</span><span class="sheet-value" id="sheet-control">—</span></div>
     </div>
@@ -67,7 +71,7 @@
 <p class="muted">Las 7 categorías comunes reparten el 90% en partes iguales. Restricción Celestial tiene 7% y Extraordinaria / Regla 3%.</p>
 <div class="wheel"><div class="pointer"></div><canvas id="canvas-type" width="700" height="700"></canvas></div>
 <div class="actions"><button id="spin-type">Girar ruleta</button><button class="secondary" id="clear-type">Limpiar</button></div>
-<div class="result" id="result-type">Resultado: —</div>
+<div class="result" id="result-type">Resultado: —</div><div class="tech-desc" id="type-description">Girá la ruleta para ver qué representa cada tipo de técnica.</div>
 <div class="legend">
 <span>Potenciación / Alteración corporal</span><span>12,86%</span>
 <span>Invocación</span><span>12,86%</span>
@@ -142,26 +146,28 @@ passives:{values:Array.from({length:140},(_,i)=>String(i+1)),weights:Array(140).
 };
 const states={stats:{rot:0,busy:false,h:[]},type:{rot:0,busy:false,h:[]},grade:{rot:0,busy:false,h:[]},control:{rot:0,busy:false,h:[]},passives:{rot:0,busy:false,h:[]}};
 const statNames=['Fuerza','Agilidad','Velocidad','Resistencia','Durabilidad','Inteligencia','Energía Maldita','Barreras'];
+const typeDescriptions={"Potenciación":"Técnicas cuyo efecto principal recae sobre el propio cuerpo del usuario: pueden potenciarlo, modificarlo, transformarlo o darle propiedades que normalmente no tendría.","Invocación":"Técnicas que permiten manifestar, convocar o mantener una o más entidades con cierto grado de autonomía respecto del usuario.","Creación":"Técnicas que transforman Energía Maldita en objetos, sustancias, armas, estructuras o fenómenos que antes no existían.","Control":"Técnicas que permiten controlar, mover, modificar, dirigir o alterar algo que ya existe.","Soporte":"Técnicas cuyo efecto principal consiste en otorgar, retirar, alterar o mantener estados y condiciones, en lugar de centrarse necesariamente en daño directo.","Marca":"Técnicas cuyo funcionamiento depende de establecer previamente una conexión, señal o vínculo con un objetivo.","Técnica Existente":"Permite obtener una Técnica Maldita que ya existe dentro de la obra original de Jujutsu Kaisen, adaptada a las estadísticas, acciones, costes y reglas del servidor.","Restricción Celestial":"Condición innata en la que el personaje pierde o sacrifica una capacidad fundamental a cambio de obtener una ventaja extraordinaria en otra área.","Extraordinaria":"Técnicas cuyo funcionamiento principal se basa en una regla, fenómeno anómalo o sistema propio que no encaja correctamente en las categorías normales."};
 const blankStats=()=>Object.fromEntries(statNames.map(n=>[n,null]));
-let sheetState={stats:blankStats(),type:null,grade:null,control:null,passives:[],undo:[]};
+let sheetState={stats:blankStats(),type:null,grade:null,control:null,passives:[],sorcererName:'',userName:'',undo:[]};
 try{
   const saved=JSON.parse(localStorage.getItem('jjk-character-sheet')||'null');
   if(saved){
     sheetState.stats={...blankStats(),...(saved.stats||{})};
     sheetState.type=saved.type||null; sheetState.grade=saved.grade||null; sheetState.control=saved.control||null;
     sheetState.passives=Array.isArray(saved.passives)?saved.passives:[];
+    sheetState.sorcererName=saved.sorcererName||''; sheetState.userName=saved.userName||'';
     sheetState.undo=[];
   }
 }catch(e){}
-function snapshotSheet(){return JSON.stringify({stats:sheetState.stats,type:sheetState.type,grade:sheetState.grade,control:sheetState.control,passives:sheetState.passives})}
+function snapshotSheet(){return JSON.stringify({stats:sheetState.stats,type:sheetState.type,grade:sheetState.grade,control:sheetState.control,passives:sheetState.passives,sorcererName:sheetState.sorcererName,userName:sheetState.userName})}
 function pushUndo(){sheetState.undo.push(snapshotSheet());if(sheetState.undo.length>50)sheetState.undo.shift()}
 function saveSheet(){localStorage.setItem('jjk-character-sheet',snapshotSheet())}
 function renderSheet(){
   document.getElementById('sheet-stats').innerHTML=statNames.map(n=>'<div class="sheet-row"><span>'+n+'</span><span class="sheet-value">'+(sheetState.stats[n]??'—')+'</span></div>').join('');
-  document.getElementById('sheet-type').textContent=sheetState.type||'—';
+  document.getElementById('sheet-stat-total').textContent=Object.values(sheetState.stats).reduce((a,v)=>a+(Number(v)||0),0);document.getElementById('sheet-type').textContent=sheetState.type||'—';document.getElementById('sheet-type-desc').textContent=sheetState.type?(typeDescriptions[sheetState.type]||'Sin descripción disponible.'):'La descripción del tipo aparecerá cuando gires la ruleta.';
   document.getElementById('sheet-grade').textContent=sheetState.grade||'—';
   document.getElementById('sheet-control').textContent=sheetState.control||'—';
-  const p=document.getElementById('sheet-passives');
+  document.getElementById('sorcerer-name').value=sheetState.sorcererName||'';document.getElementById('user-name').value=sheetState.userName||'';const p=document.getElementById('sheet-passives');
   p.innerHTML=sheetState.passives.length?sheetState.passives.map((x,i)=>'<div class="sheet-passive"><b>'+(i+1)+'. '+x.category+' — '+x.name+'</b><span>'+x.description+'</span></div>').join(''):'<span class="muted">Todavía no hay pasivas.</span>';
   saveSheet();
 }
@@ -175,16 +181,17 @@ function registerResult(key,idx){
   renderSheet();
 }
 function sheetText(){
-  const lines=['JJK NEW WORLD — FICHA GENERADA','','ESTADÍSTICAS'];
-  statNames.forEach(n=>lines.push(n+': '+(sheetState.stats[n]??'—')));
-  lines.push('','TÉCNICA','Tipo: '+(sheetState.type||'—'),'Grado inicial: '+(sheetState.grade||'—'),'Control de Energía Maldita: '+(sheetState.control||'—'),'','PASIVAS');
+  const total=Object.values(sheetState.stats).reduce((a,v)=>a+(Number(v)||0),0);const lines=['JJK NEW WORLD — FICHA GENERADA','Hechicero: '+(sheetState.sorcererName||'—'),'Usuario: '+(sheetState.userName||'—'),'','ESTADÍSTICAS'];
+  statNames.forEach(n=>lines.push(n+': '+(sheetState.stats[n]??'—')));lines.push('Total: '+total);
+  lines.push('','TÉCNICA','Tipo: '+(sheetState.type||'—'),'Descripción: '+(sheetState.type?(typeDescriptions[sheetState.type]||'—'):'—'),'Grado inicial: '+(sheetState.grade||'—'),'Control de Energía Maldita: '+(sheetState.control||'—'),'','PASIVAS');
   if(sheetState.passives.length)sheetState.passives.forEach((p,i)=>lines.push((i+1)+'. '+p.category+' — '+p.name+' | '+p.description));
   else lines.push('—');
   return lines.join('\n');
 }
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500)}
 document.getElementById('undo-sheet').addEventListener('click',()=>{if(!sheetState.undo.length){toast('No hay tiradas para deshacer.');return}const prev=JSON.parse(sheetState.undo.pop());sheetState={...sheetState,...prev,undo:sheetState.undo};renderSheet();});
-document.getElementById('new-sheet').addEventListener('click',()=>{pushUndo();sheetState.stats=blankStats();sheetState.type=null;sheetState.grade=null;sheetState.control=null;sheetState.passives=[];renderSheet();toast('Ficha nueva creada.');});
+document.getElementById('new-sheet').addEventListener('click',()=>{pushUndo();sheetState.stats=blankStats();sheetState.type=null;sheetState.grade=null;sheetState.control=null;sheetState.passives=[];sheetState.sorcererName='';sheetState.userName='';renderSheet();toast('Ficha nueva creada.');});
+document.getElementById('sorcerer-name').addEventListener('input',e=>{sheetState.sorcererName=e.target.value;saveSheet()});document.getElementById('user-name').addEventListener('input',e=>{sheetState.userName=e.target.value;saveSheet()});
 document.getElementById('copy-sheet').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(sheetText());toast('Ficha copiada para Discord.')}catch(e){const ta=document.createElement('textarea');ta.value=sheetText();document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Ficha copiada para Discord.')}});
 renderSheet();
 function pick(c){const total=c.weights.reduce((a,b)=>a+b,0);let r=Math.random()*total;for(let i=0;i<c.values.length;i++){if(r<c.weights[i])return i;r-=c.weights[i]}return c.values.length-1}
@@ -192,7 +199,7 @@ function angleCenter(c,idx){const total=c.weights.reduce((a,b)=>a+b,0);let befor
 function draw(key){const c=configs[key],s=states[key],cv=document.getElementById(c.canvas),x=cv.getContext('2d'),total=c.weights.reduce((a,b)=>a+b,0),R=300;x.clearRect(0,0,700,700);x.save();x.translate(350,350);x.rotate(s.rot);let acc=-Math.PI/2;for(let i=0;i<c.values.length;i++){const ang=c.weights[i]/total*Math.PI*2,a=acc,b=a+ang;x.beginPath();x.moveTo(0,0);x.arc(0,0,R,a,b);x.closePath();x.fillStyle=colors[i%colors.length];x.fill();x.strokeStyle='#fff';x.lineWidth=4;x.stroke();x.save();x.rotate(a+ang/2);x.textAlign='center';x.textBaseline='middle';x.fillStyle='#fff';x.font='bold 24px Arial';let label=c.values[i];if(key==='type'){const short=['Potenciación','Invocación','Creación','Control','Soporte','Marca','Téc. Existente','Restricción','Extraordinaria'];label=short[i]}if(key==='grade'){const short=['Grado 4','Semi 4','Grado 3','Semi 3','Grado 2','Semi 2','Grado 1','Especial'];label=short[i]}if(key==='passives'){label=(i+1)%10===0?String(i+1):'';x.font='bold 14px Arial';}x.fillText(label,210,0);x.restore();acc=b}x.beginPath();x.arc(0,0,42,0,Math.PI*2);x.fillStyle='#111827';x.fill();x.restore()}
 function ease(t){return 1-Math.pow(1-t,3)}
 function renderHistory(key){const c=configs[key],s=states[key];document.getElementById(c.history).innerHTML=s.h.map(v=>'<span class="chip">'+v+'</span>').join('')}
-function spin(key){const c=configs[key],s=states[key];if(s.busy)return;s.busy=true;document.getElementById(c.spin).disabled=true;document.getElementById(c.result).textContent='Girando...';if(key==='passives'){const box=document.getElementById('passive-description');box.querySelector('.pd-cat').textContent='Pasiva';box.querySelector('.pd-name').textContent='Girando...';box.querySelector('.pd-desc').textContent=''}const idx=pick(c),value=(key==='passives'?(passiveData[idx][0]+' — '+passiveData[idx][1]):c.values[idx]),target=360-angleCenter(c,idx),start=s.rot*180/Math.PI,end=start+360*(5+Math.floor(Math.random()*3))+((target-(start%360)+360)%360),t0=performance.now();function anim(now){const t=Math.min((now-t0)/4200,1),deg=start+(end-start)*ease(t);s.rot=deg*Math.PI/180;draw(key);if(t<1)requestAnimationFrame(anim);else{s.busy=false;document.getElementById(c.spin).disabled=false;document.getElementById(c.result).textContent='Resultado: '+value;if(key==='passives'){const p=passiveData[idx],box=document.getElementById('passive-description');box.querySelector('.pd-cat').textContent=p[0];box.querySelector('.pd-name').textContent=p[1];box.querySelector('.pd-desc').textContent=p[2]}registerResult(key,idx);s.h.unshift(value);s.h=s.h.slice(0,20);renderHistory(key)}}requestAnimationFrame(anim)}
+function spin(key){const c=configs[key],s=states[key];if(s.busy)return;s.busy=true;document.getElementById(c.spin).disabled=true;document.getElementById(c.result).textContent='Girando...';if(key==='type'){document.getElementById('type-description').textContent='Girá la ruleta para ver qué representa cada tipo de técnica.'}if(key==='passives'){const box=document.getElementById('passive-description');box.querySelector('.pd-cat').textContent='Pasiva';box.querySelector('.pd-name').textContent='Girando...';box.querySelector('.pd-desc').textContent=''}const idx=pick(c),value=(key==='passives'?(passiveData[idx][0]+' — '+passiveData[idx][1]):c.values[idx]),target=360-angleCenter(c,idx),start=s.rot*180/Math.PI,end=start+360*(5+Math.floor(Math.random()*3))+((target-(start%360)+360)%360),t0=performance.now();function anim(now){const t=Math.min((now-t0)/4200,1),deg=start+(end-start)*ease(t);s.rot=deg*Math.PI/180;draw(key);if(t<1)requestAnimationFrame(anim);else{s.busy=false;document.getElementById(c.spin).disabled=false;document.getElementById(c.result).textContent='Resultado: '+value;if(key==='type'){document.getElementById('type-description').textContent=typeDescriptions[configs[key].values[idx]]||'Sin descripción disponible.'}if(key==='passives'){const p=passiveData[idx],box=document.getElementById('passive-description');box.querySelector('.pd-cat').textContent=p[0];box.querySelector('.pd-name').textContent=p[1];box.querySelector('.pd-desc').textContent=p[2]}registerResult(key,idx);s.h.unshift(value);s.h=s.h.slice(0,20);renderHistory(key)}}requestAnimationFrame(anim)}
 for(const key of Object.keys(configs)){draw(key);const c=configs[key];document.getElementById(c.spin).addEventListener('click',()=>spin(key));document.getElementById(c.clear).addEventListener('click',()=>{states[key].h=[];renderHistory(key);document.getElementById(c.result).textContent='Resultado: —';if(key==='passives'){const box=document.getElementById('passive-description');box.querySelector('.pd-cat').textContent='Pasiva';box.querySelector('.pd-name').textContent='—';box.querySelector('.pd-desc').textContent='Girá la ruleta para ver qué hace la pasiva obtenida.'}})}
 </script>
 </body>
