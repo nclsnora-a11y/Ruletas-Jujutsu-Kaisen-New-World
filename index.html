@@ -407,8 +407,8 @@ function campaignCard(c){
     <h3>${esc(c.name)}</h3>
     <div class="campaign-meta">${(c.zones||[]).length} zona(s) · ${totalCampaignCharacters(c)} personaje(s)</div>
     <div class="campaign-actions">
-      <button onclick="toggleCampaign('\${c.id}')">Abrir</button>
-      <button class="secondary danger" onclick="deleteCampaign('\${c.id}')">Eliminar</button>
+      <button onclick="toggleCampaign('${c.id}')">Abrir</button>
+      <button class="secondary danger" onclick="deleteCampaign('${c.id}')">Eliminar</button>
     </div>
     <div class="campaign-panel hidden" id="campaign-panel-${esc(c.id)}"></div>
   </article>`;
