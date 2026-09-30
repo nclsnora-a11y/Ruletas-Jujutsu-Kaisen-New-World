@@ -160,6 +160,26 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
 .map-zoom-controls{display:flex;gap:4px;align-items:center;margin-left:auto}
 .map-zoom-controls button{min-width:34px;padding:6px 9px!important}
 .map-zoom-value{min-width:58px!important}
+
+.combat-text-chat{margin-top:18px;border-top:1px solid var(--border);padding-top:16px}
+.combat-text-chat-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:8px}
+.combat-text-chat-head h3{margin:0 0 3px}
+.combat-chat-list{max-height:340px;overflow:auto;border:1px solid #30303d;border-radius:12px;background:#0b0b11;padding:10px;display:flex;flex-direction:column;gap:8px}
+.combat-chat-empty{padding:18px;text-align:center;color:var(--muted)}
+.combat-chat-msg{padding:9px 10px;border:1px solid #2d2d39;border-radius:10px;background:#111118}
+.combat-chat-msg.mine{border-color:#3d3d55;background:#13131d}
+.combat-chat-msg-top{display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--muted);font-size:10px;margin-bottom:5px}
+.combat-chat-msg-top>span:first-child{display:flex;align-items:center;gap:6px}
+.combat-chat-msg-top b{color:var(--text);font-size:11px}
+.combat-chat-mode{font-size:9px;padding:2px 5px;border-radius:999px;border:1px solid #3a3a48}
+.combat-chat-mode.mode-global{color:#93c5fd;border-color:#1d4ed8;background:rgba(29,78,216,.12)}
+.combat-chat-mode.mode-private{color:#d4d4d8;border-color:#52525b;background:rgba(82,82,91,.15)}
+.combat-chat-mode.mode-gm{color:#c4b5fd;border-color:#7c3aed;background:rgba(124,58,237,.14)}
+.combat-chat-body{font-size:13px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+.combat-chat-compose{display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:7px;margin-top:8px}
+.combat-chat-compose select,.combat-chat-compose input{background:#101018;color:var(--text);border:1px solid #343443;border-radius:8px;padding:9px}
+.combat-chat-compose button{padding:9px 13px}
+@media(max-width:700px){.combat-chat-compose{grid-template-columns:100px minmax(0,1fr)}.combat-chat-compose button{grid-column:1/-1}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 </head>
@@ -1340,6 +1360,8 @@ let selectedCombatCampaignId=localStorage.getItem('jjk-combat-campaign')||null;
 let combatStates=[];
 let combatRolls=[];
 let combatRollChannel=null;
+let combatMessages=[];
+let combatChatChannel=null;
 let combatMaps=[];
 let combatMapTokens=[];
 let selectedCombatZoneId=null;
@@ -1410,7 +1432,7 @@ async function enterCombatCampaign(id){
   localStorage.removeItem('jjk-combat-map');
   renderCombat();
 }
-document.getElementById('combat-back').onclick=()=>{selectedCombatCampaignId=null;selectedCombatZoneId=null;localStorage.removeItem('jjk-combat-campaign');localStorage.removeItem('jjk-combat-map');combatStates=[];combatRolls=[];combatMaps=[];combatMapTokens=[];selectedCombatMapId=null;if(combatRollChannel){sb.removeChannel(combatRollChannel);combatRollChannel=null}if(combatMapChannel){sb.removeChannel(combatMapChannel);combatMapChannel=null}renderCombat()};
+document.getElementById('combat-back').onclick=()=>{selectedCombatCampaignId=null;selectedCombatZoneId=null;localStorage.removeItem('jjk-combat-campaign');localStorage.removeItem('jjk-combat-map');combatStates=[];combatRolls=[];combatMessages=[];combatMaps=[];combatMapTokens=[];selectedCombatMapId=null;if(combatRollChannel){sb.removeChannel(combatRollChannel);combatRollChannel=null}if(combatChatChannel){sb.removeChannel(combatChatChannel);combatChatChannel=null}if(combatMapChannel){sb.removeChannel(combatMapChannel);combatMapChannel=null}renderCombat()};
 
 async function renderCombatCampaign(campaignId){
   const root=document.getElementById('combat-root'),camp=campaigns.find(c=>c.id===campaignId);
@@ -1424,8 +1446,10 @@ async function renderCombatCampaign(campaignId){
   try{
     await ensureCombatStates(campaignId);
     await loadCombatRolls(campaignId);
+    await loadCombatMessages(campaignId);
     await loadCombatMaps(campaignId);
     subscribeCombatRolls(campaignId);
+    subscribeCombatChat(campaignId);
   }catch(e){
     console.error(e);
     root.innerHTML='<div class="empty-characters">No pude cargar el estado de combate.</div>';
@@ -1449,11 +1473,13 @@ async function renderCombatCampaign(campaignId){
   const zoneName=selectedCombatZoneId?(zones.find(z=>z.id===selectedCombatZoneId)?.name||'Zona'):'Sin zona elegida';
   root.innerHTML='<div style="margin-bottom:14px;display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap"><div><h3 style="margin:0">'+esc(camp.name)+'</h3><div class="muted">'+esc(zoneName)+' · '+chars.length+' personaje(s)'+(isAdmin?' · controles de GM activos':'')+'</div></div>'+zoneSelector+'</div>'+
     '<div class="combat-layout"><div>'+roster+'</div>'+combatRollChatHtml(campaignId)+'</div>'+
-    combatMapSectionHtml(campaignId);
+    combatMapSectionHtml(campaignId)+
+    combatChatHtml(campaignId);
 
   chars.forEach(ch=>updateCombatBars(ch.id));
   scrollRollChat();
   await renderActiveCombatMap(campaignId);
+  scrollCombatChat();
   if(jjkFrozenScrollY!=null&&document.visibilityState!=='hidden'){
     const y=jjkFrozenScrollY;
     requestAnimationFrame(()=>window.scrollTo(0,y));
@@ -1909,6 +1935,96 @@ async function loadCombatMaps(campaignId){
   if(selectedCombatMapId&&!eligible.some(m=>m.id===selectedCombatMapId)){selectedCombatMapId=null;localStorage.removeItem('jjk-combat-map')}
   if(!selectedCombatMapId&&eligible.length){selectedCombatMapId=eligible[0].id;localStorage.setItem('jjk-combat-map',selectedCombatMapId)}
 }
+async function loadCombatMessages(campaignId){
+  const {data,error}=await sb.from('combat_messages')
+    .select('*')
+    .eq('campaign_id',campaignId)
+    .order('created_at',{ascending:true})
+    .limit(200);
+  if(error)throw error;
+  const rows=data||[];
+  const ids=[...new Set(rows.map(m=>m.sender_id).filter(Boolean))];
+  let profiles=[];
+  if(ids.length){
+    const {data:pd,error:pe}=await sb.from('profiles').select('id,email,display_name,role').in('id',ids);
+    if(!pe)profiles=pd||[];
+  }
+  const byId=Object.fromEntries(profiles.map(p=>[p.id,p]));
+  combatMessages=rows.map(m=>({...m,_sender:byId[m.sender_id]||null}));
+  return combatMessages;
+}
+function combatChatSenderLabel(m){
+  const p=m._sender;
+  if(p?.role==='admin')return 'GM';
+  if(p?.display_name)return p.display_name;
+  if(p?.email)return p.email.split('@')[0];
+  if(m.sender_id===currentUser?.id)return isAdmin?'GM':'Yo';
+  return 'Jugador';
+}
+function combatChatMessageHtml(m){
+  const own=m.sender_id===currentUser?.id;
+  const modeLabel=m.mode==='private'?'Privado':m.mode==='gm'?'GM':'Global';
+  const time=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  return '<div class="combat-chat-msg '+(own?'mine':'')+'">'+
+    '<div class="combat-chat-msg-top"><span><b>'+esc(combatChatSenderLabel(m))+'</b><span class="combat-chat-mode mode-'+esc(m.mode)+'">'+esc(modeLabel)+'</span></span><span>'+esc(time)+'</span></div>'+
+    '<div class="combat-chat-body">'+esc(m.body)+'</div>'+
+  '</div>';
+}
+function combatChatHtml(campaignId){
+  const msgs=combatMessages.length
+    ?combatMessages.map(combatChatMessageHtml).join('')
+    :'<div class="combat-chat-empty">Todavía no hay mensajes.</div>';
+  return '<section class="combat-text-chat">'+
+    '<div class="combat-text-chat-head"><div><h3>Chat de combate</h3><div class="muted">Mensajes de la sala</div></div></div>'+
+    '<div class="combat-chat-list" id="combat-chat-list">'+msgs+'</div>'+
+    '<div class="combat-chat-compose">'+
+      '<select id="combat-chat-mode-'+campaignId+'" aria-label="Destino del mensaje">'+
+        '<option value="global">Global</option>'+
+        '<option value="private">Privado</option>'+
+        '<option value="gm">GM</option>'+
+      '</select>'+
+      '<input id="combat-chat-input-'+campaignId+'" maxlength="2000" placeholder="Escribí un mensaje..." onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendCombatMessage(\''+campaignId+'\')}">'+
+      '<button onclick="sendCombatMessage(\''+campaignId+'\')">Enviar</button>'+
+    '</div>'+
+  '</section>';
+}
+function renderCombatChatList(){
+  const list=document.getElementById('combat-chat-list');if(!list)return;
+  list.innerHTML=combatMessages.length?combatMessages.map(combatChatMessageHtml).join(''):'<div class="combat-chat-empty">Todavía no hay mensajes.</div>';
+  scrollCombatChat();
+}
+function scrollCombatChat(){
+  const list=document.getElementById('combat-chat-list');
+  if(list)list.scrollTop=list.scrollHeight;
+}
+async function sendCombatMessage(campaignId){
+  if(!currentUser)return;
+  const input=document.getElementById('combat-chat-input-'+campaignId);
+  const select=document.getElementById('combat-chat-mode-'+campaignId);
+  const body=(input?.value||'').trim();
+  const mode=['global','private','gm'].includes(select?.value)?select.value:'global';
+  if(!body)return;
+  const {error}=await sb.from('combat_messages').insert({
+    campaign_id:campaignId,
+    sender_id:currentUser.id,
+    mode,
+    body
+  });
+  if(error){toast(error.message);return}
+  if(input)input.value='';
+}
+function subscribeCombatChat(campaignId){
+  if(combatChatChannel){sb.removeChannel(combatChatChannel);combatChatChannel=null}
+  combatChatChannel=sb.channel('combat-chat-'+campaignId)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'combat_messages',filter:'campaign_id=eq.'+campaignId},async()=>{
+      try{
+        await loadCombatMessages(campaignId);
+        renderCombatChatList();
+      }catch(e){console.error(e)}
+    })
+    .subscribe();
+}
+
 function combatMapSectionHtml(campaignId){
   const campZones=sharedZones.filter(z=>z.campaign_id===campaignId);
   const eligibleMaps=selectedCombatZoneId?combatMaps.filter(m=>!m.zone_id||m.zone_id===selectedCombatZoneId):[];
