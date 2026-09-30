@@ -140,6 +140,12 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
 
 .enemy-roll-total-only{display:flex!important;align-items:center!important;gap:8px!important}
 .enemy-roll-total-only .roll-hidden-text{font-size:12px;color:var(--muted);padding:0}
+.character-card.character-side-hechicero{border:2px solid #3b82f6!important;box-shadow:0 0 0 1px rgba(59,130,246,.12),0 8px 24px rgba(37,99,235,.08)}
+.character-card.character-side-maldicion{border:2px solid #a855f7!important;box-shadow:0 0 0 1px rgba(168,85,247,.12),0 8px 24px rgba(126,34,206,.09)}
+.combat-char.combat-side-hechicero{border:2px solid #3b82f6!important;box-shadow:0 0 0 1px rgba(59,130,246,.11)}
+.combat-char.combat-side-maldicion{border:2px solid #a855f7!important;box-shadow:0 0 0 1px rgba(168,85,247,.11)}
+.combat-enemy-hidden.combat-side-hechicero{border-color:#3b82f6!important}
+.combat-enemy-hidden.combat-side-maldicion{border-color:#a855f7!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 </head>
@@ -163,6 +169,7 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
 <div class="identity-grid">
   <div class="identity-field"><label for="sorcerer-name">Nombre del hechicero</label><input id="sorcerer-name" type="text" placeholder="Ej: Ren Kuroda"></div>
   <div class="identity-field"><label for="user-name">Nombre del usuario</label><input id="user-name" type="text" placeholder="Ej: Nico"></div>
+  <div class="identity-field"><label for="character-side">Bando</label><select id="character-side"><option value="hechicero">Hechicero</option><option value="maldicion">Maldición</option></select></div>
 </div>
     </div>
     <div class="sheet-actions">
@@ -374,18 +381,18 @@ function normalizeStatsObject(stats){
 
 const typeDescriptions={"Potenciación":"Técnicas cuyo efecto principal recae sobre el propio cuerpo del usuario: pueden potenciarlo, modificarlo, transformarlo o darle propiedades que normalmente no tendría.","Invocación":"Técnicas que permiten manifestar, convocar o mantener una o más entidades con cierto grado de autonomía respecto del usuario.","Creación":"Técnicas que transforman Energía Maldita en objetos, sustancias, armas, estructuras o fenómenos que antes no existían.","Control":"Técnicas que permiten controlar, mover, modificar, dirigir o alterar algo que ya existe.","Soporte":"Técnicas cuyo efecto principal consiste en otorgar, retirar, alterar o mantener estados y condiciones, en lugar de centrarse necesariamente en daño directo.","Marca":"Técnicas cuyo funcionamiento depende de establecer previamente una conexión, señal o vínculo con un objetivo.","Técnica Existente":"Permite obtener una Técnica Maldita que ya existe dentro de la obra original de Jujutsu Kaisen, adaptada a las estadísticas, acciones, costes y reglas del servidor.","Restricción Celestial":"Condición innata en la que el personaje pierde o sacrifica una capacidad fundamental a cambio de obtener una ventaja extraordinaria en otra área.","Extraordinaria":"Técnicas cuyo funcionamiento principal se basa en una regla, fenómeno anómalo o sistema propio que no encaja correctamente en las categorías normales."};
 const blankStats=()=>Object.fromEntries(statNames.map(n=>[n,null]));
-let sheetState={stats:blankStats(),type:null,grade:null,control:null,passives:[],sorcererName:'',userName:'',undo:[]};
+let sheetState={stats:blankStats(),type:null,grade:null,control:null,passives:[],sorcererName:'',userName:'',side:'hechicero',undo:[]};
 try{
   const saved=JSON.parse(localStorage.getItem('jjk-character-sheet')||'null');
   if(saved){
     sheetState.stats=normalizeStatsObject({...blankStats(),...(saved.stats||{})});
     sheetState.type=saved.type||null; sheetState.grade=saved.grade||null; sheetState.control=saved.control||null;
     sheetState.passives=Array.isArray(saved.passives)?saved.passives:[];
-    sheetState.sorcererName=saved.sorcererName||''; sheetState.userName=saved.userName||'';
+    sheetState.sorcererName=saved.sorcererName||''; sheetState.userName=saved.userName||''; sheetState.side=saved.side==='maldicion'?'maldicion':'hechicero';
     sheetState.undo=[];
   }
 }catch(e){}
-function snapshotSheet(){return JSON.stringify({stats:sheetState.stats,type:sheetState.type,grade:sheetState.grade,control:sheetState.control,passives:sheetState.passives,sorcererName:sheetState.sorcererName,userName:sheetState.userName})}
+function snapshotSheet(){return JSON.stringify({stats:sheetState.stats,type:sheetState.type,grade:sheetState.grade,control:sheetState.control,passives:sheetState.passives,sorcererName:sheetState.sorcererName,userName:sheetState.userName,side:sheetState.side})}
 function pushUndo(){sheetState.undo.push(snapshotSheet());if(sheetState.undo.length>50)sheetState.undo.shift()}
 function saveSheet(){localStorage.setItem('jjk-character-sheet',snapshotSheet())}
 function renderSheet(){
@@ -393,7 +400,7 @@ function renderSheet(){
   document.getElementById('sheet-stat-total').textContent=Object.values(sheetState.stats).reduce((a,v)=>a+(Number(v)||0),0);document.getElementById('sheet-type').textContent=sheetState.type||'—';document.getElementById('sheet-type-desc').textContent=sheetState.type?(typeDescriptions[sheetState.type]||'Sin descripción disponible.'):'La descripción del tipo aparecerá cuando gires la ruleta.';
   document.getElementById('sheet-grade').textContent=sheetState.grade||'—';
   document.getElementById('sheet-control').textContent=sheetState.control||'—';
-  document.getElementById('sorcerer-name').value=sheetState.sorcererName||'';document.getElementById('user-name').value=sheetState.userName||'';const p=document.getElementById('sheet-passives');
+  document.getElementById('sorcerer-name').value=sheetState.sorcererName||'';document.getElementById('user-name').value=sheetState.userName||'';const sideEl=document.getElementById('character-side');if(sideEl)sideEl.value=sheetState.side||'hechicero';const p=document.getElementById('sheet-passives');
   p.innerHTML=sheetState.passives.length?sheetState.passives.map((x,i)=>'<div class="sheet-passive"><b>'+(i+1)+'. '+x.category+' — '+x.name+'</b><span>'+x.description+'</span></div>').join(''):'<span class="muted">Todavía no hay pasivas.</span>';
   saveSheet();
 }
@@ -407,7 +414,7 @@ function registerResult(key,idx){
   renderSheet();
 }
 function sheetText(){
-  const total=Object.values(sheetState.stats).reduce((a,v)=>a+(Number(v)||0),0);const lines=['JJK NEW WORLD — FICHA GENERADA','Hechicero: '+(sheetState.sorcererName||'—'),'Usuario: '+(sheetState.userName||'—'),'','ESTADÍSTICAS'];
+  const total=Object.values(sheetState.stats).reduce((a,v)=>a+(Number(v)||0),0);const lines=['JJK NEW WORLD — FICHA GENERADA','Nombre: '+(sheetState.sorcererName||'—'),'Usuario: '+(sheetState.userName||'—'),'Bando: '+(sheetState.side==='maldicion'?'Maldición':'Hechicero'),'','ESTADÍSTICAS'];
   statNames.forEach(n=>lines.push(n+': '+(sheetState.stats[n]??'—')));lines.push('Total: '+total);
   lines.push('','TÉCNICA','Tipo: '+(sheetState.type||'—'),'Descripción: '+(sheetState.type?(typeDescriptions[sheetState.type]||'—'):'—'),'Grado inicial: '+(sheetState.grade||'—'),'Control de Energía Maldita: '+(sheetState.control||'—'),'','PASIVAS');
   if(sheetState.passives.length)sheetState.passives.forEach((p,i)=>lines.push((i+1)+'. '+p.category+' — '+p.name+' | '+p.description));
@@ -416,8 +423,8 @@ function sheetText(){
 }
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500)}
 document.getElementById('undo-sheet').addEventListener('click',()=>{if(!sheetState.undo.length){toast('No hay tiradas para deshacer.');return}const prev=JSON.parse(sheetState.undo.pop());sheetState={...sheetState,...prev,undo:sheetState.undo};renderSheet();});
-document.getElementById('new-sheet').addEventListener('click',()=>{pushUndo();sheetState.stats=blankStats();sheetState.type=null;sheetState.grade=null;sheetState.control=null;sheetState.passives=[];sheetState.sorcererName='';sheetState.userName='';renderSheet();toast('Ficha nueva creada.');});
-document.getElementById('sorcerer-name').addEventListener('input',e=>{sheetState.sorcererName=e.target.value;saveSheet()});document.getElementById('user-name').addEventListener('input',e=>{sheetState.userName=e.target.value;saveSheet()});
+document.getElementById('new-sheet').addEventListener('click',()=>{pushUndo();sheetState.stats=blankStats();sheetState.type=null;sheetState.grade=null;sheetState.control=null;sheetState.passives=[];sheetState.sorcererName='';sheetState.userName='';sheetState.side='hechicero';renderSheet();toast('Ficha nueva creada.');});
+document.getElementById('sorcerer-name').addEventListener('input',e=>{sheetState.sorcererName=e.target.value;saveSheet()});document.getElementById('user-name').addEventListener('input',e=>{sheetState.userName=e.target.value;saveSheet()});document.getElementById('character-side').addEventListener('change',e=>{sheetState.side=e.target.value==='maldicion'?'maldicion':'hechicero';saveSheet()});
 document.getElementById('copy-sheet').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(sheetText());toast('Ficha copiada para Discord.')}catch(e){const ta=document.createElement('textarea');ta.value=sheetText();document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Ficha copiada para Discord.')}});
 renderSheet();
 
@@ -461,7 +468,7 @@ function makeCharacterFromSheet(){
     type:sheetState.type||null,
     grade:sheetState.grade||null,
     control:sheetState.control||null,
-    side:'hechicero',
+    side:sheetState.side==='maldicion'?'maldicion':'hechicero',
     passives:sheetState.passives.map(p=>({...p})),
     photo:null,
     createdAt:new Date().toISOString()
@@ -475,7 +482,7 @@ document.getElementById('save-character').addEventListener('click',()=>{
 function characterCard(ch){
   const total=characterTotal(ch.currentStats);
   const initialTotal=characterTotal(ch.initialStats);
-  return `<article class="character-card" id="card-${esc(ch.id)}">
+  return `<article class="character-card character-side-${ch.side==='maldicion'?'maldicion':'hechicero'}" id="card-${esc(ch.id)}">
     <div class="character-top">
       ${ch.photo?'<img class="character-avatar" src="'+ch.photo+'" alt="Foto de '+esc(ch.sorcererName)+'">':'<div class="character-avatar placeholder">術</div>'}
       <div><h3>${esc(ch.sorcererName)}</h3><div class="character-meta">Usuario: ${esc(ch.userName)} · Creado: ${new Date(ch.createdAt).toLocaleDateString('es-AR')}</div></div>
@@ -1394,7 +1401,7 @@ function combatCharacterHtml(campaignId,ch){
   const canRoll=canEditCombat;
   const canSeeDetails=canSeeCombatDetails(campaignId,ch);
   if(!canSeeDetails){
-    return '<article class="combat-char combat-enemy-hidden '+(!s.visible?'combat-hidden-card':'')+'" id="combat-char-'+ch.id+'">'+
+    return '<article class="combat-char combat-enemy-hidden combat-side-'+(ch.side==='maldicion'?'maldicion':'hechicero')+' '+(!s.visible?'combat-hidden-card':'')+'" id="combat-char-'+ch.id+'">'+
       '<div class="combat-char-head">'+
         (ch.photo?'<img class="combat-avatar" src="'+ch.photo+'" alt="">':'<div class="combat-avatar">術</div>')+
         '<div class="combat-char-title"><h3>'+esc(ch.sorcererName)+'</h3><div class="muted">'+esc(sideLabel(ch))+' · Información oculta</div></div>'+
@@ -1408,7 +1415,7 @@ function combatCharacterHtml(campaignId,ch){
     const num=Number(v),rollable=canRoll&&Number.isFinite(num);
     return '<div class="combat-stat '+(rollable?'rollable':'')+'" '+(rollable?'onclick="event.stopPropagation();rollCombatStat(\''+campaignId+'\',\''+ch.id+'\',\''+esc(n)+'\','+num+')"':'')+'>'+esc(combatStatAbbr(n))+'<b>'+esc(String(v))+'</b>'+(rollable?'<small>d20+'+num+'</small>':'')+'</div>';
   }).join('');
-  return '<article class="combat-char '+(!s.visible?'combat-hidden-card':'')+'" id="combat-char-'+ch.id+'">'+
+  return '<article class="combat-char combat-side-'+(ch.side==='maldicion'?'maldicion':'hechicero')+' '+(!s.visible?'combat-hidden-card':'')+'" id="combat-char-'+ch.id+'">'+
     '<div class="combat-char-head" onclick="toggleCombatQuickMenu(\''+ch.id+'\')">'+
       (ch.photo?'<img class="combat-avatar" src="'+ch.photo+'" alt="">':'<div class="combat-avatar">術</div>')+
       '<div class="combat-char-title"><h3>'+esc(ch.sorcererName)+'</h3><div class="muted">'+esc(ch.userName)+' · '+esc(ch.grade||'Sin grado')+' · '+esc(sideLabel(ch))+'</div></div>'+
