@@ -199,6 +199,50 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
   .roll-chat .combat-chat-compose{grid-template-columns:78px minmax(0,1fr)}
   .roll-chat .combat-chat-compose button{grid-column:1/-1}
 }
+
+.info-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:14px}
+.info-head h2{margin:0 0 5px}
+.info-intro{padding:12px 14px;border:1px solid #30303d;border-radius:12px;background:#101018;color:var(--muted);margin-bottom:12px}
+.info-section-card{border:1px solid #30303d;border-radius:13px;background:#0f0f16;margin-bottom:10px;overflow:hidden}
+.info-section-card>summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;font-weight:850;font-size:15px}
+.info-section-card>summary::-webkit-details-marker,.info-group>summary::-webkit-details-marker,.info-subgroup>summary::-webkit-details-marker,.info-talent>summary::-webkit-details-marker,.info-rule-item>summary::-webkit-details-marker{display:none}
+.info-section-card>summary:after,.info-group>summary:after,.info-subgroup>summary:after,.info-talent>summary:after,.info-rule-item>summary:after{content:"＋";margin-left:auto;color:var(--muted)}
+.info-section-card[open]>summary:after,.info-group[open]>summary:after,.info-subgroup[open]>summary:after,.info-talent[open]>summary:after,.info-rule-item[open]>summary:after{content:"−"}
+.info-section-card>summary small{font-size:10px;color:var(--muted);font-weight:600;margin-left:auto}
+.info-section-body{padding:0 14px 14px}
+.info-search{width:100%;padding:10px 11px;background:#0a0a10;color:var(--text);border:1px solid #343443;border-radius:9px;margin-bottom:10px}
+.info-group{border:1px solid #2b2b37;border-radius:10px;margin:8px 0;background:#0b0b11}
+.info-group>summary{cursor:pointer;list-style:none;padding:11px 12px;font-weight:800;display:flex;align-items:center}
+.info-group-body{padding:0 9px 9px}
+.info-subgroup{border-top:1px solid #272733}
+.info-subgroup:first-child{border-top:0}
+.info-subgroup>summary{cursor:pointer;list-style:none;padding:9px 8px;display:flex;gap:8px;align-items:center;font-weight:750}
+.info-subgroup>summary small{font-size:9px;color:var(--muted);font-weight:500;margin-left:auto}
+.info-subgroup-body{padding:0 5px 8px}
+.info-talent{border:1px solid #292936;border-radius:8px;margin:5px 0;background:#111118}
+.info-talent>summary{cursor:pointer;list-style:none;padding:8px 10px;font-size:12px;font-weight:750;display:flex;align-items:center}
+.info-talent-body{padding:0 10px 10px;color:#d4d4d8;font-size:11px;line-height:1.5}
+.info-rules h4{margin:16px 0 7px;font-size:13px}
+.info-rules p{font-size:12px;line-height:1.55;color:#d4d4d8;margin:7px 0}
+.info-lead{padding:10px 11px;border-left:3px solid #7c3aed;background:#111118;border-radius:7px}
+.info-pending{margin-top:12px;padding:10px 11px;border:1px solid #854d0e;background:rgba(133,77,14,.13);border-radius:9px;color:#fde68a;font-size:11px;line-height:1.45}
+.info-rule-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.info-rule-grid>div{padding:10px;border:1px solid #2d2d39;border-radius:9px;background:#111118}
+.info-rule-grid b,.info-rule-grid span{display:block}
+.info-rule-grid span{font-size:11px;color:var(--muted);margin-top:4px}
+.info-rule-list{display:grid;gap:6px}
+.info-rule-item{border:1px solid #2d2d39;border-radius:9px;background:#111118}
+.info-rule-item>summary{cursor:pointer;list-style:none;padding:9px 10px;font-size:12px;font-weight:750;display:flex}
+.info-rule-item p{padding:0 10px 9px;margin:0!important}
+.info-table{display:grid;gap:5px}
+.info-table>div{display:grid;grid-template-columns:130px 1fr auto;gap:9px;align-items:center;padding:8px 9px;border:1px solid #292936;border-radius:8px;background:#111118}
+.info-table span{font-size:10px;color:var(--muted)}
+.info-table strong{font-size:11px}
+@media(max-width:700px){
+  .info-rule-grid{grid-template-columns:1fr}
+  .info-table>div{grid-template-columns:1fr auto}
+  .info-table>div span{grid-column:1/-1;grid-row:2}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 </head>
@@ -210,6 +254,7 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
   <button id="nav-characters">Mis personajes</button>
   <button id="nav-campaigns">Campañas</button>
   <button id="nav-combat">Combate</button>
+  <button id="nav-info">Información</button>
 </div>
 <main>
 <section id="roulette-section">
@@ -356,6 +401,15 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
     <button id="combat-back" class="secondary hidden">← Volver a campañas</button>
   </div>
   <div id="combat-root"></div>
+</section>
+<section id="info-section" class="hidden">
+  <div class="info-head">
+    <div>
+      <h2>Información</h2>
+      <div class="muted">Biblioteca de reglas, talentos y sistemas de JJK New World.</div>
+    </div>
+  </div>
+  <div id="info-root"></div>
 </section>
 <section id="account-section" class="hidden">
   <div class="sheet-card">
@@ -534,21 +588,24 @@ window.addEventListener('pagehide',freezeBrowserScrollPosition);
 window.addEventListener('pageshow',()=>restoreBrowserScrollPosition());
 
 function showTab(tab){
-  const roulette=tab==='roulette',characters=tab==='characters',campaigns=tab==='campaigns',account=tab==='account',combat=tab==='combat';
+  const roulette=tab==='roulette',characters=tab==='characters',campaigns=tab==='campaigns',account=tab==='account',combat=tab==='combat',info=tab==='info';
   document.getElementById('roulette-section').classList.toggle('hidden',!roulette);
   document.getElementById('characters-section').classList.toggle('hidden',!characters);
   document.getElementById('campaigns-section').classList.toggle('hidden',!campaigns);
   document.getElementById('combat-section').classList.toggle('hidden',!combat);
   document.getElementById('account-section').classList.toggle('hidden',!account);
+  document.getElementById('info-section').classList.toggle('hidden',!info);
   document.getElementById('nav-roulette').classList.toggle('active',roulette);
   document.getElementById('nav-characters').classList.toggle('active',characters);
   document.getElementById('nav-campaigns').classList.toggle('active',campaigns);
   document.getElementById('nav-combat').classList.toggle('active',combat);
   document.getElementById('nav-account').classList.toggle('active',account);
+  document.getElementById('nav-info').classList.toggle('active',info);
   if(characters)renderCharacters();
   if(campaigns)renderCampaigns();
   if(combat&&typeof renderCombat==='function')renderCombat();
   if(account&&typeof renderAuth==='function')renderAuth();
+  if(info&&typeof renderInformation==='function')renderInformation();
   localStorage.setItem('jjk-active-tab',tab);
 }
 document.getElementById('nav-roulette').addEventListener('click',()=>showTab('roulette'));
@@ -556,6 +613,137 @@ document.getElementById('nav-characters').addEventListener('click',()=>showTab('
 document.getElementById('nav-campaigns').addEventListener('click',()=>showTab('campaigns'));
 document.getElementById('nav-account').addEventListener('click',()=>showTab('account'));
 document.getElementById('nav-combat').addEventListener('click',()=>showTab('combat'));
+document.getElementById('nav-info').addEventListener('click',()=>showTab('info'));
+
+
+function infoTalentItems(category){
+  return passiveData.filter(p=>p[0]===category).map(p=>
+    '<details class="info-talent" data-talent-name="'+esc((p[1]+' '+p[0]).toLowerCase())+'">'+
+      '<summary>'+esc(p[1])+'</summary>'+
+      '<div class="info-talent-body">'+esc(p[2])+'</div>'+
+    '</details>'
+  ).join('');
+}
+function infoTalentCategory(category){
+  const count=passiveData.filter(p=>p[0]===category).length;
+  return '<details class="info-subgroup">'+
+    '<summary><span>'+esc(category)+'</span><small>'+count+' talentos</small></summary>'+
+    '<div class="info-subgroup-body">'+infoTalentItems(category)+'</div>'+
+  '</details>';
+}
+function infoTypesHtml(){
+  const types=[
+    ['Potenciación / Alteración corporal','Técnicas cuyo efecto principal recae sobre el propio cuerpo del usuario: pueden potenciarlo, modificarlo, transformarlo o darle propiedades que normalmente no tendría.'],
+    ['Invocación','Permiten manifestar, convocar o mantener una o más entidades con cierto grado de autonomía respecto del usuario.'],
+    ['Creación / Manifestación','Transforman Energía Maldita en objetos, sustancias, armas, estructuras o fenómenos que antes no existían.'],
+    ['Control / Manipulación','Permiten controlar, mover, modificar, dirigir o alterar algo que ya existe.'],
+    ['Soporte / Condición','Otorgan, retiran, alteran o mantienen estados y condiciones en lugar de centrarse necesariamente en daño directo.'],
+    ['Marca','Funcionan mediante una conexión, señal o vínculo previo con un objetivo.'],
+    ['Técnica Existente','Permite obtener una Técnica Maldita de la obra original, adaptada a las estadísticas, acciones, costes y límites del sistema.'],
+    ['Restricción Celestial','Condición innata que sacrifica permanentemente una capacidad fundamental a cambio de una ventaja extraordinaria en otra área.'],
+    ['Extraordinaria / Regla','Se basa en una regla, fenómeno anómalo o sistema propio que no encaja correctamente en las categorías normales.']
+  ];
+  return types.map(t=>'<details class="info-rule-item"><summary>'+esc(t[0])+'</summary><p>'+esc(t[1])+'</p></details>').join('');
+}
+function infoGradesHtml(){
+  const grades=[
+    ['Grado 4','Técnicas sencillas, limitadas y con pocas aplicaciones iniciales.','32%'],
+    ['Semigrado 4','Superior a un Grado 4 estándar, todavía dentro del nivel bajo de desarrollo.','22%'],
+    ['Grado 3','Técnicas funcionales, con concepto sólido y mayor margen de aplicación.','16%'],
+    ['Semigrado 3','Intermedio entre Grado 3 y Grado 2.','11%'],
+    ['Grado 2','Técnicas fuertes y peligrosas, con buena utilidad y espacio para varias aplicaciones.','8%'],
+    ['Semigrado 2','Nivel elevado, cercano a Grado 1.','5%'],
+    ['Grado 1','Técnicas excepcionales dentro de los estándares normales.','4%'],
+    ['Grado Especial','Conceptos y escalas de poder fuera de lo normal, manteniendo coherencia con la mecánica central.','2%']
+  ];
+  return '<div class="info-table">'+grades.map(g=>'<div><b>'+esc(g[0])+'</b><span>'+esc(g[1])+'</span><strong>'+esc(g[2])+'</strong></div>').join('')+'</div>';
+}
+function renderInformation(){
+  const root=document.getElementById('info-root');if(!root)return;
+  const physical=['Fuerza','Agilidad','Velocidad','Resistencia','Durabilidad'];
+  const technical=['Inteligencia','Energía Maldita','Barreras'];
+  const generals=[...new Set(passiveData.map(p=>p[0]).filter(c=>!physical.includes(c)&&!technical.includes(c)))];
+
+  root.innerHTML=
+    '<div class="info-intro">La información está organizada en secciones desplegables. Tocá solo lo que quieras consultar.</div>'+
+    '<details class="info-section-card" open>'+
+      '<summary><span>Talentos / Pasivas</span><small>'+passiveData.length+' talentos cargados</small></summary>'+
+      '<div class="info-section-body">'+
+        '<input class="info-search" id="info-talent-search" placeholder="Buscar talento por nombre..." oninput="filterInfoTalents(this.value)">'+
+        '<details class="info-group" open><summary>Físicos</summary><div class="info-group-body">'+physical.map(infoTalentCategory).join('')+'</div></details>'+
+        '<details class="info-group"><summary>Técnicos / Energía</summary><div class="info-group-body">'+technical.map(infoTalentCategory).join('')+'</div></details>'+
+        (generals.length?'<details class="info-group"><summary>Generales de combate</summary><div class="info-group-body">'+generals.map(infoTalentCategory).join('')+'</div></details>':'')+
+      '</div>'+
+    '</details>'+
+
+    '<details class="info-section-card">'+
+      '<summary><span>Creación de personajes</span><small>Sistema actual</small></summary>'+
+      '<div class="info-section-body info-rules">'+
+        '<h4>Identidad</h4><p>La ficha usa el nombre del personaje y su bando: <b>Hechicero</b> o <b>Maldición</b>.</p>'+
+        '<h4>Estadísticas</h4><p>Las estadísticas base usan valores enteros de <b>1 a 5</b>: Fuerza, Agilidad, Velocidad, Resistencia, Durabilidad, Inteligencia, Energía Maldita y Barreras. <b>Control de EM</b> también usa escala 1–5 y se tira desde la misma ruleta de estadísticas.</p>'+
+        '<h4>Tipo de Técnica</h4><p>Las siete categorías comunes reparten el 90% en partes iguales (≈12,86% cada una), Restricción Celestial tiene 7% y Extraordinaria / Regla 3%.</p>'+
+        '<h4>Grado inicial</h4>'+infoGradesHtml()+
+        '<h4>Pasivas</h4><p>La ruleta contiene actualmente <b>'+passiveData.length+' talentos</b>. Todos los resultados tienen la misma probabilidad dentro de esa ruleta.</p>'+
+        '<div class="info-pending"><b>En desarrollo:</b> todavía quedan reglas de creación y balance por cerrar; esta sección se irá ampliando a medida que se definan.</div>'+
+      '</div>'+
+    '</details>'+
+
+    '<details class="info-section-card">'+
+      '<summary><span>Sistema de combate</span><small>Reglas actuales + pendientes</small></summary>'+
+      '<div class="info-section-body info-rules">'+
+        '<h4>Recursos derivados</h4>'+
+        '<div class="info-rule-grid">'+
+          '<div><b>Vida</b><span>Durabilidad × 50</span></div>'+
+          '<div><b>Reserva de EM</b><span>Energía Maldita × 50</span></div>'+
+          '<div><b>Resistencia</b><span>Resistencia × 50</span></div>'+
+        '</div>'+
+        '<h4>Tiradas de estadísticas</h4><p>Las tiradas de combate usan <b>1d20 + estadística</b> para Fuerza, Agilidad, Velocidad, Inteligencia, Barreras y Control de EM. Resistencia, Durabilidad y Energía Maldita funcionan como recursos y no usan tirada D20 directa.</p>'+
+        '<h4>Técnicas</h4><p>Cada uso de técnica puede tener un nombre, una estadística válida para la tirada, un coste de Energía Maldita y una descripción. El coste se descuenta de la reserva de EM al utilizar la acción.</p>'+
+        '<h4>Dados libres</h4><p>El panel de combate permite D4, D6, D8, D10, D12 y D20, además de expresiones múltiples como 2D8 o 5D20.</p>'+
+        '<div class="info-pending"><b>En desarrollo:</b> la fórmula definitiva de ataque, defensa, daño físico, críticos y otras interacciones todavía no está cerrada. No se presenta acá como regla definitiva hasta que la terminemos.</div>'+
+      '</div>'+
+    '</details>'+
+
+    '<details class="info-section-card">'+
+      '<summary><span>Tipos de técnicas y grados</span><small>Documento base</small></summary>'+
+      '<div class="info-section-body info-rules">'+
+        '<p class="info-lead">El tipo define <b>qué clase de técnica</b> puede crear el personaje. El grado define <b>hasta dónde puede llevar ese concepto</b>. Son dos resultados independientes.</p>'+
+        '<div class="info-rule-list">'+infoTypesHtml()+'</div>'+
+        '<h4>Grados</h4>'+infoGradesHtml()+
+        '<div class="info-pending"><b>Pendiente:</b> todavía deben definirse los límites mecánicos exactos de cada grado en potencia, alcance, versatilidad, aplicaciones, condiciones y escalabilidad.</div>'+
+      '</div>'+
+    '</details>'+
+
+    '<details class="info-section-card">'+
+      '<summary><span>IPT y progresión</span><small>Valores provisionales</small></summary>'+
+      '<div class="info-section-body info-rules">'+
+        '<p><b>IPT = Total de Estadísticas + Valor de Técnica + Bonificaciones especiales.</b></p>'+
+        '<p>El tipo de técnica no suma poder por sí mismo. El grado representa el potencial de la técnica dentro del cálculo.</p>'+
+        '<div class="info-table">'+
+          [['Grado 4','+20'],['Semigrado 4','+30'],['Grado 3','+45'],['Semigrado 3','+60'],['Grado 2','+80'],['Semigrado 2','+105'],['Grado 1','+135'],['Grado Especial','+180']].map(x=>'<div><b>'+x[0]+'</b><span>Valor provisional para IPT</span><strong>'+x[1]+'</strong></div>').join('')+
+        '</div>'+
+        '<p>El IPT es una referencia aproximada de poder: no determina automáticamente quién gana un combate.</p>'+
+        '<div class="info-pending"><b>En desarrollo:</b> los valores por grado, bonificaciones especiales, combates grupales y vínculo con progresión/recompensas siguen sujetos a balance. El documento de IPT también contempla Output de EM, pero esa estadística todavía no está implementada en la página.</div>'+
+      '</div>'+
+    '</details>';
+}
+function filterInfoTalents(value){
+  const q=String(value||'').trim().toLowerCase();
+  document.querySelectorAll('#info-root .info-talent').forEach(el=>{
+    const match=!q||(el.dataset.talentName||'').includes(q);
+    el.style.display=match?'':'none';
+  });
+  document.querySelectorAll('#info-root .info-subgroup').forEach(group=>{
+    const any=[...group.querySelectorAll('.info-talent')].some(el=>el.style.display!=='none');
+    group.style.display=any?'':'none';
+    if(q&&any)group.open=true;
+  });
+  document.querySelectorAll('#info-root .info-group').forEach(group=>{
+    const any=[...group.querySelectorAll('.info-subgroup')].some(el=>el.style.display!=='none');
+    group.style.display=any?'':'none';
+    if(q&&any)group.open=true;
+  });
+}
 
 function makeCharacterFromSheet(){
   return {
@@ -873,7 +1061,7 @@ function deleteCampaign(id){
 }
 renderCampaigns();
 const activeTab=localStorage.getItem('jjk-active-tab');
-if(activeTab==='characters')showTab('characters'); else if(activeTab==='campaigns')showTab('campaigns'); else if(activeTab==='account')showTab('account'); else if(activeTab==='combat')showTab('combat');
+if(activeTab==='characters')showTab('characters'); else if(activeTab==='campaigns')showTab('campaigns'); else if(activeTab==='account')showTab('account'); else if(activeTab==='combat')showTab('combat'); else if(activeTab==='info')showTab('info');
 
 function pick(c){const total=c.weights.reduce((a,b)=>a+b,0);let r=Math.random()*total;for(let i=0;i<c.values.length;i++){if(r<c.weights[i])return i;r-=c.weights[i]}return c.values.length-1}
 function angleCenter(c,idx){const total=c.weights.reduce((a,b)=>a+b,0);let before=0;for(let i=0;i<idx;i++)before+=c.weights[i];return ((before+c.weights[idx]/2)/total)*360}
