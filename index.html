@@ -1028,7 +1028,19 @@ saveCharacterEdit=async function(id){
   }
   const payload={sorcerer_name:document.getElementById('edit-'+id+'-name').value.trim()||'Hechicero sin nombre',user_name:document.getElementById('edit-'+id+'-user').value.trim()||'—',technique_type:document.getElementById('edit-'+id+'-type').value||null,grade:document.getElementById('edit-'+id+'-grade').value||null,control_em:document.getElementById('edit-'+id+'-control').value?Number(document.getElementById('edit-'+id+'-control').value):null,current_stats:currentStats,technique_description:document.getElementById('tech-desc-'+id)?.value.trim()||'',technique_actions:collectTechniqueUses(id),photo_path:photoPath,updated_at:new Date().toISOString()};
   const {error}=await sb.from('characters').update(payload).eq('id',id);if(error){toast(error.message);return}
-  await loadSharedData();toast('Cambios guardados y sincronizados.');
+  const hpMax=Math.max(0,(normalizeStatValue(currentStats['Durabilidad'])??1)*50);
+  const ceMax=Math.max(0,(normalizeStatValue(currentStats['Energía Maldita'])??1)*50);
+  const resMax=Math.max(0,(normalizeStatValue(currentStats['Resistencia'])??1)*50);
+  const {data:states}=await sb.from('combat_states').select('campaign_id,hp_current,ce_current,durability_current').eq('character_id',id);
+  for(const s of (states||[])){
+    await sb.from('combat_states').update({
+      hp_max:hpMax,hp_current:Math.min(Number(s.hp_current||0),hpMax),
+      ce_max:ceMax,ce_current:Math.min(Number(s.ce_current||0),ceMax),
+      durability_max:resMax,durability_current:Math.min(Number(s.durability_current||0),resMax),
+      updated_at:new Date().toISOString()
+    }).eq('campaign_id',s.campaign_id).eq('character_id',id);
+  }
+  await loadSharedData();toast('Cambios guardados y recursos recalculados.');
 };
 deleteCharacter=async function(id){
   if(!confirm('¿Eliminar este personaje de Mis personajes?'))return;
@@ -1409,7 +1421,7 @@ async function rollTechniqueAction(campaignId,charId,index){
     if(!state){toast('No hay estado de combate cargado para este personaje.');return}
     if(Number(state.ce_current)<cost){toast('No tenés suficiente Energía Maldita para usar '+action.name+'.');return}
   }
-  const bonus=techniqueStatValue(ch,action.stat||'Energía Maldita');
+  const bonus=techniqueStatValue(ch,action.stat||'Control EM');
   const die=Math.floor(Math.random()*20)+1,total=die+bonus;
   await animateD20(die,ch.sorcererName,action.name);
 
@@ -1454,6 +1466,7 @@ function scrollRollChat(){
 }
 async function rollCombatStat(campaignId,charId,statName,bonus){
   if(!currentUser)return;
+  if(resourceStatNames.includes(statName)){toast('Resistencia, Durabilidad y Energía Maldita son recursos y no usan tirada D20.');return}
   const ch=allCharacters.find(c=>c.id===charId);
   if(!ch)return;
   if(!isAdmin&&ch.owner_id!==currentUser.id){toast('Solo podés tirar estadísticas de tus personajes.');return}
