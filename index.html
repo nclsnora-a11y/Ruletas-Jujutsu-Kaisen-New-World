@@ -1322,20 +1322,21 @@ const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
 let currentUser=null,currentProfile=null,isAdmin=false,allCharacters=[];
 let sharedZones=[],sharedMemberships=[];
 
-function imageUrl(path){
+function imageUrl(path,version){
   if(!path)return null;
-  return sb.storage.from('jjk-images').getPublicUrl(path).data.publicUrl;
+  const url=sb.storage.from('jjk-images').getPublicUrl(path).data.publicUrl;
+  return version?url+'?v='+encodeURIComponent(version):url;
 }
 function normalizeCharacter(r){
   return {
     id:r.id,owner_id:r.owner_id,sorcererName:r.sorcerer_name,userName:r.user_name||'—',
     initialStats:r.initial_stats||{},currentStats:r.current_stats||{},type:r.technique_type||null,
     grade:r.grade||null,control:r.control_em==null?null:String(r.control_em),side:r.character_side||'hechicero',passives:r.passives||[],techniqueDescription:r.technique_description||'',techniqueActions:Array.isArray(r.technique_actions)?r.technique_actions:[],
-    photo_path:r.photo_path||null,photo:imageUrl(r.photo_path),createdAt:r.created_at
+    photo_path:r.photo_path||null,photo:imageUrl(r.photo_path,r.updated_at||r.created_at),createdAt:r.created_at,updatedAt:r.updated_at
   };
 }
 function normalizeCampaign(r){
-  return {id:r.id,name:r.name,photo_path:r.image_path||null,photo:imageUrl(r.image_path),createdAt:r.created_at,zones:[]};
+  return {id:r.id,name:r.name,photo_path:r.image_path||null,photo:imageUrl(r.image_path,r.updated_at||r.created_at),createdAt:r.created_at,updatedAt:r.updated_at,zones:[]};
 }
 function dataUrlToBlob(dataUrl){
   const [meta,b64]=dataUrl.split(','),mime=(meta.match(/data:(.*?);/)||[])[1]||'image/jpeg';
