@@ -255,7 +255,7 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
 <label for="stat-target">Estadística que estás tirando</label>
 <select id="stat-target">
 <option>Fuerza</option><option>Agilidad</option><option>Velocidad</option><option>Resistencia</option>
-<option>Durabilidad</option><option>Inteligencia</option><option>Energía Maldita</option><option>Barreras</option>
+<option>Durabilidad</option><option>Inteligencia</option><option>Energía Maldita</option><option>Barreras</option><option>Control de EM</option>
 </select>
 </div>
 <div class="wheel"><div class="pointer"></div><canvas id="canvas-stats" width="700" height="700"></canvas></div>
@@ -303,21 +303,7 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
 <h3>Historial</h3><div class="chips" id="history-grade"></div>
 </section>
 
-<section class="card" id="card-control">
-<h2>Control de Energía Maldita 1–5</h2>
-<p class="muted">Todos los niveles tienen exactamente 20% de probabilidad.</p>
-<div class="wheel"><div class="pointer"></div><canvas id="canvas-control" width="700" height="700"></canvas></div>
-<div class="actions"><button id="spin-control">Girar ruleta</button><button class="secondary" id="clear-control">Limpiar</button></div>
-<div class="result" id="result-control">Resultado: —</div>
-<div class="legend">
-<span>Control 1</span><span>20%</span>
-<span>Control 2</span><span>20%</span>
-<span>Control 3</span><span>20%</span>
-<span>Control 4</span><span>20%</span>
-<span>Control 5</span><span>20%</span>
-</div>
-<h3>Historial</h3><div class="chips" id="history-control"></div>
-</section>
+
 
 <section class="card" id="card-passives">
 <h2>Ruleta de Todas las Pasivas</h2>
@@ -413,10 +399,9 @@ const configs={
 stats:{values:['1','2','3','4','5'],weights:[20,20,20,20,20],canvas:'canvas-stats',spin:'spin-stats',clear:'clear-stats',result:'result-stats',history:'history-stats'},
 type:{values:['Potenciación','Invocación','Creación','Control','Soporte','Marca','Técnica Existente','Restricción Celestial','Extraordinaria'],weights:[90/7,90/7,90/7,90/7,90/7,90/7,90/7,7,3],canvas:'canvas-type',spin:'spin-type',clear:'clear-type',result:'result-type',history:'history-type'},
 grade:{values:['Grado 4','Semigrado 4','Grado 3','Semigrado 3','Grado 2','Semigrado 2','Grado 1','Grado Especial'],weights:[32,22,16,11,8,5,4,2],canvas:'canvas-grade',spin:'spin-grade',clear:'clear-grade',result:'result-grade',history:'history-grade'},
-control:{values:['1','2','3','4','5'],weights:[20,20,20,20,20],canvas:'canvas-control',spin:'spin-control',clear:'clear-control',result:'result-control',history:'history-control'},
 passives:{values:Array.from({length:140},(_,i)=>String(i+1)),weights:Array(140).fill(1),canvas:'canvas-passives',spin:'spin-passives',clear:'clear-passives',result:'result-passives',history:'history-passives'}
 };
-const states={stats:{rot:0,busy:false,h:[]},type:{rot:0,busy:false,h:[]},grade:{rot:0,busy:false,h:[]},control:{rot:0,busy:false,h:[]},passives:{rot:0,busy:false,h:[]}};
+const states={stats:{rot:0,busy:false,h:[]},type:{rot:0,busy:false,h:[]},grade:{rot:0,busy:false,h:[]},passives:{rot:0,busy:false,h:[]}};
 const statNames=['Fuerza','Agilidad','Velocidad','Resistencia','Durabilidad','Inteligencia','Energía Maldita','Barreras'];
 const resourceStatNames=['Resistencia','Durabilidad','Energía Maldita'];
 const rollableStatNames=statNames.filter(n=>!resourceStatNames.includes(n));
@@ -458,7 +443,7 @@ function renderSheet(){
 }
 function registerResult(key,idx){
   pushUndo();
-  if(key==='stats'){const target=document.getElementById('stat-target').value;sheetState.stats[target]=configs[key].values[idx]}
+  if(key==='stats'){const target=document.getElementById('stat-target').value;if(target==='Control de EM')sheetState.control=configs[key].values[idx];else sheetState.stats[target]=configs[key].values[idx]}
   else if(key==='type')sheetState.type=configs[key].values[idx];
   else if(key==='grade')sheetState.grade=configs[key].values[idx];
   else if(key==='control')sheetState.control=configs[key].values[idx];
@@ -639,7 +624,7 @@ function toggleEditor(id){
       <div><label>Bando</label><select id="edit-${id}-side"><option value="hechicero" ${ch.side!=='maldicion'?'selected':''}>Hechicero</option><option value="maldicion" ${ch.side==='maldicion'?'selected':''}>Maldición</option></select></div>
       <div><label>Tipo de técnica</label><select id="edit-${id}-type"><option value="">—</option>${optionList(configs.type.values,ch.type)}</select></div>
       <div><label>Grado</label><select id="edit-${id}-grade"><option value="">—</option>${optionList(configs.grade.values,ch.grade)}</select></div>
-      <div><label>Control de EM</label><select id="edit-${id}-control"><option value="">—</option>${optionList(configs.control.values,ch.control)}</select></div>
+      <div><label>Control de EM</label><select id="edit-${id}-control"><option value="">—</option>${optionList(['1','2','3','4','5'],ch.control)}</select></div>
     </div>
     <h4>Estadísticas actuales</h4>
     <div class="editor-stats">${statsHtml}</div>
