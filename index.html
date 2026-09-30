@@ -181,8 +181,7 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
       <h2>Ficha automática de personaje</h2>
       <div class="muted">Cada resultado que saques se guarda acá automáticamente.</div>
 <div class="identity-grid">
-  <div class="identity-field"><label for="sorcerer-name">Nombre del hechicero</label><input id="sorcerer-name" type="text" placeholder="Ej: Ren Kuroda"></div>
-  <div class="identity-field"><label for="user-name">Nombre del usuario</label><input id="user-name" type="text" placeholder="Ej: Nico"></div>
+  <div class="identity-field"><label for="sorcerer-name">Nombre del personaje</label><input id="sorcerer-name" type="text" placeholder="Ej: Ren Kuroda"></div>
   <div class="identity-field"><label for="character-side">Bando</label><select id="character-side"><option value="hechicero">Hechicero</option><option value="maldicion">Maldición</option></select></div>
 </div>
     </div>
@@ -402,7 +401,7 @@ try{
     sheetState.stats=normalizeStatsObject({...blankStats(),...(saved.stats||{})});
     sheetState.type=saved.type||null; sheetState.grade=saved.grade||null; sheetState.control=saved.control||null;
     sheetState.passives=Array.isArray(saved.passives)?saved.passives:[];
-    sheetState.sorcererName=saved.sorcererName||''; sheetState.userName=saved.userName||''; sheetState.side=saved.side==='maldicion'?'maldicion':'hechicero';
+    sheetState.sorcererName=saved.sorcererName||''; sheetState.userName=''; sheetState.side=saved.side==='maldicion'?'maldicion':'hechicero';
     sheetState.undo=[];
   }
 }catch(e){}
@@ -414,7 +413,7 @@ function renderSheet(){
   document.getElementById('sheet-stat-total').textContent=Object.values(sheetState.stats).reduce((a,v)=>a+(Number(v)||0),0);document.getElementById('sheet-type').textContent=sheetState.type||'—';document.getElementById('sheet-type-desc').textContent=sheetState.type?(typeDescriptions[sheetState.type]||'Sin descripción disponible.'):'La descripción del tipo aparecerá cuando gires la ruleta.';
   document.getElementById('sheet-grade').textContent=sheetState.grade||'—';
   document.getElementById('sheet-control').textContent=sheetState.control||'—';
-  document.getElementById('sorcerer-name').value=sheetState.sorcererName||'';document.getElementById('user-name').value=sheetState.userName||'';const sideEl=document.getElementById('character-side');if(sideEl)sideEl.value=sheetState.side||'hechicero';const p=document.getElementById('sheet-passives');
+  document.getElementById('sorcerer-name').value=sheetState.sorcererName||'';const sideEl=document.getElementById('character-side');if(sideEl)sideEl.value=sheetState.side||'hechicero';const p=document.getElementById('sheet-passives');
   p.innerHTML=sheetState.passives.length?sheetState.passives.map((x,i)=>'<div class="sheet-passive"><b>'+(i+1)+'. '+x.category+' — '+x.name+'</b><span>'+x.description+'</span></div>').join(''):'<span class="muted">Todavía no hay pasivas.</span>';
   saveSheet();
 }
@@ -428,7 +427,7 @@ function registerResult(key,idx){
   renderSheet();
 }
 function sheetText(){
-  const total=Object.values(sheetState.stats).reduce((a,v)=>a+(Number(v)||0),0);const lines=['JJK NEW WORLD — FICHA GENERADA','Nombre: '+(sheetState.sorcererName||'—'),'Usuario: '+(sheetState.userName||'—'),'Bando: '+(sheetState.side==='maldicion'?'Maldición':'Hechicero'),'','ESTADÍSTICAS'];
+  const total=Object.values(sheetState.stats).reduce((a,v)=>a+(Number(v)||0),0);const lines=['JJK NEW WORLD — FICHA GENERADA','Nombre: '+(sheetState.sorcererName||'—'),'Bando: '+(sheetState.side==='maldicion'?'Maldición':'Hechicero'),'','ESTADÍSTICAS'];
   statNames.forEach(n=>lines.push(n+': '+(sheetState.stats[n]??'—')));lines.push('Total: '+total);
   lines.push('','TÉCNICA','Tipo: '+(sheetState.type||'—'),'Descripción: '+(sheetState.type?(typeDescriptions[sheetState.type]||'—'):'—'),'Grado inicial: '+(sheetState.grade||'—'),'Control de Energía Maldita: '+(sheetState.control||'—'),'','PASIVAS');
   if(sheetState.passives.length)sheetState.passives.forEach((p,i)=>lines.push((i+1)+'. '+p.category+' — '+p.name+' | '+p.description));
@@ -438,7 +437,7 @@ function sheetText(){
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500)}
 document.getElementById('undo-sheet').addEventListener('click',()=>{if(!sheetState.undo.length){toast('No hay tiradas para deshacer.');return}const prev=JSON.parse(sheetState.undo.pop());sheetState={...sheetState,...prev,undo:sheetState.undo};renderSheet();});
 document.getElementById('new-sheet').addEventListener('click',()=>{pushUndo();sheetState.stats=blankStats();sheetState.type=null;sheetState.grade=null;sheetState.control=null;sheetState.passives=[];sheetState.sorcererName='';sheetState.userName='';sheetState.side='hechicero';renderSheet();toast('Ficha nueva creada.');});
-document.getElementById('sorcerer-name').addEventListener('input',e=>{sheetState.sorcererName=e.target.value;saveSheet()});document.getElementById('user-name').addEventListener('input',e=>{sheetState.userName=e.target.value;saveSheet()});document.getElementById('character-side').addEventListener('change',e=>{sheetState.side=e.target.value==='maldicion'?'maldicion':'hechicero';saveSheet()});
+document.getElementById('sorcerer-name').addEventListener('input',e=>{sheetState.sorcererName=e.target.value;saveSheet()});document.getElementById('character-side').addEventListener('change',e=>{sheetState.side=e.target.value==='maldicion'?'maldicion':'hechicero';saveSheet()});
 document.getElementById('copy-sheet').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(sheetText());toast('Ficha copiada para Discord.')}catch(e){const ta=document.createElement('textarea');ta.value=sheetText();document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Ficha copiada para Discord.')}});
 renderSheet();
 
@@ -538,7 +537,7 @@ function makeCharacterFromSheet(){
   return {
     id:'char-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
     sorcererName:(sheetState.sorcererName||'').trim()||'Hechicero sin nombre',
-    userName:(sheetState.userName||'').trim()||'—',
+    userName:'—',
     initialStats:normalizeStatsObject(sheetState.stats),
     currentStats:normalizeStatsObject(sheetState.stats),
     type:sheetState.type||null,
@@ -561,7 +560,7 @@ function characterCard(ch){
   return `<article class="character-card character-side-${ch.side==='maldicion'?'maldicion':'hechicero'}" id="card-${esc(ch.id)}">
     <div class="character-top">
       ${ch.photo?'<img class="character-avatar" src="'+ch.photo+'" alt="Foto de '+esc(ch.sorcererName)+'">':'<div class="character-avatar placeholder">術</div>'}
-      <div><h3>${esc(ch.sorcererName)}</h3><div class="character-meta">Usuario: ${esc(ch.userName)} · Creado: ${new Date(ch.createdAt).toLocaleDateString('es-AR')}</div></div>
+      <div><h3>${esc(ch.sorcererName)}</h3><div class="character-meta">Creado: ${new Date(ch.createdAt).toLocaleDateString('es-AR')}</div></div>
     </div>
     <div class="character-summary">
       <span>Tipo de técnica</span><strong>${esc(ch.type||'—')}</strong>
@@ -597,8 +596,7 @@ function toggleEditor(id){
   el.innerHTML=`
     <div class="editor-grid">
       <div><label>Foto del personaje</label>${ch.photo?'<img class="photo-preview" src="'+ch.photo+'" alt="Vista previa">':'<div class="photo-preview character-avatar placeholder">術</div>'}<input id="edit-${id}-photo" type="file" accept="image/*"><div class="photo-note">La imagen se reduce automáticamente para ahorrar espacio.</div>${ch.photo?'<button class="secondary danger" style="margin-top:7px" onclick="removePhoto(\''+id+'\')">Quitar foto</button>':''}</div>
-      <div><label>Nombre del hechicero</label><input id="edit-${id}-name" value="${esc(ch.sorcererName)}"></div>
-      <div><label>Usuario</label><input id="edit-${id}-user" value="${esc(ch.userName)}"></div>
+      <div><label>Nombre del personaje</label><input id="edit-${id}-name" value="${esc(ch.sorcererName)}"></div>
       <div><label>Bando</label><select id="edit-${id}-side"><option value="hechicero" ${ch.side!=='maldicion'?'selected':''}>Hechicero</option><option value="maldicion" ${ch.side==='maldicion'?'selected':''}>Maldición</option></select></div>
       <div><label>Tipo de técnica</label><select id="edit-${id}-type"><option value="">—</option>${optionList(configs.type.values,ch.type)}</select></div>
       <div><label>Grado</label><select id="edit-${id}-grade"><option value="">—</option>${optionList(configs.grade.values,ch.grade)}</select></div>
@@ -1140,7 +1138,7 @@ zoneHtmlFor=function(c,z){
  if(old){const btn=old.cloneNode(true);old.replaceWith(btn);btn.onclick=async()=>{
    if(!currentUser){toast('Iniciá sesión para guardar el personaje.');return}
    const ch=makeCharacterFromSheet();
-   const payload={owner_id:currentUser.id,sorcerer_name:ch.sorcererName,user_name:ch.userName,character_side:ch.side||'hechicero',initial_stats:ch.initialStats,current_stats:ch.currentStats,technique_type:ch.type,grade:ch.grade,control_em:ch.control?Number(ch.control):null,passives:ch.passives,technique_description:'',technique_actions:[]};
+   const payload={owner_id:currentUser.id,sorcerer_name:ch.sorcererName,user_name:'—',character_side:ch.side||'hechicero',initial_stats:ch.initialStats,current_stats:ch.currentStats,technique_type:ch.type,grade:ch.grade,control_em:ch.control?Number(ch.control):null,passives:ch.passives,technique_description:'',technique_actions:[]};
    const {error}=await sb.from('characters').insert(payload);if(error){toast(error.message);return}
    await loadSharedData();toast('Personaje guardado y sincronizado.');
  }}
@@ -1155,7 +1153,7 @@ saveCharacterEdit=async function(id){
   if(photoInput?.files?.[0]){
     try{photoPath=await uploadInputFile(photoInput.files[0],currentUser.id+'/characters/'+id+'.jpg')}catch(e){toast('No pude subir la foto.');return}
   }
-  const payload={sorcerer_name:document.getElementById('edit-'+id+'-name').value.trim()||'Hechicero sin nombre',user_name:document.getElementById('edit-'+id+'-user').value.trim()||'—',character_side:document.getElementById('edit-'+id+'-side')?.value||'hechicero',technique_type:document.getElementById('edit-'+id+'-type').value||null,grade:document.getElementById('edit-'+id+'-grade').value||null,control_em:document.getElementById('edit-'+id+'-control').value?Number(document.getElementById('edit-'+id+'-control').value):null,current_stats:currentStats,technique_description:document.getElementById('tech-desc-'+id)?.value.trim()||'',technique_actions:collectTechniqueUses(id),photo_path:photoPath,updated_at:new Date().toISOString()};
+  const payload={sorcerer_name:document.getElementById('edit-'+id+'-name').value.trim()||'Hechicero sin nombre',user_name:'—',character_side:document.getElementById('edit-'+id+'-side')?.value||'hechicero',technique_type:document.getElementById('edit-'+id+'-type').value||null,grade:document.getElementById('edit-'+id+'-grade').value||null,control_em:document.getElementById('edit-'+id+'-control').value?Number(document.getElementById('edit-'+id+'-control').value):null,current_stats:currentStats,technique_description:document.getElementById('tech-desc-'+id)?.value.trim()||'',technique_actions:collectTechniqueUses(id),photo_path:photoPath,updated_at:new Date().toISOString()};
   const {error}=await sb.from('characters').update(payload).eq('id',id);if(error){toast(error.message);return}
   const hpMax=Math.max(0,(normalizeStatValue(currentStats['Durabilidad'])??1)*50);
   const ceMax=Math.max(0,(normalizeStatValue(currentStats['Energía Maldita'])??1)*50);
@@ -1518,7 +1516,7 @@ function combatCharacterHtml(campaignId,ch){
   return '<article class="combat-char combat-side-'+(ch.side==='maldicion'?'maldicion':'hechicero')+' '+(!s.visible?'combat-hidden-card':'')+'" id="combat-char-'+ch.id+'">'+
     '<div class="combat-char-head" onclick="toggleCombatQuickMenu(\''+ch.id+'\')">'+
       (ch.photo?'<img class="combat-avatar" src="'+ch.photo+'" alt="">':'<div class="combat-avatar">術</div>')+
-      '<div class="combat-char-title"><h3>'+esc(ch.sorcererName)+'</h3><div class="muted">'+esc(ch.userName)+' · '+esc(ch.grade||'Sin grado')+' · '+esc(sideLabel(ch))+'</div></div>'+
+      '<div class="combat-char-title"><h3>'+esc(ch.sorcererName)+'</h3><div class="muted">'+esc(ch.grade||'Sin grado')+' · '+esc(sideLabel(ch))+'</div></div>'+
       '<span class="visibility-pill '+(s.visible?'on':'')+'">'+(s.visible?'Visible':'Oculto')+'</span>'+
     '</div>'+
     '<div class="combat-bars" onclick="event.stopPropagation()">'+resource('Vida · DUR×50','hp',s.hp_current,s.hp_max,'❤')+resource('Energía Maldita · EM×50','ce',s.ce_current,s.ce_max,'🔥')+resource('Resistencia · RES×50','du',s.durability_current,s.durability_max,'🫁')+'</div>'+
