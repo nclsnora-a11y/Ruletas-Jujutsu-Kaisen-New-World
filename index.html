@@ -1269,7 +1269,7 @@ let selectedCombatZoneId=null;
 let selectedCombatMapId=localStorage.getItem('jjk-combat-map')||null;
 let combatMapChannel=null;
 let mapMeasureMode=false;
-let mapZoom=1;
+let mapZoom=.82;
 
 function campaignCharacterIds(campaignId){
   const ids=[];
@@ -1891,7 +1891,7 @@ async function createCombatMap(campaignId){
 }
 async function selectCombatMap(campaignId,mapId){
   selectedCombatMapId=mapId||null;
-  mapZoom=1;
+  mapZoom=.82;
   if(selectedCombatMapId)localStorage.setItem('jjk-combat-map',selectedCombatMapId);else localStorage.removeItem('jjk-combat-map');
   await renderActiveCombatMap(campaignId);
 }
@@ -1994,14 +1994,14 @@ function applyMapZoom(){
     map.style.marginLeft=mapZoom<=1?'auto':'0';
     map.style.marginRight=mapZoom<=1?'auto':'0';
   }
-  if(value)value.textContent=Math.round(mapZoom*100)+'%';
+  if(value)value.textContent=(Math.abs(mapZoom-.82)<.001?'Ajustar':Math.round(mapZoom*100)+'%');
 }
 function changeMapZoom(delta){
   mapZoom=Math.round((mapZoom+Number(delta))*100)/100;
   applyMapZoom();
 }
 function resetMapZoom(){
-  mapZoom=1;
+  mapZoom=.82;
   applyMapZoom();
 }
 function toggleMapRuler(){
