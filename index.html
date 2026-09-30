@@ -689,18 +689,109 @@ function renderInformation(){
     '</details>'+
 
     '<details class="info-section-card">'+
-      '<summary><span>Sistema de combate</span><small>Reglas actuales + pendientes</small></summary>'+
+      '<summary><span>Sistema de combate</span><small>Versión Beta</small></summary>'+
       '<div class="info-section-body info-rules">'+
-        '<h4>Recursos derivados</h4>'+
-        '<div class="info-rule-grid">'+
-          '<div><b>Vida</b><span>Durabilidad × 50</span></div>'+
-          '<div><b>Reserva de EM</b><span>Energía Maldita × 50</span></div>'+
-          '<div><b>Resistencia</b><span>Resistencia × 50</span></div>'+
-        '</div>'+
-        '<h4>Tiradas de estadísticas</h4><p>Las tiradas de combate usan <b>1d20 + estadística</b> para Fuerza, Agilidad, Velocidad, Inteligencia, Barreras y Control de EM. Resistencia, Durabilidad y Energía Maldita funcionan como recursos y no usan tirada D20 directa.</p>'+
-        '<h4>Técnicas</h4><p>Cada uso de técnica puede tener un nombre, una estadística válida para la tirada, un coste de Energía Maldita y una descripción. El coste se descuenta de la reserva de EM al utilizar la acción.</p>'+
-        '<h4>Dados libres</h4><p>El panel de combate permite D4, D6, D8, D10, D12 y D20, además de expresiones múltiples como 2D8 o 5D20.</p>'+
-        '<div class="info-pending"><b>En desarrollo:</b> la fórmula definitiva de ataque, defensa, daño físico, críticos y otras interacciones todavía no está cerrada. No se presenta acá como regla definitiva hasta que la terminemos.</div>'+
+        '<p class="info-lead">Reglas actuales de combate de JJK New World. Los puntos que todavía no están cerrados aparecen marcados como provisionales o pendientes de balance.</p>'+
+
+        '<details class="info-rule-item"><summary>1. Inicio del combate e iniciativa</summary>'+
+          '<p>Todos los participantes tiran <b>1d20 + Inteligencia</b>. El resultado determina el orden de turnos de mayor a menor.</p>'+
+          '<p>La iniciativa se resuelve de forma general para todos los participantes. La intención es que el GM ejecute una única iniciativa colectiva y el sistema calcule automáticamente cada resultado.</p>'+
+          '<p><b>Desempates:</b> primero gana quien tenga mayor Inteligencia; si empatan, quien tenga mayor Velocidad; si también empatan en Velocidad, ambos tiran <b>1d100</b> y comienza quien obtenga el resultado más alto.</p>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>2. Economía del turno</summary>'+
+          '<p>Cada personaje dispone de <b>2 Acciones Principales</b>, <b>Movimiento del turno</b>, <b>Acción Adicional</b> y <b>Reacciones</b> cuando una habilidad, pasiva, técnica o regla las habilite.</p>'+
+          '<p>Las dos Acciones Principales pueden combinarse libremente: golpear dos veces, usar una técnica y luego golpear, mover o derribar un objeto y luego atacar, u otras combinaciones permitidas.</p>'+
+          '<p>La Acción Adicional se usa principalmente para comunicación breve e intercambio de información táctica. Las Reacciones no son una cantidad fija por turno: dependen de la habilidad que las permita y de sus límites específicos.</p>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>3. Movimiento normal</summary>'+
+          '<p>Al comienzo del turno se tira <b>1d20 + Velocidad</b>. El total es la cantidad de <b>pies</b> disponibles para desplazarse durante ese turno.</p>'+
+          '<p>Ejemplo: dado 5 + Velocidad 3 = <b>8 pies</b>.</p>'+
+          '<p>El movimiento puede dividirse durante el turno. Funciona como una reserva de distancia que puede utilizarse antes, entre o después de las Acciones Principales.</p>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>4. Movimiento complejo y obstáculos — Agilidad</summary>'+
+          '<p>Se resuelve con <b>1d20 + Agilidad</b>.</p>'+
+          '<p><b>Dificultad 5:</b> obstáculos simples, subir o saltar sobre un auto, obstáculos bajos. Si el personaje tiene Agilidad 5, puede superar automáticamente una acción de Dificultad 5.</p>'+
+          '<p><b>Dificultad 10:</b> autobús, techo bajo, árbol o estructuras de altura moderada.</p>'+
+          '<p><b>Dificultad 15:</b> escalar un edificio, desplazarse por cables de comunicaciones o realizar maniobras acrobáticas especialmente complejas.</p>'+
+          '<p>Si falla, el movimiento termina inmediatamente en la posición alcanzada y el personaje queda <b>Vulnerable</b>.</p>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>5. Interacción con objetos del entorno — Fuerza</summary>'+
+          '<p>Mover, empujar, levantar, derribar o alterar físicamente objetos se resuelve con <b>1d20 + Fuerza</b>.</p>'+
+          '<p><b>Dificultad 5:</b> mesa, silla y objetos sencillos. <b>Dificultad 10:</b> banco, mobiliario pesado y objetos grandes. <b>Dificultad 15:</b> acciones extremas como mover un auto cuando sea posible, derribar un poste o un árbol.</p>'+
+          '<p>El GM determina primero si la acción es físicamente posible.</p>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>6. Rango de combate cuerpo a cuerpo</summary>'+
+          '<p>Se considera cuerpo a cuerpo cuando la distancia entre personajes es de <b>1 a 3 pies</b>. A más de 3 pies, el personaje está fuera de ese rango.</p>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>7. Ataques físicos</summary>'+
+          '<p>Para intentar impactar físicamente, el atacante puede usar <b>1d20 + Fuerza</b> o <b>1d20 + Agilidad</b>, según el tipo de golpe, maniobra o estilo.</p>'+
+          '<p>La estadística utilizada para impactar no modifica la regla de daño físico.</p>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>8. Defensas contra ataques físicos</summary>'+
+          '<p><b>Agilidad:</b> el defensor intenta esquivar sin abandonar necesariamente el rango. Debe superar la tirada ofensiva. Si falla, recibe el golpe.</p>'+
+          '<p><b>Velocidad:</b> el defensor intenta salir físicamente del rango. Debe superar la tirada ofensiva y, si tiene éxito, debe abandonar realmente el cuerpo a cuerpo. Si falla, recibe el golpe y queda <b>Vulnerable</b>.</p>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>9. Daño físico</summary>'+
+          '<p>Una vez que el ataque impacta, el daño se determina con <b>1d20 + Fuerza</b>, incluso si se utilizó Agilidad para impactar.</p>'+
+          '<p>Si el objetivo está Vulnerable, al daño físico se suma además la <b>Inteligencia del atacante</b>.</p>'+
+          '<p>Ejemplo: daño de Fuerza 20 + Inteligencia 5 contra un objetivo Vulnerable = <b>25 de daño</b>.</p>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>10. Estado Vulnerable</summary>'+
+          '<p>Vulnerable representa un punto ciego, una mala posición o una apertura temporal.</p>'+
+          '<p>Mientras un personaje está Vulnerable, los ataques que impacten contra él suman al daño la <b>Inteligencia del atacante</b>.</p>'+
+          '<p>Actualmente puede provocarse al fallar una defensa con Velocidad o una tirada de Agilidad durante movimiento complejo.</p>'+
+          '<div class="info-pending"><b>Pendiente de balance:</b> definir la duración estándar del estado Vulnerable cuando una regla concreta no indique su finalización.</div>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>11. Desventaja numérica — 2 contra 1</summary>'+
+          '<p>Si un personaje enfrenta simultáneamente a dos enemigos dentro del rango cuerpo a cuerpo y ambos atacan durante la misma secuencia o turno, la defensa contra el primer ataque es normal y la defensa contra el segundo se realiza con <b>desventaja</b>.</p>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>12. Apoyo a distancia durante cuerpo a cuerpo</summary>'+
+          '<p>Si un personaje está peleando cuerpo a cuerpo y otro enemigo lo apoya desde distancia, las tiradas ofensivas del personaje presionado se realizan con <b>desventaja</b> mientras se mantenga esa situación.</p>'+
+          '<p>Los ataques a distancia deben respetar una línea de tiro razonable. Si un aliado está cruzado en la trayectoria del proyectil, existe riesgo de impactarlo o la línea puede considerarse inválida.</p>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>13. Técnicas Malditas</summary>'+
+          '<p>La tirada ofensiva de una Técnica Maldita se realiza con <b>1d20 + Control de Energía Maldita</b>.</p>'+
+          '<p>Las defensas principales son <b>Velocidad</b>, para evitar físicamente el ataque, e <b>Inteligencia</b>, para leer, anticipar, comprender o responder a su mecánica.</p>'+
+          '<p>También puede utilizarse el entorno: cobertura, obstáculos, paredes, vehículos, protección o cambios de posición. La validez depende de la naturaleza concreta de la técnica.</p>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>14. Uso del entorno en combate</summary>'+
+          '<p>El escenario forma parte activa del sistema. Puede utilizarse para cobertura, escalada, derribo o desplazamiento de objetos, líneas de bloqueo, alturas, interrupción de trayectorias y cambios de posición.</p>'+
+          '<p><b>Agilidad</b> se usa para desplazamiento, escalada y maniobras; <b>Fuerza</b> para mover, romper o desplazar objetos; <b>Inteligencia</b> para interpretar situaciones o aprovechar información táctica cuando corresponda.</p>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>15. Retirada y cambio de escenario</summary>'+
+          '<p>Regla provisional: para considerarse completamente fuera de una pelea, un personaje debe alejarse al menos <b>70 pies</b> del enfrentamiento.</p>'+
+          '<p>Salir del mapa actual no termina necesariamente el combate. Puede cargarse otro escenario y la persecución puede continuar.</p>'+
+          '<div class="info-pending"><b>Provisional:</b> la distancia de 70 pies deberá revisarse durante el balance.</div>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>16. Vida, noqueo y muerte</summary>'+
+          '<p>Cuando un personaje agota su Vida queda <b>Noqueado</b>.</p>'+
+          '<p>La versión actual plantea un umbral de <b>-10 HP</b> asociado a la muerte, tiradas básicas de <b>1d20</b> para salvarse, éxito con <b>17, 18, 19 o 20 natural</b>, necesidad de <b>2 salvaciones</b> y la posibilidad de levantarse con <b>1 HP</b> después de 3 turnos sin volver a recibir golpes.</p>'+
+          '<div class="info-pending"><b>Pendiente de cierre:</b> falta definir exactamente cómo interactúan el estado Noqueado, los valores entre 0 y -9 HP, el umbral de -10, las salvaciones y la recuperación automática.</div>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>17. Principio general del combate</summary>'+
+          '<p>El sistema busca un combate dinámico de ida y vuelta. Fuerza sirve para impactar o generar daño; Agilidad para ataques físicos ágiles, esquivas y uso del entorno; Velocidad para desplazamiento y salida de rangos; Inteligencia para iniciativa, lectura táctica y explotación de Vulnerable; Control de EM para ejecución ofensiva de técnicas.</p>'+
+          '<p>El escenario debe permitir soluciones defensivas y ofensivas distintas a una simple comparación de estadísticas.</p>'+
+        '</details>'+
+
+        '<details class="info-rule-item"><summary>18. Reglas beta y balance pendiente</summary>'+
+          '<p>Siguen sujetos a prueba: duración exacta de Vulnerable, distancia definitiva de retirada, sistema final de Noqueo/HP negativos/salvaciones/muerte, interacciones especiales entre técnicas y defensas, reglas adicionales para múltiples atacantes, línea de tiro y fuego aliado, y ajustes surgidos de las primeras pruebas.</p>'+
+        '</details>'+
       '</div>'+
     '</details>'+
 
