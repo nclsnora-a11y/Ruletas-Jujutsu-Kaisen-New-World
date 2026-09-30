@@ -1000,13 +1000,30 @@ async function initAuth(){
   renderAuth();
 
   sb.auth.onAuthStateChange(async(_event,session)=>{
-    currentUser=session?.user||null;currentProfile=null;isAdmin=false;
+    const previousUserId=currentUser?.id||null;
+    const nextUser=session?.user||null;
+    const sameUser=!!(previousUserId&&nextUser?.id===previousUserId);
+
+    currentUser=nextUser;
+
+    // Al volver a la pestaña Supabase puede renovar/reemitir la misma sesión.
+    // Si es el mismo usuario y los datos ya están cargados, no reconstruimos
+    // Combate ni las demás vistas: así se conserva exactamente el scroll.
+    if(sameUser&&(_event==='TOKEN_REFRESHED'||_event==='SIGNED_IN'||_event==='INITIAL_SESSION')){
+      renderAuth();
+      return;
+    }
+
+    currentProfile=null;isAdmin=false;
     if(currentUser){
       try{
-        currentProfile=await getProfile();isAdmin=currentProfile?.role==='admin';await loadSharedData();
+        currentProfile=await getProfile();
+        isAdmin=currentProfile?.role==='admin';
+        await loadSharedData();
       }catch(e){console.error(e)}
     }else{
-      allCharacters=[];savedCharacters=[];campaigns=[];renderCharacters();renderCampaigns();
+      allCharacters=[];savedCharacters=[];campaigns=[];
+      renderCharacters();renderCampaigns();
     }
     renderAuth();
   });
