@@ -262,6 +262,20 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
 .crop-controls label{font-size:11px;color:var(--muted)}
 .crop-controls input[type=range]{width:100%;display:block;margin-top:5px}
 @media(max-width:560px){.crop-controls{grid-template-columns:1fr 1fr}.crop-controls label{grid-column:1/-1}.crop-controls button:last-child{grid-column:1/-1}}
+
+.map-zones-field{grid-column:span 2}
+.map-zone-picker{border:1px solid #343443;border-radius:10px;background:#0b0b11;padding:9px}
+.map-zone-all{display:flex!important;align-items:center;gap:7px;font-weight:750!important;margin-bottom:7px!important}
+.map-zone-all input,.map-zone-checks input{width:auto!important;margin:0!important}
+.map-zone-checks{display:flex;flex-wrap:wrap;gap:6px 12px}
+.map-zone-checks label{display:flex!important;align-items:center;gap:5px;font-size:10px!important;margin:0!important;color:#d4d4d8}
+.map-zone-checks input:disabled+span{opacity:.5}
+.map-zone-editor{position:relative}
+.map-zone-editor>summary{list-style:none;cursor:pointer;border:1px solid #3a3a47;border-radius:8px;padding:6px 9px;font-size:10px}
+.map-zone-editor>summary::-webkit-details-marker{display:none}
+.map-zone-editor-body{position:absolute;right:0;top:calc(100% + 6px);z-index:30;width:min(360px,80vw);padding:10px;background:#111118;border:1px solid #3a3a47;border-radius:10px;box-shadow:0 12px 35px rgba(0,0,0,.45)}
+.map-zone-editor-body button{margin-top:8px;width:100%}
+@media(max-width:700px){.map-zones-field{grid-column:1/-1}.map-zone-editor-body{right:auto;left:0}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 </head>
@@ -1667,14 +1681,26 @@ deleteCampaign=async function(id){
 async function ensureTokensForAddedCharacter(campaignId,zoneId,charId){
   const {data:maps,error:mapsError}=await sb.from('combat_maps').select('id,zone_id').eq('campaign_id',campaignId);
   if(mapsError)throw mapsError;
-  const eligible=(maps||[]).filter(m=>!m.zone_id||m.zone_id===zoneId);
+  const mapIds=(maps||[]).map(m=>m.id);
+  if(!mapIds.length)return;
+  const {data:links,error:linksError}=await sb.from('combat_map_zones').select('map_id,zone_id').in('map_id',mapIds);
+  if(linksError)throw linksError;
+  const byMap={};
+  (links||[]).forEach(l=>(byMap[l.map_id]??=[]).push(l.zone_id));
+  const eligible=(maps||[]).filter(m=>{
+    const ids=byMap[m.id]||[];
+    if(ids.length)return ids.includes(zoneId);
+    if(m.zone_id)return m.zone_id===zoneId;
+    return true;
+  });
   if(!eligible.length)return;
 
-  const mapIds=eligible.map(m=>m.id);
+  const eligibleIds=eligible.map(m=>m.id);
   const {data:existing,error:existingError}=await sb.from('combat_map_tokens')
     .select('map_id')
     .eq('character_id',charId)
-    .in('map_id',mapIds);
+    .eq('zone_id',zoneId)
+    .in('map_id',eligibleIds);
   if(existingError)throw existingError;
 
   const have=new Set((existing||[]).map(t=>t.map_id));
@@ -1683,6 +1709,7 @@ async function ensureTokensForAddedCharacter(campaignId,zoneId,charId){
 
   const rows=missing.map((m,i)=>({
     map_id:m.id,
+    zone_id:zoneId,
     character_id:charId,
     x_pct:12+(i%7)*11,
     y_pct:15+Math.floor(i/7)*13,
@@ -1726,9 +1753,9 @@ removeCharacterFromZone=async function(campaignId,zoneId,charId){
       if(ids.length)await sb.from('combat_map_tokens').delete().in('map_id',ids).eq('character_id',charId);
     }
   }else if(isAdmin){
-    const {data:zoneMaps}=await sb.from('combat_maps').select('id').eq('campaign_id',campaignId).eq('zone_id',zoneId);
+    const {data:zoneMaps}=await sb.from('combat_maps').select('id').eq('campaign_id',campaignId);
     const ids=(zoneMaps||[]).map(m=>m.id);
-    if(ids.length)await sb.from('combat_map_tokens').delete().in('map_id',ids).eq('character_id',charId);
+    if(ids.length)await sb.from('combat_map_tokens').delete().in('map_id',ids).eq('zone_id',zoneId).eq('character_id',charId);
   }
   combatMapTokens=combatMapTokens.filter(t=>t.character_id!==charId);
   document.querySelectorAll('.map-token').forEach(el=>{
@@ -2368,11 +2395,39 @@ async function toggleCombatVisibility(campaignId,charId){
 function mapImageUrl(path){
   return path?sb.storage.from('jjk-images').getPublicUrl(path).data.publicUrl:null;
 }
+function mapZoneIds(map){
+  const ids=Array.isArray(map?.zone_ids)?map.zone_ids.filter(Boolean):[];
+  if(ids.length)return ids;
+  return map?.zone_id?[map.zone_id]:[];
+}
+function mapAppliesToZone(map,zoneId){
+  if(!zoneId)return false;
+  const ids=mapZoneIds(map);
+  return ids.length===0||ids.includes(zoneId);
+}
+function mapZoneLabel(map){
+  const ids=mapZoneIds(map);
+  if(!ids.length)return 'Toda la campaña';
+  const names=ids.map(id=>sharedZones.find(z=>z.id===id)?.name).filter(Boolean);
+  return names.length?names.join(', '):(ids.length===1?'1 zona':ids.length+' zonas');
+}
 async function loadCombatMaps(campaignId){
   const {data,error}=await sb.from('combat_maps').select('*').eq('campaign_id',campaignId).order('created_at',{ascending:true});
   if(error)throw error;
-  combatMaps=(data||[]).map(m=>({...m,image:mapImageUrl(m.image_path)}));
-  const eligible=selectedCombatZoneId?combatMaps.filter(m=>!m.zone_id||m.zone_id===selectedCombatZoneId):[];
+  const maps=data||[];
+  const mapIds=maps.map(m=>m.id);
+  let links=[];
+  if(mapIds.length){
+    const {data:ld,error:le}=await sb.from('combat_map_zones').select('map_id,zone_id').in('map_id',mapIds);
+    if(le)throw le;
+    links=ld||[];
+  }
+  combatMaps=maps.map(m=>({
+    ...m,
+    zone_ids:links.filter(l=>l.map_id===m.id).map(l=>l.zone_id),
+    image:mapImageUrl(m.image_path)
+  }));
+  const eligible=selectedCombatZoneId?combatMaps.filter(m=>mapAppliesToZone(m,selectedCombatZoneId)):[];
   if(selectedCombatMapId&&!eligible.some(m=>m.id===selectedCombatMapId)){selectedCombatMapId=null;localStorage.removeItem('jjk-combat-map')}
   if(!selectedCombatMapId&&eligible.length){selectedCombatMapId=eligible[0].id;localStorage.setItem('jjk-combat-map',selectedCombatMapId)}
 }
@@ -2482,16 +2537,47 @@ function subscribeCombatChat(campaignId){
     .subscribe();
 }
 
+function mapZonePickerHtml(campaignId,prefix,selectedIds=[],allZones=false){
+  const zones=sharedZones.filter(z=>z.campaign_id===campaignId);
+  const checked=new Set(selectedIds||[]);
+  return '<div class="map-zone-picker">'+
+    '<label class="map-zone-all"><input type="checkbox" id="'+prefix+'-all" '+(allZones?'checked':'')+' onchange="toggleMapZonePicker(\''+prefix+'\')"> Toda la campaña</label>'+
+    '<div class="map-zone-checks" id="'+prefix+'-checks">'+
+      zones.map(z=>'<label><input class="'+prefix+'-zone" type="checkbox" value="'+z.id+'" '+(checked.has(z.id)?'checked':'')+' '+(allZones?'disabled':'')+'> '+esc(z.name)+'</label>').join('')+
+    '</div>'+
+  '</div>';
+}
+function toggleMapZonePicker(prefix){
+  const all=document.getElementById(prefix+'-all')?.checked;
+  document.querySelectorAll('.'+prefix+'-zone').forEach(cb=>{cb.disabled=!!all});
+}
+function selectedMapZoneIds(prefix){
+  if(document.getElementById(prefix+'-all')?.checked)return [];
+  return [...document.querySelectorAll('.'+prefix+'-zone:checked')].map(cb=>cb.value);
+}
+async function saveCombatMapZones(campaignId,mapId){
+  if(!isAdmin)return;
+  const prefix='edit-map-zones-'+mapId;
+  const all=document.getElementById(prefix+'-all')?.checked;
+  const zoneIds=selectedMapZoneIds(prefix);
+  if(!all&&!zoneIds.length){toast('Elegí al menos una zona o Toda la campaña.');return}
+  const {error:de}=await sb.from('combat_map_zones').delete().eq('map_id',mapId);
+  if(de){toast(de.message);return}
+  if(!all&&zoneIds.length){
+    const {error:ie}=await sb.from('combat_map_zones').insert(zoneIds.map(zone_id=>({map_id:mapId,zone_id})));
+    if(ie){toast(ie.message);return}
+  }
+  await loadCombatMaps(campaignId);
+  refreshCombatMapSection(campaignId);
+  toast('Zonas del mapa actualizadas.');
+}
 function combatMapSectionHtml(campaignId){
-  const campZones=sharedZones.filter(z=>z.campaign_id===campaignId);
-  const eligibleMaps=selectedCombatZoneId?combatMaps.filter(m=>!m.zone_id||m.zone_id===selectedCombatZoneId):[];
-  const mapOptions=eligibleMaps.map(m=>{
-    const z=sharedZones.find(x=>x.id===m.zone_id);
-    return '<option value="'+m.id+'" '+(m.id===selectedCombatMapId?'selected':'')+'>'+esc(m.name)+(z?' — '+esc(z.name):'')+'</option>';
-  }).join('');
-  const zoneOptions=campZones.map(z=>'<option value="'+z.id+'">'+esc(z.name)+'</option>').join('');
+  const eligibleMaps=selectedCombatZoneId?combatMaps.filter(m=>mapAppliesToZone(m,selectedCombatZoneId)):[];
+  const mapOptions=eligibleMaps.map(m=>
+    '<option value="'+m.id+'" '+(m.id===selectedCombatMapId?'selected':'')+'>'+esc(m.name)+' — '+esc(mapZoneLabel(m))+'</option>'
+  ).join('');
   return '<section class="combat-map-section">'+
-    '<div class="combat-map-head"><div><h3>Mapa táctico</h3><div class="muted">'+(selectedCombatZoneId?'Mapas de la zona activa.':'Elegí una zona arriba para cargar el mapa.')+'</div></div>'+
+    '<div class="combat-map-head"><div><h3>Mapa táctico</h3><div class="muted">'+(selectedCombatZoneId?'Mapas disponibles para la zona activa.':'Elegí una zona arriba para cargar el mapa.')+'</div></div>'+
       '<div class="combat-map-tools">'+
         (eligibleMaps.length?'<select id="combat-map-select" onchange="selectCombatMap(\''+campaignId+'\',this.value)">'+mapOptions+'</select>':'')+
         '<button class="secondary" id="map-ruler-btn" onclick="toggleMapRuler()">📏 Regla</button>'+
@@ -2499,7 +2585,7 @@ function combatMapSectionHtml(campaignId){
     '</div>'+
     (isAdmin?'<div class="combat-map-admin"><div class="combat-map-admin-grid">'+
       '<div><label>Nombre del mapa</label><input id="new-map-name" placeholder="Ej: Andén B5"></div>'+
-      '<div><label>Zona</label><select id="new-map-zone"><option value="">Toda la campaña</option>'+zoneOptions+'</select></div>'+
+      '<div class="map-zones-field"><label>Disponible en</label>'+mapZonePickerHtml(campaignId,'new-map-zones',[],true)+'</div>'+
       '<div><label>Imagen</label><input id="new-map-file" type="file" accept="image/*"></div>'+
       '<div><label>Px/casilla</label><input id="new-map-grid" type="number" min="1" value="70"></div>'+
       '<div><label>Pies/casilla</label><input id="new-map-feet" type="number" min="1" step="1" value="5"></div>'+
@@ -2541,22 +2627,39 @@ async function resizeMapFile(file){
 async function createCombatMap(campaignId){
   if(!isAdmin)return;
   const name=(document.getElementById('new-map-name')?.value||'').trim();
-  const zoneId=document.getElementById('new-map-zone')?.value||null;
   const file=document.getElementById('new-map-file')?.files?.[0];
   const grid=Math.max(1,Number(document.getElementById('new-map-grid')?.value||70));
   const feet=Math.max(1,Number(document.getElementById('new-map-feet')?.value||5));
+  const allZones=document.getElementById('new-map-zones-all')?.checked;
+  const zoneIds=selectedMapZoneIds('new-map-zones');
   if(!name||!file){toast('Poné nombre y elegí una imagen para el mapa.');return}
+  if(!allZones&&!zoneIds.length){toast('Elegí al menos una zona o Toda la campaña.');return}
   const id=crypto.randomUUID();
+  let path=null,created=false;
   try{
     const blob=await resizeMapFile(file);
-    const path=currentUser.id+'/maps/'+id+'.jpg';
+    path=currentUser.id+'/maps/'+id+'.jpg';
     await uploadBlob(blob,path);
-    const {error}=await sb.from('combat_maps').insert({id,campaign_id:campaignId,zone_id:zoneId,name,image_path:path,grid_size_px:grid,feet_per_cell:feet,created_by:currentUser.id});
+    const {error}=await sb.from('combat_maps').insert({id,campaign_id:campaignId,zone_id:null,name,image_path:path,grid_size_px:grid,feet_per_cell:feet,created_by:currentUser.id});
     if(error)throw error;
-    await loadCombatMaps(campaignId);selectedCombatMapId=id;localStorage.setItem('jjk-combat-map',id);
+    created=true;
+    if(!allZones&&zoneIds.length){
+      const {error:ze}=await sb.from('combat_map_zones').insert(zoneIds.map(zone_id=>({map_id:id,zone_id})));
+      if(ze)throw ze;
+    }
+    await loadCombatMaps(campaignId);
+    const made=combatMaps.find(m=>m.id===id);
+    if(made&&selectedCombatZoneId&&mapAppliesToZone(made,selectedCombatZoneId)){
+      selectedCombatMapId=id;localStorage.setItem('jjk-combat-map',id);
+    }
     refreshCombatMapSection(campaignId);
     toast('Mapa cargado.');
-  }catch(e){console.error(e);toast('No pude cargar el mapa: '+e.message)}
+  }catch(e){
+    console.error(e);
+    if(created)await sb.from('combat_maps').delete().eq('id',id);
+    if(path)await sb.storage.from('jjk-images').remove([path]);
+    toast('No pude cargar el mapa: '+e.message);
+  }
 }
 async function selectCombatMap(campaignId,mapId){
   selectedCombatMapId=mapId||null;
@@ -2572,12 +2675,13 @@ function refreshCombatMapSection(campaignId){
   renderActiveCombatMap(campaignId);
 }
 function mapCharacterIds(map){
-  const zoneId=map.zone_id||selectedCombatZoneId||null;
+  const zoneId=selectedCombatZoneId||null;
   const memberships=sharedMemberships.filter(m=>m.campaign_id===map.campaign_id&&(zoneId?m.zone_id===zoneId:true));
   return [...new Set(memberships.map(m=>m.character_id))];
 }
 async function loadCombatMapTokens(mapId){
-  const {data,error}=await sb.from('combat_map_tokens').select('*').eq('map_id',mapId);
+  if(!selectedCombatZoneId){combatMapTokens=[];return}
+  const {data,error}=await sb.from('combat_map_tokens').select('*').eq('map_id',mapId).eq('zone_id',selectedCombatZoneId);
   if(error)throw error;
   combatMapTokens=data||[];
 }
@@ -2591,7 +2695,7 @@ async function ensureCombatMapTokens(map){
       return ch?.owner_id===currentUser?.id&&!existing.has(id);
     });
     if(ownMissing.length){
-      const rows=ownMissing.map((id,i)=>({map_id:map.id,character_id:id,x_pct:12+(i%7)*11,y_pct:15+Math.floor(i/7)*13,size_pct:5,updated_at:new Date().toISOString()}));
+      const rows=ownMissing.map((id,i)=>({map_id:map.id,zone_id:selectedCombatZoneId,character_id:id,x_pct:12+(i%7)*11,y_pct:15+Math.floor(i/7)*13,size_pct:5,updated_at:new Date().toISOString()}));
       const {error}=await sb.from('combat_map_tokens').insert(rows);
       if(!error)await loadCombatMapTokens(map.id);
       else console.error('No pude crear token propio faltante',error);
@@ -2608,7 +2712,7 @@ async function ensureCombatMapTokens(map){
   const existing=new Set(combatMapTokens.map(t=>t.character_id));
   const missing=ids.filter(id=>!existing.has(id));
   if(missing.length){
-    const rows=missing.map((id,i)=>({map_id:map.id,character_id:id,x_pct:12+(i%7)*11,y_pct:15+Math.floor(i/7)*13,size_pct:5,updated_at:new Date().toISOString()}));
+    const rows=missing.map((id,i)=>({map_id:map.id,zone_id:selectedCombatZoneId,character_id:id,x_pct:12+(i%7)*11,y_pct:15+Math.floor(i/7)*13,size_pct:5,updated_at:new Date().toISOString()}));
     const {error}=await sb.from('combat_map_tokens').insert(rows);
     if(error)throw error;
     await loadCombatMapTokens(map.id);
@@ -2626,7 +2730,7 @@ function combatTokenHtml(token){
 }
 async function renderActiveCombatMap(campaignId){
   const root=document.getElementById('combat-map-root');if(!root)return;
-  const map=selectedCombatZoneId?combatMaps.find(m=>m.id===selectedCombatMapId&&(!m.zone_id||m.zone_id===selectedCombatZoneId)):null;
+  const map=selectedCombatZoneId?combatMaps.find(m=>m.id===selectedCombatMapId&&mapAppliesToZone(m,selectedCombatZoneId)):null;
   if(!map){
     root.innerHTML='<div class="map-empty">'+(isAdmin?'Todavía no hay mapas. Subí uno arriba.':'El GM todavía no cargó un mapa para esta campaña.')+'</div>';
     if(combatMapChannel){sb.removeChannel(combatMapChannel);combatMapChannel=null}
@@ -2635,8 +2739,10 @@ async function renderActiveCombatMap(campaignId){
   root.innerHTML='<div class="map-empty">Cargando '+esc(map.name)+'...</div>';
   try{await ensureCombatMapTokens(map)}catch(e){console.error(e);root.innerHTML='<div class="map-empty">No pude cargar las fichas del mapa.</div>';return}
   combatMapTokens=visibleCombatMapTokens(map);
-  const zone=sharedZones.find(z=>z.id===map.zone_id);
-  root.innerHTML='<div class="combat-map-tools map-view-toolbar" style="margin-bottom:8px"><b>'+esc(map.name)+'</b><span class="muted">'+(zone?'· '+esc(zone.name):'· Toda la campaña')+'</span><span class="map-scale-note">'+map.grid_size_px+' px = '+map.feet_per_cell+' pies</span><div class="map-zoom-controls"><button class="secondary" onclick="changeMapZoom(-0.25)">−</button><button class="secondary map-zoom-value" id="map-zoom-value" onclick="resetMapZoom()">100%</button><button class="secondary" onclick="changeMapZoom(0.25)">+</button></div>'+(isAdmin?'<button class="secondary danger" onclick="deleteCombatMap(\''+campaignId+'\',\''+map.id+'\')">Eliminar mapa</button>':'')+'</div>'+
+  const zoneIds=mapZoneIds(map);
+  const zonesText=mapZoneLabel(map);
+  const zoneEditor=isAdmin?'<details class="map-zone-editor"><summary>Zonas</summary><div class="map-zone-editor-body">'+mapZonePickerHtml(campaignId,'edit-map-zones-'+map.id,zoneIds,zoneIds.length===0)+'<button onclick="saveCombatMapZones(\''+campaignId+'\',\''+map.id+'\')">Guardar zonas</button></div></details>':'';
+  root.innerHTML='<div class="combat-map-tools map-view-toolbar" style="margin-bottom:8px"><b>'+esc(map.name)+'</b><span class="muted">· '+esc(zonesText)+'</span><span class="map-scale-note">'+map.grid_size_px+' px = '+map.feet_per_cell+' pies</span><div class="map-zoom-controls"><button class="secondary" onclick="changeMapZoom(-0.25)">−</button><button class="secondary map-zoom-value" id="map-zoom-value" onclick="resetMapZoom()">100%</button><button class="secondary" onclick="changeMapZoom(0.25)">+</button></div>'+zoneEditor+(isAdmin?'<button class="secondary danger" onclick="deleteCombatMap(\''+campaignId+'\',\''+map.id+'\')">Eliminar mapa</button>':'')+'</div>'+
     '<div class="combat-map-stage-shell" id="combat-map-stage-shell"><div class="tactical-map" id="tactical-map" style="width:'+(mapZoom*100)+'%">'+
       '<img id="tactical-map-image" src="'+map.image+'" alt="'+esc(map.name)+'" draggable="false">'+
       '<svg class="map-ruler-svg"><line id="map-ruler-line" class="map-ruler-line" x1="0" y1="0" x2="0" y2="0" style="display:none"></line></svg>'+
@@ -2827,6 +2933,7 @@ function subscribeCombatMap(map){
   combatMapChannel=sb.channel('combat-map-'+map.id)
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'combat_map_tokens',filter:'map_id=eq.'+map.id},payload=>{
       const row=payload.new;
+      if(row.zone_id&&row.zone_id!==selectedCombatZoneId)return;
       const idx=combatMapTokens.findIndex(t=>t.id===row.id);
       if(idx>=0)combatMapTokens[idx]={...combatMapTokens[idx],...row};
       const el=document.getElementById('map-token-'+row.id);
