@@ -448,6 +448,41 @@ try{savedCharacters=JSON.parse(localStorage.getItem(CHARACTERS_KEY)||'[]');if(!A
 function saveCharacters(){localStorage.setItem(CHARACTERS_KEY,JSON.stringify(savedCharacters))}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function characterTotal(stats){return Object.values(stats||{}).reduce((a,v)=>a+(Number(v)||0),0)}
+const JJK_SCROLL_KEY='jjk-browser-scroll-position';
+let jjkLastScrollY=window.scrollY||0;
+let jjkScrollSaveTimer=null;
+
+function saveBrowserScrollPosition(){
+  jjkLastScrollY=window.scrollY||0;
+  try{sessionStorage.setItem(JJK_SCROLL_KEY,String(jjkLastScrollY))}catch(e){}
+}
+function restoreBrowserScrollPosition(){
+  let y=jjkLastScrollY;
+  try{
+    const saved=Number(sessionStorage.getItem(JJK_SCROLL_KEY));
+    if(Number.isFinite(saved))y=saved;
+  }catch(e){}
+  const apply=()=>{
+    if(document.visibilityState==='hidden')return;
+    window.scrollTo({top:y,left:0,behavior:'auto'});
+  };
+  requestAnimationFrame(apply);
+  setTimeout(apply,70);
+  setTimeout(apply,220);
+}
+try{if('scrollRestoration' in history)history.scrollRestoration='manual'}catch(e){}
+window.addEventListener('scroll',()=>{
+  jjkLastScrollY=window.scrollY||0;
+  clearTimeout(jjkScrollSaveTimer);
+  jjkScrollSaveTimer=setTimeout(saveBrowserScrollPosition,80);
+},{passive:true});
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden')saveBrowserScrollPosition();
+  else restoreBrowserScrollPosition();
+});
+window.addEventListener('pagehide',saveBrowserScrollPosition);
+window.addEventListener('pageshow',()=>restoreBrowserScrollPosition());
+
 function showTab(tab){
   const roulette=tab==='roulette',characters=tab==='characters',campaigns=tab==='campaigns',account=tab==='account',combat=tab==='combat';
   document.getElementById('roulette-section').classList.toggle('hidden',!roulette);
@@ -1269,7 +1304,7 @@ let selectedCombatZoneId=null;
 let selectedCombatMapId=localStorage.getItem('jjk-combat-map')||null;
 let combatMapChannel=null;
 let mapMeasureMode=false;
-let mapZoom=.82;
+let mapZoom=.78;
 
 function campaignCharacterIds(campaignId){
   const ids=[];
@@ -1891,7 +1926,7 @@ async function createCombatMap(campaignId){
 }
 async function selectCombatMap(campaignId,mapId){
   selectedCombatMapId=mapId||null;
-  mapZoom=.82;
+  mapZoom=.78;
   if(selectedCombatMapId)localStorage.setItem('jjk-combat-map',selectedCombatMapId);else localStorage.removeItem('jjk-combat-map');
   await renderActiveCombatMap(campaignId);
 }
@@ -1994,14 +2029,14 @@ function applyMapZoom(){
     map.style.marginLeft=mapZoom<=1?'auto':'0';
     map.style.marginRight=mapZoom<=1?'auto':'0';
   }
-  if(value)value.textContent=(Math.abs(mapZoom-.82)<.001?'Ajustar':Math.round(mapZoom*100)+'%');
+  if(value)value.textContent=(Math.abs(mapZoom-.78)<.001?'Ajustar':Math.round(mapZoom*100)+'%');
 }
 function changeMapZoom(delta){
   mapZoom=Math.round((mapZoom+Number(delta))*100)/100;
   applyMapZoom();
 }
 function resetMapZoom(){
-  mapZoom=.82;
+  mapZoom=.78;
   applyMapZoom();
 }
 function toggleMapRuler(){
