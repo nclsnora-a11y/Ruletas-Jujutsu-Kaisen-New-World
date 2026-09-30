@@ -2379,10 +2379,23 @@ async function resizeMapFile(file){
     reader.onload=()=>{
       const img=new Image();
       img.onload=()=>{
-        const max=2600,scale=Math.min(1,max/Math.max(img.width,img.height));
-        const w=Math.max(1,Math.round(img.width*scale)),h=Math.max(1,Math.round(img.height*scale));
+        const portrait=img.height>img.width;
+        const srcW=img.width,srcH=img.height;
+        const outW=portrait?srcH:srcW;
+        const outH=portrait?srcW:srcH;
+        const max=2600,scale=Math.min(1,max/Math.max(outW,outH));
+        const w=Math.max(1,Math.round(outW*scale)),h=Math.max(1,Math.round(outH*scale));
         const c=document.createElement('canvas');c.width=w;c.height=h;
-        const ctx=c.getContext('2d');ctx.drawImage(img,0,0,w,h);
+        const ctx=c.getContext('2d');
+        ctx.save();
+        if(portrait){
+          ctx.translate(w,0);
+          ctx.rotate(Math.PI/2);
+          ctx.drawImage(img,0,0,h,w);
+        }else{
+          ctx.drawImage(img,0,0,w,h);
+        }
+        ctx.restore();
         c.toBlob(blob=>blob?resolve(blob):reject(new Error('No se pudo procesar el mapa')),'image/jpeg',0.88);
       };
       img.onerror=reject;img.src=reader.result;
