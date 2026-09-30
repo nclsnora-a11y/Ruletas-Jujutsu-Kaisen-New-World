@@ -450,37 +450,64 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function characterTotal(stats){return Object.values(stats||{}).reduce((a,v)=>a+(Number(v)||0),0)}
 const JJK_SCROLL_KEY='jjk-browser-scroll-position';
 let jjkLastScrollY=window.scrollY||0;
+let jjkFrozenScrollY=null;
+let jjkRestoringScroll=false;
 let jjkScrollSaveTimer=null;
 
-function saveBrowserScrollPosition(){
-  jjkLastScrollY=window.scrollY||0;
+function persistScrollY(y){
+  jjkLastScrollY=Math.max(0,Number(y)||0);
   try{sessionStorage.setItem(JJK_SCROLL_KEY,String(jjkLastScrollY))}catch(e){}
 }
-function restoreBrowserScrollPosition(){
+function readPersistedScrollY(){
   let y=jjkLastScrollY;
   try{
     const saved=Number(sessionStorage.getItem(JJK_SCROLL_KEY));
     if(Number.isFinite(saved))y=saved;
   }catch(e){}
+  return Math.max(0,y||0);
+}
+function freezeBrowserScrollPosition(){
+  // Tomamos la última posición real conocida. Mientras la pestaña esté oculta,
+  // ningún scroll provocado por re-render puede reemplazarla.
+  const y=Math.max(jjkLastScrollY,window.scrollY||0);
+  jjkFrozenScrollY=y;
+  persistScrollY(y);
+}
+function restoreBrowserScrollPosition(){
+  const y=jjkFrozenScrollY!=null?jjkFrozenScrollY:readPersistedScrollY();
+  jjkRestoringScroll=true;
   const apply=()=>{
     if(document.visibilityState==='hidden')return;
-    window.scrollTo({top:y,left:0,behavior:'auto'});
+    window.scrollTo(0,y);
   };
-  requestAnimationFrame(apply);
-  setTimeout(apply,70);
-  setTimeout(apply,220);
+  [0,30,90,180,350,650,1000,1500].forEach(ms=>setTimeout(apply,ms));
+  setTimeout(()=>{
+    apply();
+    jjkRestoringScroll=false;
+    jjkFrozenScrollY=null;
+    persistScrollY(window.scrollY||y);
+  },1750);
 }
 try{if('scrollRestoration' in history)history.scrollRestoration='manual'}catch(e){}
+
 window.addEventListener('scroll',()=>{
+  if(jjkRestoringScroll||document.visibilityState==='hidden')return;
   jjkLastScrollY=window.scrollY||0;
   clearTimeout(jjkScrollSaveTimer);
-  jjkScrollSaveTimer=setTimeout(saveBrowserScrollPosition,80);
+  jjkScrollSaveTimer=setTimeout(()=>persistScrollY(jjkLastScrollY),60);
 },{passive:true});
+
 document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='hidden')saveBrowserScrollPosition();
-  else restoreBrowserScrollPosition();
+  if(document.visibilityState==='hidden'){
+    freezeBrowserScrollPosition();
+  }else{
+    restoreBrowserScrollPosition();
+  }
 });
-window.addEventListener('pagehide',saveBrowserScrollPosition);
+window.addEventListener('blur',()=>{
+  if(document.visibilityState==='hidden')freezeBrowserScrollPosition();
+});
+window.addEventListener('pagehide',freezeBrowserScrollPosition);
 window.addEventListener('pageshow',()=>restoreBrowserScrollPosition());
 
 function showTab(tab){
@@ -1429,6 +1456,12 @@ async function renderCombatCampaign(campaignId){
   chars.forEach(ch=>updateCombatBars(ch.id));
   scrollRollChat();
   await renderActiveCombatMap(campaignId);
+  if(jjkFrozenScrollY!=null&&document.visibilityState!=='hidden'){
+    const y=jjkFrozenScrollY;
+    requestAnimationFrame(()=>window.scrollTo(0,y));
+    setTimeout(()=>window.scrollTo(0,y),120);
+    setTimeout(()=>window.scrollTo(0,y),400);
+  }
 }
 async function selectCombatZone(campaignId,zoneId){
   selectedCombatZoneId=zoneId||null;
