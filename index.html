@@ -88,9 +88,9 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
 .combat-map-tools select,.combat-map-tools input{min-height:36px}
 .combat-map-admin{margin:10px 0;padding:10px;border:1px solid #2d2d3a;border-radius:10px;background:#101018}
 .combat-map-admin-grid{display:grid;grid-template-columns:1.1fr 1fr 1.4fr .7fr .7fr auto;gap:7px;align-items:end}
-.combat-map-stage-shell{border:1px solid #343443;border-radius:12px;background:#09090e;padding:8px;overflow:auto}
-.tactical-map{position:relative;display:inline-block;min-width:520px;max-width:100%;user-select:none;touch-action:none}
-.tactical-map>img{display:block;width:100%;height:auto;max-height:850px;object-fit:contain;border-radius:7px;pointer-events:none}
+.combat-map-stage-shell{width:100%;border:1px solid #343443;border-radius:12px;background:#09090e;padding:10px;overflow:auto}
+.tactical-map{position:relative;display:block;width:100%;min-width:1050px;max-width:none;user-select:none;touch-action:none}
+.tactical-map>img{display:block;width:100%;height:auto;max-height:none;object-fit:contain;border-radius:7px;pointer-events:none}
 .map-token{position:absolute;transform:translate(-50%,-50%);border-radius:50%;border:2px solid rgba(255,255,255,.92);box-shadow:0 3px 12px rgba(0,0,0,.7);overflow:visible;cursor:grab;z-index:5;touch-action:none}
 .map-token.dragging{cursor:grabbing;z-index:8;box-shadow:0 0 0 3px rgba(124,58,237,.35),0 5px 16px rgba(0,0,0,.75)}
 .map-token img,.map-token-fallback{width:100%;height:100%;border-radius:50%;object-fit:cover;background:#191923;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px}
@@ -100,7 +100,7 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
 .map-measure-label{position:absolute;z-index:7;background:rgba(8,8,12,.9);color:white;border:1px solid #55556a;border-radius:7px;padding:4px 7px;font-size:11px;pointer-events:none;display:none}
 .map-scale-note{font-size:10px;color:var(--muted)}
 .map-empty{padding:24px;text-align:center;border:1px dashed #383846;border-radius:10px;color:var(--muted)}
-@media(max-width:900px){.combat-map-admin-grid{grid-template-columns:1fr 1fr}.tactical-map{min-width:440px}}
+@media(max-width:900px){.combat-map-admin-grid{grid-template-columns:1fr 1fr}.tactical-map{min-width:820px}}
 
 /* Roulette overflow fix */
 #roulette-section{max-width:1100px;margin-left:auto;margin-right:auto}
@@ -1067,13 +1067,54 @@ deleteCampaign=async function(id){
   const {error}=await sb.from('campaigns').delete().eq('id',id);if(error){toast(error.message);return}
   await loadSharedData();toast('Campaña eliminada.');
 };
+async function ensureTokensForAddedCharacter(campaignId,zoneId,charId){
+  const {data:maps,error:mapsError}=await sb.from('combat_maps').select('id,zone_id').eq('campaign_id',campaignId);
+  if(mapsError)throw mapsError;
+  const eligible=(maps||[]).filter(m=>!m.zone_id||m.zone_id===zoneId);
+  if(!eligible.length)return;
+
+  const mapIds=eligible.map(m=>m.id);
+  const {data:existing,error:existingError}=await sb.from('combat_map_tokens')
+    .select('map_id')
+    .eq('character_id',charId)
+    .in('map_id',mapIds);
+  if(existingError)throw existingError;
+
+  const have=new Set((existing||[]).map(t=>t.map_id));
+  const missing=eligible.filter(m=>!have.has(m.id));
+  if(!missing.length)return;
+
+  const rows=missing.map((m,i)=>({
+    map_id:m.id,
+    character_id:charId,
+    x_pct:12+(i%7)*11,
+    y_pct:15+Math.floor(i/7)*13,
+    size_pct:5,
+    updated_at:new Date().toISOString()
+  }));
+  const {error:insertError}=await sb.from('combat_map_tokens').insert(rows);
+  if(insertError)throw insertError;
+}
+
 addCharacterToZone=async function(campaignId,zoneId){
   const sel=document.getElementById('addchar-'+zoneId);if(!sel?.value){toast('Elegí un personaje.');return}
   const chosen=allCharacters.find(ch=>ch.id===sel.value);if(!chosen){toast('No encontré ese personaje.');return}
-  const payload={campaign_id:campaignId,zone_id:zoneId,character_id:sel.value,added_by:currentUser.id};
+  const charId=sel.value;
+  const payload={campaign_id:campaignId,zone_id:zoneId,character_id:charId,added_by:currentUser.id};
   const {error}=await sb.from('campaign_characters').insert(payload);
   if(error){toast(error.message);return}
-  await loadSharedData();setTimeout(()=>toggleCampaign(campaignId),0);toast('Personaje agregado a la campaña.');
+  try{
+    await ensureTokensForAddedCharacter(campaignId,zoneId,charId);
+  }catch(e){
+    console.error('No pude crear automáticamente el token',e);
+  }
+  await loadSharedData();
+  if(selectedCombatCampaignId===campaignId&&selectedCombatZoneId===zoneId){
+    await loadCombatMaps(campaignId);
+    renderCombat();
+  }
+  setTimeout(()=>toggleCampaign(campaignId),0);
+  toast('Personaje agregado a la campaña y al mapa.');
 };
 removeCharacterFromZone=async function(campaignId,zoneId,charId){
   const {error}=await sb.from('campaign_characters').delete().eq('campaign_id',campaignId).eq('zone_id',zoneId).eq('character_id',charId);
@@ -1686,6 +1727,17 @@ async function ensureCombatMapTokens(map){
   await loadCombatMapTokens(map.id);
   const ids=mapCharacterIds(map);
   if(!isAdmin){
+    const existing=new Set(combatMapTokens.map(t=>t.character_id));
+    const ownMissing=ids.filter(id=>{
+      const ch=allCharacters.find(c=>c.id===id);
+      return ch?.owner_id===currentUser?.id&&!existing.has(id);
+    });
+    if(ownMissing.length){
+      const rows=ownMissing.map((id,i)=>({map_id:map.id,character_id:id,x_pct:12+(i%7)*11,y_pct:15+Math.floor(i/7)*13,size_pct:5,updated_at:new Date().toISOString()}));
+      const {error}=await sb.from('combat_map_tokens').insert(rows);
+      if(!error)await loadCombatMapTokens(map.id);
+      else console.error('No pude crear token propio faltante',error);
+    }
     combatMapTokens=combatMapTokens.filter(t=>ids.includes(t.character_id));
     return;
   }
