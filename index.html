@@ -243,6 +243,9 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
   .info-table>div{grid-template-columns:1fr auto}
   .info-table>div span{grid-column:1/-1;grid-row:2}
 }
+
+.mini-clear-btn{padding:5px 8px!important;font-size:9px!important;line-height:1!important;white-space:nowrap}
+.roll-chat-head,.combat-text-chat-head{gap:8px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 </head>
@@ -1920,7 +1923,7 @@ function combatRollChatHtml(campaignId){
   const msgs=combatRolls.length?combatRolls.map(r=>combatRollMessageHtml(r)).join(''):'<div class="roll-empty">Todavía no hay tiradas.</div>';
   const quick=[4,6,8,10,12,20].map(d=>'<button class="dice-quick-btn" onclick="rollFreeDice(\''+campaignId+'\',\'1D'+d+'\')">D'+d+'</button>').join('');
   return '<aside class="roll-chat">'+
-    '<div class="roll-chat-head"><div><b>Tiradas</b><div class="muted" style="font-size:11px">Registro compartido</div></div></div>'+
+    '<div class="roll-chat-head"><div><b>Tiradas</b><div class="muted" style="font-size:11px">Registro compartido</div></div>'+(isAdmin?'<button class="secondary danger mini-clear-btn" onclick="clearCombatRolls(\''+campaignId+'\')">Borrar tiradas</button>':'')+'</div>'+
     '<div class="dice-panel"><div class="dice-quick-row">'+quick+'</div>'+
       '<div class="dice-expression-row"><input id="dice-expression-'+campaignId+'" placeholder="Ej: 2D8, 8D10, 5D20" onkeydown="if(event.key===\'Enter\')rollFreeDice(\''+campaignId+'\',this.value)"><button onclick="rollFreeDice(\''+campaignId+'\',document.getElementById(\'dice-expression-'+campaignId+'\').value)">Tirar</button></div>'+
     '</div>'+
@@ -1928,6 +1931,21 @@ function combatRollChatHtml(campaignId){
     combatChatHtml(campaignId)+
   '</aside>';
 }
+function renderCombatRollList(){
+  const list=document.getElementById('roll-chat-list');if(!list)return;
+  list.innerHTML=combatRolls.length?combatRolls.map(r=>combatRollMessageHtml(r)).join(''):'<div class="roll-empty">Todavía no hay tiradas.</div>';
+  scrollRollChat();
+}
+async function clearCombatRolls(campaignId){
+  if(!isAdmin)return;
+  if(!confirm('¿Borrar todas las tiradas de esta campaña?'))return;
+  const {error}=await sb.from('combat_rolls').delete().eq('campaign_id',campaignId);
+  if(error){toast(error.message);return}
+  combatRolls=[];
+  renderCombatRollList();
+  toast('Tiradas borradas.');
+}
+
 function combatRollMessageHtml(r){
   if(r.roll_expression){
     const time=new Date(r.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
@@ -2077,6 +2095,10 @@ function subscribeCombatRolls(campaignId){
         list.insertAdjacentHTML('beforeend',combatRollMessageHtml(row));
         scrollRollChat();
       }
+    })
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'combat_rolls'},async()=>{
+      if(selectedCombatCampaignId!==campaignId)return;
+      try{await loadCombatRolls(campaignId);renderCombatRollList()}catch(e){console.error(e)}
     })
     .on('postgres_changes',{event:'*',schema:'public',table:'combat_states',filter:'campaign_id=eq.'+campaignId},payload=>{
       if(payload.new)syncCombatStateRow(payload.new);
@@ -2259,7 +2281,7 @@ function combatChatHtml(campaignId){
     ?combatMessages.map(combatChatMessageHtml).join('')
     :'<div class="combat-chat-empty">Todavía no hay mensajes.</div>';
   return '<div class="combat-text-chat compact">'+
-    '<div class="combat-text-chat-head"><div><b>Chat</b><div class="muted">Jugadores</div></div></div>'+
+    '<div class="combat-text-chat-head"><div><b>Chat</b><div class="muted">Jugadores</div></div>'+(isAdmin?'<button class="secondary danger mini-clear-btn" onclick="clearCombatMessages(\''+campaignId+'\')">Borrar chat</button>':'')+'</div>'+
     '<div class="combat-chat-list" id="combat-chat-list">'+msgs+'</div>'+
     '<div class="combat-chat-compose">'+
       '<select id="combat-chat-mode-'+campaignId+'" aria-label="Destino del mensaje">'+
@@ -2297,10 +2319,26 @@ async function sendCombatMessage(campaignId){
   if(error){toast(error.message);return}
   if(input)input.value='';
 }
+async function clearCombatMessages(campaignId){
+  if(!isAdmin)return;
+  if(!confirm('¿Borrar todo el chat de esta campaña?'))return;
+  const {error}=await sb.from('combat_messages').delete().eq('campaign_id',campaignId);
+  if(error){toast(error.message);return}
+  combatMessages=[];
+  renderCombatChatList();
+  toast('Chat borrado.');
+}
 function subscribeCombatChat(campaignId){
   if(combatChatChannel){sb.removeChannel(combatChatChannel);combatChatChannel=null}
   combatChatChannel=sb.channel('combat-chat-'+campaignId)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'combat_messages',filter:'campaign_id=eq.'+campaignId},async()=>{
+      try{
+        await loadCombatMessages(campaignId);
+        renderCombatChatList();
+      }catch(e){console.error(e)}
+    })
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'combat_messages'},async()=>{
+      if(selectedCombatCampaignId!==campaignId)return;
       try{
         await loadCombatMessages(campaignId);
         renderCombatChatList();
