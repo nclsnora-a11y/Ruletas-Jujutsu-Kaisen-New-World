@@ -114,6 +114,21 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
 .combat-zone-selector{display:flex;align-items:end;gap:7px;flex-wrap:wrap}
 .combat-zone-selector label{font-size:10px;color:var(--muted);display:block}
 .combat-zone-selector select{min-width:210px;background:#101018;color:var(--text);border:1px solid #343443;border-radius:8px;padding:8px}
+
+.combat-resource{border:1px solid var(--border);transition:.18s ease}
+.combat-resource-icon{display:inline-flex;align-items:center;justify-content:center;margin-right:5px;font-size:11px;line-height:1}
+.combat-resource-hp{border-color:rgba(239,68,68,.72)!important;box-shadow:inset 0 0 0 1px rgba(239,68,68,.08)}
+.combat-resource-hp .combat-resource-top b{color:#f87171}
+.combat-resource-hp .combat-bar{background:rgba(127,29,29,.32)}
+.combat-resource-hp .combat-bar-fill{background:linear-gradient(90deg,#991b1b,#ef4444)!important}
+.combat-resource-ce{border-color:rgba(168,85,247,.72)!important;box-shadow:inset 0 0 0 1px rgba(168,85,247,.08)}
+.combat-resource-ce .combat-resource-top b{color:#c084fc}
+.combat-resource-ce .combat-bar{background:rgba(88,28,135,.32)}
+.combat-resource-ce .combat-bar-fill{background:linear-gradient(90deg,#6d28d9,#a855f7)!important}
+.combat-resource-du{border-color:rgba(45,212,191,.72)!important;box-shadow:inset 0 0 0 1px rgba(45,212,191,.08)}
+.combat-resource-du .combat-resource-top b{color:#5eead4}
+.combat-resource-du .combat-bar{background:rgba(17,94,89,.32)}
+.combat-resource-du .combat-bar-fill{background:linear-gradient(90deg,#0f766e,#2dd4bf)!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 </head>
@@ -1350,7 +1365,7 @@ function combatCharacterHtml(campaignId,ch){
   const stats=[...rollableStatNames.map(n=>[n,ch.currentStats?.[n]??ch.initialStats?.[n]??'—']),['Control EM',ch.control??'—']];
   const canEditCombat=isAdmin||ch.owner_id===currentUser?.id;
   const canRoll=canEditCombat;
-  const resource=(label,prefix,cur,max)=>'<div class="combat-resource"><div class="combat-resource-top"><b>'+label+'</b><span id="'+prefix+'-text-'+ch.id+'">'+cur+' / '+max+'</span></div><div class="combat-bar"><div class="combat-bar-fill" id="'+prefix+'-bar-'+ch.id+'"></div></div>'+(canEditCombat?'<input type="range" id="'+prefix+'-range-'+ch.id+'" min="0" max="'+max+'" value="'+Math.min(cur,max)+'" oninput="combatRangeInput(\''+ch.id+'\',\''+prefix+'\')"><div class="combat-number-row"><input type="number" min="0" id="'+prefix+'-current-'+ch.id+'" value="'+cur+'" oninput="combatNumberInput(\''+ch.id+'\',\''+prefix+'\')"><span>/</span><input type="number" min="1" id="'+prefix+'-max-'+ch.id+'" value="'+max+'" oninput="combatMaxInput(\''+ch.id+'\',\''+prefix+'\')"></div><div class="combat-quick-subtract"><input type="number" min="0" step="1" id="'+prefix+'-subtract-'+ch.id+'" placeholder="Restar"><button onclick="quickSubtractCombatResource(\''+campaignId+'\',\''+ch.id+'\',\''+prefix+'\')">− Restar</button></div>':'')+'</div>';
+  const resource=(label,prefix,cur,max,icon)=>'<div class="combat-resource combat-resource-'+prefix+'"><div class="combat-resource-top"><b><span class="combat-resource-icon">'+icon+'</span>'+label+'</b><span id="'+prefix+'-text-'+ch.id+'">'+cur+' / '+max+'</span></div><div class="combat-bar"><div class="combat-bar-fill" id="'+prefix+'-bar-'+ch.id+'"></div></div>'+(canEditCombat?'<input type="range" id="'+prefix+'-range-'+ch.id+'" min="0" max="'+max+'" value="'+Math.min(cur,max)+'" oninput="combatRangeInput(\''+ch.id+'\',\''+prefix+'\')"><div class="combat-number-row"><input type="number" min="0" id="'+prefix+'-current-'+ch.id+'" value="'+cur+'" oninput="combatNumberInput(\''+ch.id+'\',\''+prefix+'\')"><span>/</span><input type="number" min="1" id="'+prefix+'-max-'+ch.id+'" value="'+max+'" oninput="combatMaxInput(\''+ch.id+'\',\''+prefix+'\')"></div><div class="combat-quick-subtract"><input type="number" min="0" step="1" id="'+prefix+'-subtract-'+ch.id+'" placeholder="Restar"><button onclick="quickSubtractCombatResource(\''+campaignId+'\',\''+ch.id+'\',\''+prefix+'\')">− Restar</button></div>':'')+'</div>';
   const statsHtml=stats.map(([n,v])=>{
     const num=Number(v),rollable=canRoll&&Number.isFinite(num);
     return '<div class="combat-stat '+(rollable?'rollable':'')+'" '+(rollable?'onclick="event.stopPropagation();rollCombatStat(\''+campaignId+'\',\''+ch.id+'\',\''+esc(n)+'\','+num+')"':'')+'>'+esc(combatStatAbbr(n))+'<b>'+esc(String(v))+'</b>'+(rollable?'<small>d20+'+num+'</small>':'')+'</div>';
@@ -1361,7 +1376,7 @@ function combatCharacterHtml(campaignId,ch){
       '<div class="combat-char-title"><h3>'+esc(ch.sorcererName)+'</h3><div class="muted">'+esc(ch.userName)+' · '+esc(ch.grade||'Sin grado')+'</div></div>'+
       '<span class="visibility-pill '+(s.visible?'on':'')+'">'+(s.visible?'Visible':'Oculto')+'</span>'+
     '</div>'+
-    '<div class="combat-bars" onclick="event.stopPropagation()">'+resource('Vida · DUR×50','hp',s.hp_current,s.hp_max)+resource('Energía Maldita · EM×50','ce',s.ce_current,s.ce_max)+resource('Resistencia · RES×50','du',s.durability_current,s.durability_max)+'</div>'+
+    '<div class="combat-bars" onclick="event.stopPropagation()">'+resource('Vida · DUR×50','hp',s.hp_current,s.hp_max,'❤')+resource('Energía Maldita · EM×50','ce',s.ce_current,s.ce_max,'🔥')+resource('Resistencia · RES×50','du',s.durability_current,s.durability_max,'🫁')+'</div>'+
     '<div class="combat-stats">'+statsHtml+'</div>'+
     combatQuickMenuHtml(campaignId,ch,canRoll)+
     (canEditCombat?'<div class="combat-admin-row" onclick="event.stopPropagation()">'+(isAdmin?'<button class="secondary" onclick="toggleCombatVisibility(\''+campaignId+'\',\''+ch.id+'\')">'+(s.visible?'Ocultar personaje':'Mostrar personaje')+'</button>':'')+'<button onclick="saveCombatCharacterState(\''+campaignId+'\',\''+ch.id+'\')">Guardar barras</button></div>':'')+
