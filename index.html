@@ -180,6 +180,25 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
 .combat-chat-compose select,.combat-chat-compose input{background:#101018;color:var(--text);border:1px solid #343443;border-radius:8px;padding:9px}
 .combat-chat-compose button{padding:9px 13px}
 @media(max-width:700px){.combat-chat-compose{grid-template-columns:100px minmax(0,1fr)}.combat-chat-compose button{grid-column:1/-1}}
+
+.roll-chat .combat-text-chat.compact{margin-top:0;border-top:1px solid var(--border);padding:9px 10px 10px}
+.roll-chat .combat-text-chat-head{margin-bottom:6px}
+.roll-chat .combat-text-chat-head b{font-size:11px}
+.roll-chat .combat-text-chat-head .muted{font-size:9px}
+.roll-chat .combat-chat-list{max-height:155px;padding:7px;gap:6px;border-radius:9px}
+.roll-chat .combat-chat-msg{padding:7px 8px;border-radius:8px}
+.roll-chat .combat-chat-msg-top{font-size:9px;margin-bottom:3px}
+.roll-chat .combat-chat-msg-top b{font-size:10px}
+.roll-chat .combat-chat-body{font-size:11px;line-height:1.35}
+.roll-chat .combat-chat-compose{grid-template-columns:84px minmax(0,1fr) auto;gap:5px;margin-top:6px}
+.roll-chat .combat-chat-compose select,
+.roll-chat .combat-chat-compose input{padding:6px 7px;font-size:10px}
+.roll-chat .combat-chat-compose button{padding:6px 8px;font-size:10px}
+.roll-chat .combat-chat-empty{padding:10px;font-size:10px}
+@media(max-width:700px){
+  .roll-chat .combat-chat-compose{grid-template-columns:78px minmax(0,1fr)}
+  .roll-chat .combat-chat-compose button{grid-column:1/-1}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 </head>
@@ -1473,8 +1492,7 @@ async function renderCombatCampaign(campaignId){
   const zoneName=selectedCombatZoneId?(zones.find(z=>z.id===selectedCombatZoneId)?.name||'Zona'):'Sin zona elegida';
   root.innerHTML='<div style="margin-bottom:14px;display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap"><div><h3 style="margin:0">'+esc(camp.name)+'</h3><div class="muted">'+esc(zoneName)+' · '+chars.length+' personaje(s)'+(isAdmin?' · controles de GM activos':'')+'</div></div>'+zoneSelector+'</div>'+
     '<div class="combat-layout"><div>'+roster+'</div>'+combatRollChatHtml(campaignId)+'</div>'+
-    combatMapSectionHtml(campaignId)+
-    combatChatHtml(campaignId);
+    combatMapSectionHtml(campaignId);
 
   chars.forEach(ch=>updateCombatBars(ch.id));
   scrollRollChat();
@@ -1642,7 +1660,9 @@ function combatRollChatHtml(campaignId){
     '<div class="dice-panel"><div class="dice-quick-row">'+quick+'</div>'+
       '<div class="dice-expression-row"><input id="dice-expression-'+campaignId+'" placeholder="Ej: 2D8, 8D10, 5D20" onkeydown="if(event.key===\'Enter\')rollFreeDice(\''+campaignId+'\',this.value)"><button onclick="rollFreeDice(\''+campaignId+'\',document.getElementById(\'dice-expression-'+campaignId+'\').value)">Tirar</button></div>'+
     '</div>'+
-    '<div class="roll-chat-list" id="roll-chat-list">'+msgs+'</div></aside>';
+    '<div class="roll-chat-list" id="roll-chat-list">'+msgs+'</div>'+
+    combatChatHtml(campaignId)+
+  '</aside>';
 }
 function combatRollMessageHtml(r){
   if(r.roll_expression){
@@ -1974,8 +1994,8 @@ function combatChatHtml(campaignId){
   const msgs=combatMessages.length
     ?combatMessages.map(combatChatMessageHtml).join('')
     :'<div class="combat-chat-empty">Todavía no hay mensajes.</div>';
-  return '<section class="combat-text-chat">'+
-    '<div class="combat-text-chat-head"><div><h3>Chat de combate</h3><div class="muted">Mensajes de la sala</div></div></div>'+
+  return '<div class="combat-text-chat compact">'+
+    '<div class="combat-text-chat-head"><div><b>Chat</b><div class="muted">Jugadores</div></div></div>'+
     '<div class="combat-chat-list" id="combat-chat-list">'+msgs+'</div>'+
     '<div class="combat-chat-compose">'+
       '<select id="combat-chat-mode-'+campaignId+'" aria-label="Destino del mensaje">'+
@@ -1983,10 +2003,10 @@ function combatChatHtml(campaignId){
         '<option value="private">Privado</option>'+
         '<option value="gm">GM</option>'+
       '</select>'+
-      '<input id="combat-chat-input-'+campaignId+'" maxlength="2000" placeholder="Escribí un mensaje..." onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendCombatMessage(\''+campaignId+'\')}">'+
+      '<input id="combat-chat-input-'+campaignId+'" maxlength="2000" placeholder="Mensaje..." onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();sendCombatMessage(\''+campaignId+'\')}">'+
       '<button onclick="sendCombatMessage(\''+campaignId+'\')">Enviar</button>'+
     '</div>'+
-  '</section>';
+  '</div>';
 }
 function renderCombatChatList(){
   const list=document.getElementById('combat-chat-list');if(!list)return;
