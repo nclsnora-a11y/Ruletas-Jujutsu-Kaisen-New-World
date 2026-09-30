@@ -129,6 +129,14 @@ main{max-width:1500px!important;width:min(98vw,1500px)!important}
 .combat-resource-du .combat-resource-top b{color:#5eead4}
 .combat-resource-du .combat-bar{background:rgba(17,94,89,.32)}
 .combat-resource-du .combat-bar-fill{background:linear-gradient(90deg,#0f766e,#2dd4bf)!important}
+
+.side-pill{font-size:9px;padding:4px 7px;border-radius:999px;border:1px solid #3c3c49;color:var(--muted);white-space:nowrap}
+.side-pill.enemy{border-color:#7f1d1d;color:#fca5a5;background:rgba(127,29,29,.12)}
+.combat-enemy-hidden{border-color:#3f3f46!important;background:linear-gradient(180deg,#111118,#0c0c12)!important}
+.combat-enemy-hidden .combat-char-head{margin-bottom:0!important}
+.enemy-hidden-note{margin-top:9px;padding:9px 10px;border:1px dashed #343443;border-radius:8px;color:var(--muted);font-size:11px;text-align:center}
+.roll-msg-hidden{opacity:.82;border-style:dashed!important}
+.roll-hidden-text{font-size:12px;color:var(--muted);padding:4px 0}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 </head>
@@ -450,6 +458,7 @@ function makeCharacterFromSheet(){
     type:sheetState.type||null,
     grade:sheetState.grade||null,
     control:sheetState.control||null,
+    side:'hechicero',
     passives:sheetState.passives.map(p=>({...p})),
     photo:null,
     createdAt:new Date().toISOString()
@@ -471,6 +480,7 @@ function characterCard(ch){
     <div class="character-summary">
       <span>Tipo de técnica</span><strong>${esc(ch.type||'—')}</strong>
       <span>Grado</span><strong>${esc(ch.grade||'—')}</strong>
+      <span>Bando</span><strong>${ch.side==='maldicion'?'Maldición':'Hechicero'}</strong>
       <span>Control de EM</span><strong>${esc(ch.control||'—')}</strong>
       <span>Total inicial</span><strong>${initialTotal}</strong>
       <span>Total actual</span><strong>${total}</strong>
@@ -503,6 +513,7 @@ function toggleEditor(id){
       <div><label>Foto del personaje</label>${ch.photo?'<img class="photo-preview" src="'+ch.photo+'" alt="Vista previa">':'<div class="photo-preview character-avatar placeholder">術</div>'}<input id="edit-${id}-photo" type="file" accept="image/*"><div class="photo-note">La imagen se reduce automáticamente para ahorrar espacio.</div>${ch.photo?'<button class="secondary danger" style="margin-top:7px" onclick="removePhoto(\''+id+'\')">Quitar foto</button>':''}</div>
       <div><label>Nombre del hechicero</label><input id="edit-${id}-name" value="${esc(ch.sorcererName)}"></div>
       <div><label>Usuario</label><input id="edit-${id}-user" value="${esc(ch.userName)}"></div>
+      <div><label>Bando</label><select id="edit-${id}-side"><option value="hechicero" ${ch.side!=='maldicion'?'selected':''}>Hechicero</option><option value="maldicion" ${ch.side==='maldicion'?'selected':''}>Maldición</option></select></div>
       <div><label>Tipo de técnica</label><select id="edit-${id}-type"><option value="">—</option>${optionList(configs.type.values,ch.type)}</select></div>
       <div><label>Grado</label><select id="edit-${id}-grade"><option value="">—</option>${optionList(configs.grade.values,ch.grade)}</select></div>
       <div><label>Control de EM</label><select id="edit-${id}-control"><option value="">—</option>${optionList(configs.control.values,ch.control)}</select></div>
@@ -783,7 +794,7 @@ function normalizeCharacter(r){
   return {
     id:r.id,owner_id:r.owner_id,sorcererName:r.sorcerer_name,userName:r.user_name||'—',
     initialStats:r.initial_stats||{},currentStats:r.current_stats||{},type:r.technique_type||null,
-    grade:r.grade||null,control:r.control_em==null?null:String(r.control_em),passives:r.passives||[],techniqueDescription:r.technique_description||'',techniqueActions:Array.isArray(r.technique_actions)?r.technique_actions:[],
+    grade:r.grade||null,control:r.control_em==null?null:String(r.control_em),side:r.character_side||'hechicero',passives:r.passives||[],techniqueDescription:r.technique_description||'',techniqueActions:Array.isArray(r.technique_actions)?r.technique_actions:[],
     photo_path:r.photo_path||null,photo:imageUrl(r.photo_path),createdAt:r.created_at
   };
 }
@@ -1026,7 +1037,7 @@ zoneHtmlFor=function(c,z){
  if(old){const btn=old.cloneNode(true);old.replaceWith(btn);btn.onclick=async()=>{
    if(!currentUser){toast('Iniciá sesión para guardar el personaje.');return}
    const ch=makeCharacterFromSheet();
-   const payload={owner_id:currentUser.id,sorcerer_name:ch.sorcererName,user_name:ch.userName,initial_stats:ch.initialStats,current_stats:ch.currentStats,technique_type:ch.type,grade:ch.grade,control_em:ch.control?Number(ch.control):null,passives:ch.passives,technique_description:'',technique_actions:[]};
+   const payload={owner_id:currentUser.id,sorcerer_name:ch.sorcererName,user_name:ch.userName,character_side:ch.side||'hechicero',initial_stats:ch.initialStats,current_stats:ch.currentStats,technique_type:ch.type,grade:ch.grade,control_em:ch.control?Number(ch.control):null,passives:ch.passives,technique_description:'',technique_actions:[]};
    const {error}=await sb.from('characters').insert(payload);if(error){toast(error.message);return}
    await loadSharedData();toast('Personaje guardado y sincronizado.');
  }}
@@ -1041,7 +1052,7 @@ saveCharacterEdit=async function(id){
   if(photoInput?.files?.[0]){
     try{photoPath=await uploadInputFile(photoInput.files[0],currentUser.id+'/characters/'+id+'.jpg')}catch(e){toast('No pude subir la foto.');return}
   }
-  const payload={sorcerer_name:document.getElementById('edit-'+id+'-name').value.trim()||'Hechicero sin nombre',user_name:document.getElementById('edit-'+id+'-user').value.trim()||'—',technique_type:document.getElementById('edit-'+id+'-type').value||null,grade:document.getElementById('edit-'+id+'-grade').value||null,control_em:document.getElementById('edit-'+id+'-control').value?Number(document.getElementById('edit-'+id+'-control').value):null,current_stats:currentStats,technique_description:document.getElementById('tech-desc-'+id)?.value.trim()||'',technique_actions:collectTechniqueUses(id),photo_path:photoPath,updated_at:new Date().toISOString()};
+  const payload={sorcerer_name:document.getElementById('edit-'+id+'-name').value.trim()||'Hechicero sin nombre',user_name:document.getElementById('edit-'+id+'-user').value.trim()||'—',character_side:document.getElementById('edit-'+id+'-side')?.value||'hechicero',technique_type:document.getElementById('edit-'+id+'-type').value||null,grade:document.getElementById('edit-'+id+'-grade').value||null,control_em:document.getElementById('edit-'+id+'-control').value?Number(document.getElementById('edit-'+id+'-control').value):null,current_stats:currentStats,technique_description:document.getElementById('tech-desc-'+id)?.value.trim()||'',technique_actions:collectTechniqueUses(id),photo_path:photoPath,updated_at:new Date().toISOString()};
   const {error}=await sb.from('characters').update(payload).eq('id',id);if(error){toast(error.message);return}
   const hpMax=Math.max(0,(normalizeStatValue(currentStats['Durabilidad'])??1)*50);
   const ceMax=Math.max(0,(normalizeStatValue(currentStats['Energía Maldita'])??1)*50);
@@ -1360,11 +1371,35 @@ function combatStatAbbr(name){
   };
   return map[name]||String(name).slice(0,3).toUpperCase();
 }
+function viewerCombatSides(campaignId){
+  if(!currentUser)return new Set();
+  const zoneIds=selectedCombatZoneId?[selectedCombatZoneId]:sharedZones.filter(z=>z.campaign_id===campaignId).map(z=>z.id);
+  const ownedIds=new Set(sharedMemberships.filter(m=>m.campaign_id===campaignId&&zoneIds.includes(m.zone_id)).map(m=>m.character_id));
+  return new Set(allCharacters.filter(c=>c.owner_id===currentUser.id&&ownedIds.has(c.id)).map(c=>c.side||'hechicero'));
+}
+function canSeeCombatDetails(campaignId,ch){
+  if(isAdmin)return true;
+  if(ch.owner_id===currentUser?.id)return true;
+  return viewerCombatSides(campaignId).has(ch.side||'hechicero');
+}
+function sideLabel(ch){return (ch?.side||'hechicero')==='maldicion'?'Maldición':'Hechicero'}
+
 function combatCharacterHtml(campaignId,ch){
   const s=combatStates.find(x=>x.character_id===ch.id)||{visible:true,hp_current:combatDefaultMax(ch,'Durabilidad'),hp_max:combatDefaultMax(ch,'Durabilidad'),ce_current:combatDefaultMax(ch,'Energía Maldita'),ce_max:combatDefaultMax(ch,'Energía Maldita'),durability_current:combatDefaultMax(ch,'Resistencia'),durability_max:combatDefaultMax(ch,'Resistencia')};
   const stats=[...rollableStatNames.map(n=>[n,ch.currentStats?.[n]??ch.initialStats?.[n]??'—']),['Control EM',ch.control??'—']];
   const canEditCombat=isAdmin||ch.owner_id===currentUser?.id;
   const canRoll=canEditCombat;
+  const canSeeDetails=canSeeCombatDetails(campaignId,ch);
+  if(!canSeeDetails){
+    return '<article class="combat-char combat-enemy-hidden '+(!s.visible?'combat-hidden-card':'')+'" id="combat-char-'+ch.id+'">'+
+      '<div class="combat-char-head">'+
+        (ch.photo?'<img class="combat-avatar" src="'+ch.photo+'" alt="">':'<div class="combat-avatar">術</div>')+
+        '<div class="combat-char-title"><h3>'+esc(ch.sorcererName)+'</h3><div class="muted">'+esc(sideLabel(ch))+' · Información oculta</div></div>'+
+        '<span class="side-pill enemy">'+esc(sideLabel(ch))+'</span>'+
+      '</div>'+
+      '<div class="enemy-hidden-note">No conocés sus recursos, estadísticas, técnica ni pasivas.</div>'+
+    '</article>';
+  }
   const resource=(label,prefix,cur,max,icon)=>'<div class="combat-resource combat-resource-'+prefix+'"><div class="combat-resource-top"><b><span class="combat-resource-icon">'+icon+'</span>'+label+'</b><span id="'+prefix+'-text-'+ch.id+'">'+cur+' / '+max+'</span></div><div class="combat-bar"><div class="combat-bar-fill" id="'+prefix+'-bar-'+ch.id+'"></div></div>'+(canEditCombat?'<input type="range" id="'+prefix+'-range-'+ch.id+'" min="0" max="'+max+'" value="'+Math.min(cur,max)+'" oninput="combatRangeInput(\''+ch.id+'\',\''+prefix+'\')"><div class="combat-number-row"><input type="number" min="0" id="'+prefix+'-current-'+ch.id+'" value="'+cur+'" oninput="combatNumberInput(\''+ch.id+'\',\''+prefix+'\')"><span>/</span><input type="number" min="1" id="'+prefix+'-max-'+ch.id+'" value="'+max+'" oninput="combatMaxInput(\''+ch.id+'\',\''+prefix+'\')"></div><div class="combat-quick-subtract"><input type="number" min="0" step="1" id="'+prefix+'-subtract-'+ch.id+'" placeholder="Restar"><button onclick="quickSubtractCombatResource(\''+campaignId+'\',\''+ch.id+'\',\''+prefix+'\')">− Restar</button></div>':'')+'</div>';
   const statsHtml=stats.map(([n,v])=>{
     const num=Number(v),rollable=canRoll&&Number.isFinite(num);
@@ -1373,7 +1408,7 @@ function combatCharacterHtml(campaignId,ch){
   return '<article class="combat-char '+(!s.visible?'combat-hidden-card':'')+'" id="combat-char-'+ch.id+'">'+
     '<div class="combat-char-head" onclick="toggleCombatQuickMenu(\''+ch.id+'\')">'+
       (ch.photo?'<img class="combat-avatar" src="'+ch.photo+'" alt="">':'<div class="combat-avatar">術</div>')+
-      '<div class="combat-char-title"><h3>'+esc(ch.sorcererName)+'</h3><div class="muted">'+esc(ch.userName)+' · '+esc(ch.grade||'Sin grado')+'</div></div>'+
+      '<div class="combat-char-title"><h3>'+esc(ch.sorcererName)+'</h3><div class="muted">'+esc(ch.userName)+' · '+esc(ch.grade||'Sin grado')+' · '+esc(sideLabel(ch))+'</div></div>'+
       '<span class="visibility-pill '+(s.visible?'on':'')+'">'+(s.visible?'Visible':'Oculto')+'</span>'+
     '</div>'+
     '<div class="combat-bars" onclick="event.stopPropagation()">'+resource('Vida · DUR×50','hp',s.hp_current,s.hp_max,'❤')+resource('Energía Maldita · EM×50','ce',s.ce_current,s.ce_max,'🔥')+resource('Resistencia · RES×50','du',s.durability_current,s.durability_max,'🫁')+'</div>'+
@@ -1474,6 +1509,10 @@ function combatRollMessageHtml(r){
   const name=ch?.sorcererName||'Personaje';
   const time=new Date(r.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   const avatar=ch?.photo?'<img class="roll-msg-mini-avatar" src="'+ch.photo+'" alt="">':'<div class="roll-msg-mini-avatar">術</div>';
+  const canSee=!ch||canSeeCombatDetails(r.campaign_id,ch);
+  if(!canSee){
+    return '<div class="roll-msg roll-msg-hidden"><div class="roll-msg-with-avatar">'+avatar+'<div class="roll-msg-content"><div class="roll-msg-top"><span><b>'+esc(name)+'</b> · Tirada oculta</span><span>'+esc(time)+'</span></div><div class="roll-hidden-text">El bando rival realizó una tirada.</div></div></div></div>';
+  }
   return '<div class="roll-msg"><div class="roll-msg-with-avatar">'+avatar+'<div class="roll-msg-content"><div class="roll-msg-top"><span><b>'+esc(name)+'</b> · '+esc(r.stat_name)+'</span><span>'+esc(time)+'</span></div><div class="roll-msg-main"><span class="roll-d20">'+r.die_result+'</span><span class="roll-op">+'+r.stat_bonus+'</span><span class="roll-op">=</span><span class="roll-total">'+r.total+'</span></div></div></div></div>';
 }
 function scrollRollChat(){
@@ -1571,6 +1610,7 @@ function syncCombatStateRow(row){
     return;
   }
   if(card){
+    if(!canSeeCombatDetails(row.campaign_id,ch))return;
     const pill=card.querySelector('.visibility-pill');
     if(pill){pill.textContent=row.visible?'Visible':'Oculto';pill.classList.toggle('on',!!row.visible)}
     card.classList.toggle('combat-hidden-card',!row.visible);
