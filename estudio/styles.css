@@ -68,3 +68,22 @@ h1,h2,h3,h4,p{margin-top:0}h1{font-size:30px;margin-bottom:0}h2{font-size:34px;l
   .app-shell{display:block}.sidebar{height:auto;position:sticky;top:0;padding:12px 14px;border-right:0;border-bottom:1px solid var(--line);flex-direction:row;align-items:center}.brand{margin:0;margin-right:auto}.brand span{display:none}.brand-mark{width:34px;height:34px;border-radius:10px}.nav{display:flex;gap:3px;overflow:auto}.nav-btn{padding:9px 10px}.nav-btn span{display:none}.sidebar-note{display:none}
   .main{padding:20px 14px 40px}.topbar{margin-bottom:18px}h1{font-size:25px}.date-chip{display:none}.hero{padding:24px;min-height:190px}.hero-badge{display:none}h2{font-size:28px}.countdown-grid{grid-template-columns:1fr}.unit-grid{grid-template-columns:1fr}.backup-card{align-items:flex-start;flex-direction:column}.method-flow{grid-template-columns:1fr}.study-block{grid-template-columns:64px 1fr}.block-badge{grid-column:2}.target-card{grid-template-columns:auto 1fr}.target-card .subject-pill{grid-column:2;width:max-content}.calendar-cell{min-height:88px;padding:6px}.day-subject{padding:4px;font-size:9px}.day-note{display:none}.weekdays span{font-size:9px;padding:8px 2px}.calendar-toolbar h2{font-size:22px}
 }
+.daily-load-banner{
+  display:flex;justify-content:space-between;gap:14px;align-items:center;
+  border:1px solid rgba(79,209,166,.18);background:rgba(79,209,166,.06);
+  border-radius:14px;padding:13px 15px;margin-bottom:12px
+}
+.daily-load-banner strong{font-size:14px;color:#dff8ef}
+.daily-load-banner span{font-size:11px;color:var(--muted);text-align:right;line-height:1.4;max-width:460px}
+.focus-label{display:inline-flex;align-items:center;gap:6px;font-size:9px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:#71849f;margin-bottom:6px}
+.focus-label:before{content:"";width:6px;height:6px;border-radius:50%;background:#71849f}
+.target-card.privado .focus-label:before{background:var(--priv)}
+.target-card.penal .focus-label:before{background:var(--penal)}
+.target-card.repaso .focus-label:before{background:var(--gold)}
+.study-block{transition:.16s ease}
+.study-block:hover{transform:translateY(-1px);border-color:#31425d}
+.block-start{border:1px solid #2c3b52;background:#111e31;color:#d7e1ef;border-radius:8px;padding:6px 9px;font-size:10px;font-weight:900;white-space:nowrap}
+@media(max-width:760px){
+  .daily-load-banner{align-items:flex-start;flex-direction:column}
+  .daily-load-banner span{text-align:left}
+}
