@@ -3,7 +3,8 @@
 
 const PRIVADO_EXAM='2026-11-17';
 const PENAL_EXAM='2026-11-25';
-const STORE='nico-study-hub-v1';
+const START_DATE='2026-10-02';
+const STORE='nico-study-hub-v2';
 
 const privado=[
  {n:1,title:'Estructura de las obligaciones · Nociones básicas',difficulty:'Media',weight:1.75,rank:5},
@@ -47,94 +48,204 @@ const penal=[
  {n:22,title:'Ética profesional',difficulty:'Baja',weight:1,rank:2}
 ];
 
-const schedule=[
- d('2026-10-01','Inicio del plan',[t('privado','Privado U1','Primera vuelta completa + explicación oral corta'),t('penal','Penal U1','Primera lectura activa y recuperación sin mirar')]),
- d('2026-10-02','Base conceptual',[t('privado','Privado U2 · Parte 1','Sujetos, objeto, vínculo y conceptos esenciales'),t('penal','Penal U2','Evolución histórica; corregir cronología antes de memorizar')]),
- d('2026-10-05','Cerrar U2',[t('privado','Privado U2 · Parte 2','Causa, plazo y reconocimiento + repaso U1'),t('penal','Penal U3','Principios constitucionales')]),
- d('2026-10-06','Tutela del crédito',[t('privado','Privado U3','Efectos, buena fe, acciones protectoras y astreintes'),t('penal','Penal U4','Ley penal, fuentes e interpretación')]),
- d('2026-10-07','Preferencias',[t('privado','Privado U4','Privilegios, retención y primer embargante'),t('penal','Penal U5','Espacio, jurisdicción y extradición')]),
- d('2026-10-08','Unidad pesada',[t('privado','Privado U5 · Parte 1','Dar cosas ciertas, género y concurrencia'),t('penal','Penal U6','Tiempo, ley más benigna y personas')]),
- d('2026-10-09','Unidad pesada',[t('privado','Privado U5 · Parte 2','Dinero, deudas de valor, intereses y anatocismo'),t('repaso','Penal U1–U6','Repaso acumulativo y preguntas cortas')]),
- d('2026-10-12','Cerrar U5',[t('privado','Privado U5 · Parte 3','Hacer/no hacer, alternativas y facultativas'),t('penal','Penal U7 · Parte 1','Evolución dogmática; causalismo y finalismo')]),
- d('2026-10-13','Clasificaciones',[t('privado','Privado U6 · Parte 1','Divisibles, indivisibles y mancomunadas'),t('penal','Penal U7 · Parte 2','Funcionalismo y cuadro comparativo')]),
- d('2026-10-14','Solidaridad',[t('privado','Privado U6 · Parte 2','Solidaridad activa y pasiva'),t('penal','Penal U8','Acción, ausencia de acción y omisión')]),
- d('2026-10-15','Cerrar U6',[t('privado','Privado U6 · Parte 3','Concurrentes, cláusula penal, recíprocas y rendición'),t('penal','Penal U9 · Parte 1','Tipo, tipicidad y clasificaciones')]),
- d('2026-10-16','Pago',[t('privado','Privado U7 · Parte 1','Concepto, sujetos, objeto, identidad e integridad'),t('penal','Penal U9 · Parte 2','Tipo objetivo, causalidad e imputación objetiva')]),
- d('2026-10-19','Pago',[t('privado','Privado U7 · Parte 2','Imputación, consignación y prueba'),t('penal','Penal U9 · Parte 3','Tipo subjetivo, dolo y errores')]),
- d('2026-10-20','Cerrar pago',[t('privado','Privado U7 · Parte 3','Subrogación, mora y casos'),t('penal','Penal U10','Antijuridicidad y estructura del injusto')]),
- d('2026-10-21','Otros modos',[t('privado','Privado U8','Compensación, confusión, novación, dación, renuncia, imposibilidad y transacción'),t('penal','Penal U11','Legítima defensa y otras justificaciones')]),
- d('2026-10-22','Prescripción',[t('privado','Privado U9 · Parte 1','Curso, suspensión, interrupción y dispensa'),t('penal','Penal U12 · Parte 1','Responsabilidad por el hecho y culpabilidad')]),
- d('2026-10-23','Cerrar prescripción',[t('privado','Privado U9 · Parte 2','Aspectos procesales, plazos y caducidad'),t('penal','Penal U12 · Parte 2','Dolo, culpa e imputabilidad según modelos')]),
- d('2026-10-26','Núcleo de daños',[t('privado','Privado U10 · Parte 1','Funciones, unificación y mapa de presupuestos'),t('penal','Penal U12 · Parte 3','Casos + cierre conceptual')]),
- d('2026-10-27','Núcleo de daños',[t('privado','Privado U10 · Parte 2','Daño y antijuridicidad'),t('penal','Penal U13 · Parte 1','Inimputabilidad y teoría del error')]),
- d('2026-10-28','Núcleo de daños',[t('privado','Privado U10 · Parte 3','Causalidad y consecuencias indemnizables'),t('penal','Penal U13 · Parte 2','Error de tipo/prohibición, coacción y preterintención')]),
- d('2026-10-29','Cerrar U10',[t('privado','Privado U10 · Parte 4','Factores, eximentes, atenuación y casos'),t('penal','Penal U14','Iter criminis, tentativa y desistimiento')]),
- d('2026-10-30','Consolidación',[t('repaso','Privado U1–U5','Repaso oral acumulativo; priorizar U5'),t('penal','Penal U15','Autoría, dominio del hecho y participación')]),
- d('2026-11-02','Responsabilidad aplicada',[t('privado','Privado U11','Directa e indirecta; dependientes, progenitores y encargados'),t('penal','Penal U16','Concurso ideal, real, aparente y unificación')]),
- d('2026-11-03','Riesgo',[t('privado','Privado U12','Riesgo/vicio, actividades y responsabilidad colectiva'),t('penal','Penal U17','Acciones, extinción, prescripción, probation e indulto')]),
- d('2026-11-04','Especiales',[t('privado','Privado U13 · Parte 1','Educativos, profesionales, hoteles, personas jurídicas y tránsito'),t('penal','Penal U18 · Parte 1','Teorías de la pena y penas privativas de libertad')]),
- d('2026-11-05','Especiales',[t('privado','Privado U13 · Parte 2','Intimidad, Estado, consumo y ambiente'),t('penal','Penal U18 · Parte 2','Ejecución, libertad condicional y régimen vigente')]),
- d('2026-11-06','Cerrar primera vuelta Privado',[t('privado','Privado U14','Acción indemnizatoria y relación civil-penal'),t('penal','Penal U19','Penas accesorias, condena condicional y reincidencia')]),
- d('2026-11-09','Segunda vuelta Privado',[t('repaso','Privado U1–U3','Recuperación sin mirar + casos breves'),t('penal','Penal U20','Medidas de seguridad y régimen juvenil vigente')]),
- d('2026-11-10','Segunda vuelta Privado',[t('repaso','Privado U4–U6','Especial atención U5/U6; cuadros comparativos'),t('penal','Penal U21','Ciencia penitenciaria')]),
- d('2026-11-11','Segunda vuelta Privado',[t('repaso','Privado U7–U9','Pago, mora, extinción y prescripción'),t('penal','Penal U22','Ética profesional; corregir Couture antes de memorizar')]),
- d('2026-11-12','Día fuerte U10',[t('repaso','Privado U10','Simulación oral completa + caso de responsabilidad'),t('repaso','Penal U1–U6','Primera recuperación acumulativa')]),
- d('2026-11-13','Cerrar segunda vuelta',[t('repaso','Privado U11–U14','Responsabilidades especiales + acción indemnizatoria'),t('repaso','Penal U7–U13','Núcleo teoría del delito')]),
- d('2026-11-16','Pre examen Privado',[t('repaso','Privado · Bolillero completo','Dos bolillas, exposición cronometrada y corrección de rojos'),t('repaso','Privado · Último ajuste','Sólo huecos concretos; nada de contenido nuevo')]),
- d('2026-11-17','EXAMEN PRIVADO II',[t('privado','Final oral de Privado II','Repaso mínimo de disparadores. Después del examen: descanso')]),
- d('2026-11-18','Penal intensivo',[t('repaso','Penal U14–U18','Tentativa, participación, concurso, punibilidad y pena'),t('repaso','Penal · Casos','Resolver al menos 3 casos cortos')]),
- d('2026-11-19','Penal intensivo',[t('repaso','Penal U7–U9','Teoría del delito, acción y tipo en profundidad'),t('repaso','Penal · Oral','Explicar estructura del delito sin mirar')]),
- d('2026-11-20','Penal intensivo',[t('repaso','Penal U10–U13','Antijuridicidad, justificación y culpabilidad'),t('repaso','Penal · Casos','Legítima defensa, error e inimputabilidad')]),
- d('2026-11-23','Cierre de programa',[t('repaso','Penal U14–U22','Segunda vuelta rápida + artículos clave'),t('repaso','Penal · Puntos rojos','Reincidencia, juvenil, ejecución y cualquier hueco')]),
- d('2026-11-24','Pre examen Penal',[t('repaso','Penal · Bolillero completo','Dos bolillas + preguntas abiertas del programa'),t('repaso','Penal · Último ajuste','Sólo recuperación; no incorporar temas nuevos')]),
- d('2026-11-25','EXAMEN PENAL',[t('penal','Final oral de Penal I','Repaso de disparadores y estructura de respuesta')])
-];
+function task(subject,title,scope,stop,finish){
+  return {subject,title,scope,stop,finish:!!finish};
+}
+function day(date,label,tasks,note){return {date,label,tasks,note:note||''};}
 
-function t(subject,title,detail){return {subject:subject,title:title,detail:detail};}
-function d(date,label,tasks){return {date:date,label:label,tasks:tasks};}
+const schedule=[
+ day('2026-10-01','Preparación de la página',[],'Hoy no estudiás. El plan empieza mañana.'),
+ day('2026-10-02','Inicio real',[
+   task('privado','Privado U1 · Primera vuelta completa','Puntos 1 a 7: concepto, naturaleza, personales/reales, propter rem, evolución, consumo y metodología del CCyC.','Hoy SÍ cerrás la primera vuelta de U1. “Cerrar” significa poder contar el mapa de la unidad sin mirar; no significa memorizar cada detalle.',true),
+   task('penal','Penal U1 · Primera vuelta completa','Concepto y ramas del Derecho Penal, dimensión objetiva/subjetiva, dogmática, política criminal, criminología y ciencias auxiliares.','Hoy SÍ intentás terminar U1 porque es una unidad liviana. Si al final no podés explicar el esquema general, queda amarilla y la retomamos en el repaso.',true)
+ ],'Primer día: calibración. No agregues horas aunque sientas que podrías seguir.'),
+ day('2026-10-05','Elementos esenciales I',[
+   task('privado','Privado U2 · Parte 1','Elementos esenciales/accidentales, sujetos, objeto y vínculo jurídico.','Hoy NO terminás U2. Frená al finalizar vínculo jurídico, aunque te sobre entusiasmo.',false),
+   task('penal','Penal U2 · Evolución histórica','Evolución, escuelas y antecedentes; aprender la secuencia corregida, no datos históricos dudosos del resumen.','Primera vuelta completa de U2; priorizá relaciones entre etapas antes que fechas aisladas.',true)
+ ]),
+ day('2026-10-06','Elementos esenciales II',[
+   task('privado','Privado U2 · Parte 2','Causa fuente/fin/motivo, causalismo-anticausalismo-neocausalismo, plazo y reconocimiento.','Hoy SÍ cerrás U2 y al final tenés que poder diferenciar las tres acepciones de causa y explicar plazo/reconocimiento.',true),
+   task('penal','Penal U3','Legalidad, reserva, lesividad, culpabilidad, non bis in idem, humanidad y demás principios constitucionales.','Terminá la primera vuelta y explicá cada principio con una frase propia.',true)
+ ]),
+ day('2026-10-07','Tutela del crédito',[
+   task('privado','Privado U3','Efectos, buena fe, garantía común, acción directa, subrogatoria y astreintes.','Terminá U3. La prueba de salida es diferenciar acción directa de subrogatoria sin mirar.',true),
+   task('penal','Penal U4','Fuentes, ley penal, interpretación, analogía y reserva legal.','Terminá la primera vuelta, separando claramente régimen argentino de material español del resumen.',true)
+ ]),
+ day('2026-10-08','Preferencias',[
+   task('privado','Privado U4','Privilegios, especiales, retención y prioridad del primer embargante.','Terminá U4. Cerrá con un cuadro oral: privilegio / retención / embargo.',true),
+   task('penal','Penal U5','Principios espacial, real/defensa, personalidad, universalidad y extradición.','Terminá U5. No memorices fórmulas de embajadas del resumen sin la corrección jurídica.',true)
+ ]),
+ day('2026-10-09','Objeto I',[
+   task('privado','Privado U5 · Parte 1','Dar, cosa cierta, sistemas de transmisión, mejoras, frutos, riesgos y concurrencia de acreedores.','NO terminás U5. Frená antes de obligaciones de dinero.',false),
+   task('penal','Penal U6','Ley penal en el tiempo, ley más benigna, ley intermedia, temporales e inmunidades.','Primera vuelta completa. La meta es dominar el art. 2 CP y sus problemas, no recitar.',true)
+ ]),
+ day('2026-10-12','Objeto II',[
+   task('privado','Privado U5 · Parte 2','Obligaciones de dinero, deudas de valor, nominalismo/valorismo, intereses, anatocismo y moneda extranjera.','NO cerrás U5 todavía. Hoy sólo el núcleo monetario, con especial atención a la normativa vigente.',false),
+   task('penal','Penal U7 · Parte 1','Positivismo, normativismo y finalismo: qué cambia en la estructura del delito.','NO terminás U7. Frená antes de funcionalismo.',false)
+ ]),
+ day('2026-10-13','Objeto III',[
+   task('privado','Privado U5 · Parte 3','Hacer/no hacer, medios/resultado, alternativas y facultativas.','Hoy SÍ cerrás U5. La salida es explicar todas sus grandes clasificaciones sin mirar.',true),
+   task('penal','Penal U7 · Parte 2','Funcionalismo y cuadro comparativo con causalismo/finalismo.','Hoy SÍ cerrás U7. Funcionalismo se completa con fuente segura antes de memorizar.',true)
+ ]),
+ day('2026-10-14','Sujetos I',[
+   task('privado','Privado U6 · Parte 1','Divisibles, indivisibles y simplemente mancomunadas.','NO terminás U6. Frená antes de solidaridad.',false),
+   task('penal','Penal U8','Acción causal/final/social, ausencia de acción y omisión.','Primera vuelta completa. Quedate con la estructura, no con cada discusión marginal.',true)
+ ]),
+ day('2026-10-15','Sujetos II',[
+   task('privado','Privado U6 · Parte 2','Solidaridad: reglas comunes, pasiva y activa, efectos y relaciones internas.','NO terminás U6. Hoy la solidaridad sola merece dos pasadas.',false),
+   task('penal','Penal U9 · Parte 1','Tipo y tipicidad, bien jurídico, clasificaciones y estructura del tipo.','NO terminás U9. Frená antes de causalidad/imputación objetiva.',false)
+ ]),
+ day('2026-10-16','Sujetos III',[
+   task('privado','Privado U6 · Parte 3','Concurrentes, disyuntas, principales/accesorias, cláusula penal, recíprocas, conexos y rendición de cuentas.','Hoy SÍ cerrás U6 con cuadro comparativo: mancomunada / solidaria / concurrente.',true),
+   task('penal','Penal U9 · Parte 2','Causalidad e imputación objetiva: riesgo permitido, principio de confianza, prohibición de regreso y víctima.','NO terminás U9. Hoy sólo tipo objetivo e imputación.',false)
+ ]),
+ day('2026-10-19','Pago I',[
+   task('privado','Privado U7 · Parte 1','Pago: concepto, funciones, sujetos, objeto, identidad, integridad, lugar, tiempo y prueba.','NO terminás U7. Frená antes de imputación/consignación.',false),
+   task('penal','Penal U9 · Parte 3','Tipo subjetivo, dolo, clases y errores relevantes.','Hoy SÍ cerrás U9. Al final conectá tipo objetivo + subjetivo en un caso.',true)
+ ]),
+ day('2026-10-20','Pago II',[
+   task('privado','Privado U7 · Parte 2','Imputación y consignación judicial/extrajudicial.','NO terminás U7. Hoy cerrá consignación.',false),
+   task('penal','Penal U10','Antijuridicidad, injusto, causas de justificación y discusiones doctrinarias.','Primera vuelta completa; ordená posiciones por autor.',true)
+ ]),
+ day('2026-10-21','Pago III',[
+   task('privado','Privado U7 · Parte 3','Subrogación, pago a mejor fortuna, beneficio de competencia y mora de deudor/acreedor.','Hoy SÍ cerrás U7. La mora tiene que quedar explicable con ejemplos.',true),
+   task('penal','Penal U11','Legítima defensa, defensa de terceros, cumplimiento de deber, obediencia y exceso.','Terminá U11, pero hacé al menos un caso práctico antes de marcarla verde.',true)
+ ]),
+ day('2026-10-22','Extinción',[
+   task('privado','Privado U8','Compensación, confusión, novación, dación, renuncia/remisión, imposibilidad y transacción.','Primera vuelta completa. No busques memorizar artículos hoy; primero distinguí institutos.',true),
+   task('penal','Penal U12 · Parte 1','Responsabilidad por el hecho y concepto/evolución de culpabilidad.','NO terminás U12. Frená antes de entrar a dolo/culpa según los modelos.',false)
+ ]),
+ day('2026-10-23','Prescripción I',[
+   task('privado','Privado U9 · Parte 1','Concepto, curso, suspensión, interrupción y dispensa.','NO terminás U9. La salida es diferenciar suspensión de interrupción sin mirar.',false),
+   task('penal','Penal U12 · Parte 2','Ubicación del dolo/culpa, imputabilidad y modelos causalista/finalista.','NO terminás U12. Construí un mapa comparativo.',false)
+ ]),
+ day('2026-10-26','Prescripción II',[
+   task('privado','Privado U9 · Parte 2','Aspectos procesales, renuncia, modificación de plazos, plazos especiales y caducidad.','Hoy SÍ cerrás U9. Explicá prescripción vs caducidad como pregunta oral.',true),
+   task('penal','Penal U12 · Parte 3','Cierre doctrinario y casos de culpabilidad.','Hoy SÍ cerrás U12; no la marques verde si todavía mezclás causalismo y finalismo.',true)
+ ]),
+ day('2026-10-27','Responsabilidad civil I',[
+   task('privado','Privado U10 · Parte 1','Concepto, evolución, funciones, microsistemas y unificación contractual/extracontractual.','NO terminás U10. Hoy armá el mapa general y los cuatro presupuestos.',false),
+   task('penal','Penal U13 · Parte 1','Inimputabilidad, capacidad de culpabilidad y bases de la teoría del error.','NO terminás U13.',false)
+ ]),
+ day('2026-10-28','Responsabilidad civil II',[
+   task('privado','Privado U10 · Parte 2','Daño y antijuridicidad; requisitos, clases, justificación y consentimiento.','NO terminás U10. Cerrá sólo daño + antijuridicidad.',false),
+   task('penal','Penal U13 · Parte 2','Error de tipo/prohibición, vencible/invencible, coacción y preterintención.','Hoy SÍ cerrás U13 con casos para no confundir errores.',true)
+ ]),
+ day('2026-10-29','Responsabilidad civil III',[
+   task('privado','Privado U10 · Parte 3','Relación causal, teorías, consecuencias indemnizables y previsibilidad contractual.','NO terminás U10. Hoy causalidad sola.',false),
+   task('penal','Penal U14','Iter criminis, tentativa, desistimiento, delito imposible y tentativa inidónea.','Terminá U14. Hacé ejemplos para cada frontera.',true)
+ ]),
+ day('2026-10-30','Responsabilidad civil IV',[
+   task('privado','Privado U10 · Parte 4','Factores subjetivos/objetivos, atenuación y eximentes.','Hoy SÍ cerrás U10. Salida: resolver un caso usando daño → antijuridicidad → causalidad → factor.',true),
+   task('penal','Penal U15','Autoría, coautoría, autoría mediata, participación, complicidad e instigación.','Terminá primera vuelta, corrigiendo la relación entre art. 45 e instigación.',true)
+ ]),
+ day('2026-11-02','Responsabilidad aplicada I',[
+   task('privado','Privado U11','Directa, actos involuntarios, principal/dependiente, progenitores y encargados.','Terminá U11. Si U10 está sólida debería ser rápida.',true),
+   task('penal','Penal U16','Concurso ideal, real, delito continuado, concurso aparente y unificación.','Terminá U16 con casos de identificación.',true)
+ ]),
+ day('2026-11-03','Responsabilidad aplicada II',[
+   task('privado','Privado U12','Riesgo/vicio, actividades riesgosas, animales y responsabilidad colectiva/anónima.','Terminá U12. Repetí esquema: supuesto → responsable → factor → eximente.',true),
+   task('penal','Penal U17','Acciones, extinción, prescripción, probation, indulto y acción civil.','Terminá primera vuelta; artículos clave quedan para el repaso.',true)
+ ]),
+ day('2026-11-04','Especiales I',[
+   task('privado','Privado U13 · Parte 1','Educativos, profesionales, hoteles, personas jurídicas y accidentes de tránsito.','NO terminás U13. Frená después de tránsito.',false),
+   task('penal','Penal U18 · Parte 1','Teorías de la pena, especies y marco general.','NO terminás U18.',false)
+ ]),
+ day('2026-11-05','Especiales II',[
+   task('privado','Privado U13 · Parte 2','Intimidad/calumnias, Estado, consumo y ambiente.','Hoy SÍ cerrás U13. Separá CCyC de microsistemas especiales.',true),
+   task('penal','Penal U18 · Parte 2','Ejecución, libertad condicional, libertad asistida y régimen vigente.','Hoy SÍ cerrás U18 con normativa actualizada; no memorices números viejos del resumen.',true)
+ ]),
+ day('2026-11-06','Cerrar primera vuelta de Privado',[
+   task('privado','Privado U14','Legitimación activa/pasiva, daños y relación entre acción civil y penal.','Terminá U14. Con esto queda cerrada la primera vuelta completa de Privado.',true),
+   task('penal','Penal U19','Penas accesorias, individualización, condena condicional, reincidencia y extinción.','Terminá U19 usando el régimen vigente de reincidencia.',true)
+ ]),
+ day('2026-11-09','Segunda vuelta I',[
+   task('repaso','Privado U1–U3','Recuperación oral sin mirar + 10 preguntas cortas.','No releas todo. Sólo corregí lo que no pudiste explicar.',true),
+   task('penal','Penal U20','Medidas de seguridad y régimen penal juvenil vigente.','Terminá U20 distinguiendo régimen anterior y Ley 27.801.',true)
+ ]),
+ day('2026-11-10','Segunda vuelta II',[
+   task('repaso','Privado U4–U6','Repaso acumulativo; prioridad U5 y U6.','Hacé cuadros de clasificaciones y respondé oralmente.',true),
+   task('penal','Penal U21','Ciencia penitenciaria y leyes de ejecución.','Terminá U21.',true)
+ ]),
+ day('2026-11-11','Segunda vuelta III',[
+   task('repaso','Privado U7–U9','Pago, mora, otros modos de extinción y prescripción.','Recuperación primero; artículos después.',true),
+   task('penal','Penal U22','Ética profesional; Couture, Kelsen y Ossorio.','Terminá U22 con el Decálogo correcto.',true)
+ ]),
+ day('2026-11-12','Segunda vuelta IV',[
+   task('repaso','Privado U10','Simulación oral completa + caso de responsabilidad civil.','U10 debe poder explicarse de punta a punta sin guía.',true),
+   task('repaso','Penal U1–U6','Primera recuperación acumulativa de bases.','Usá preguntas, no relectura pasiva.',true)
+ ]),
+ day('2026-11-13','Cerrar segunda vuelta',[
+   task('repaso','Privado U11–U14','Responsabilidades aplicadas + acción indemnizatoria.','Dejá sólo rojos concretos para el lunes.',true),
+   task('repaso','Penal U7–U13','Núcleo teoría del delito.','Explicá la secuencia acción → tipicidad → antijuridicidad → culpabilidad.',true)
+ ]),
+ day('2026-11-16','Pre examen Privado',[
+   task('repaso','Privado · Bolillero completo','Dos bolillas al azar + preguntas abiertas del programa.','Nada de contenido nuevo. Corregí sólo huecos puntuales.',true),
+   task('repaso','Privado · Segunda simulación','Otra combinación de dos bolillas, cronometrada.','Terminá temprano y descansá.',true)
+ ]),
+ day('2026-11-17','EXAMEN PRIVADO II',[
+   task('privado','Final oral de Privado II','Repaso muy breve de disparadores y estructura de respuesta.','No estudies intensamente ese día.',true)
+ ]),
+ day('2026-11-18','Penal intensivo I',[
+   task('repaso','Penal U14–U18','Tentativa, participación, concurso, punibilidad y pena.','Segunda vuelta activa, no relectura.',true),
+   task('repaso','Penal · 3 casos','Resolver tres casos cortos con estructura de teoría del delito.','Corregí sólo al final.',true)
+ ]),
+ day('2026-11-19','Penal intensivo II',[
+   task('repaso','Penal U7–U9','Teoría del delito, acción y tipo en profundidad.','Explicación oral completa y un caso.',true),
+   task('repaso','Penal · Oral','Exponer la estructura del delito sin mirar.','Meta: fluidez, no perfección textual.',true)
+ ]),
+ day('2026-11-20','Penal intensivo III',[
+   task('repaso','Penal U10–U13','Antijuridicidad, justificación y culpabilidad.','Trabajar diferencias finas con casos.',true),
+   task('repaso','Penal · Casos','Legítima defensa, error e inimputabilidad.','Corregir errores de encuadre.',true)
+ ]),
+ day('2026-11-23','Cierre de programa Penal',[
+   task('repaso','Penal U14–U22','Segunda vuelta rápida + artículos clave.','No te detengas en lo verde; concentrá tiempo en amarillo/rojo.',true),
+   task('repaso','Penal · Puntos rojos','Reincidencia, juvenil, ejecución y cualquier hueco detectado.','Sólo huecos concretos.',true)
+ ]),
+ day('2026-11-24','Pre examen Penal',[
+   task('repaso','Penal · Bolillero completo','Dos bolillas + preguntas abiertas del programa.','Nada nuevo.',true),
+   task('repaso','Penal · Último ajuste','Recuperación breve de rojos.','Terminá temprano y descansá.',true)
+ ]),
+ day('2026-11-25','EXAMEN PENAL',[
+   task('penal','Final oral de Penal I','Repaso mínimo de disparadores y estructura de respuesta.','No incorporar contenido nuevo.',true)
+ ])
+];
 
 let state=loadState();
 let currentSubject='privado';
 let currentSort='programa';
-let calendarFilter='todos';
+let calendarCursor=new Date(2026,9,1);
+let selectedDate=null;
 
-function defaultState(){
-  return {units:{privado:{},penal:{}},tasks:{},reviews:[]};
-}
+function defaultState(){return {units:{privado:{},penal:{}},tasks:{},reviews:[]};}
 function loadState(){
   try{
-    const raw=localStorage.getItem(STORE);
+    const raw=localStorage.getItem(STORE)||localStorage.getItem('nico-study-hub-v1');
     return raw?Object.assign(defaultState(),JSON.parse(raw)):defaultState();
   }catch(e){return defaultState();}
 }
 function save(){localStorage.setItem(STORE,JSON.stringify(state));refreshProgress();}
 
 function localISO(date){
-  const y=date.getFullYear();
-  const m=String(date.getMonth()+1).padStart(2,'0');
-  const d=String(date.getDate()).padStart(2,'0');
+  const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),d=String(date.getDate()).padStart(2,'0');
   return y+'-'+m+'-'+d;
 }
 function parseISO(s){const p=s.split('-').map(Number);return new Date(p[0],p[1]-1,p[2]);}
 function addDays(s,n){const x=parseISO(s);x.setDate(x.getDate()+n);return localISO(x);}
-function daysUntil(s){
-  const a=new Date();a.setHours(0,0,0,0);
-  const b=parseISO(s);b.setHours(0,0,0,0);
-  return Math.max(0,Math.ceil((b-a)/86400000));
-}
+function daysUntil(s){const a=new Date();a.setHours(0,0,0,0);const b=parseISO(s);return Math.max(0,Math.ceil((b-a)/86400000));}
 function prettyDate(s,short){
-  const opts=short?{weekday:'short',day:'2-digit',month:'short'}:{weekday:'long',day:'numeric',month:'long'};
-  return parseISO(s).toLocaleDateString('es-AR',opts);
+  return parseISO(s).toLocaleDateString('es-AR',short?{weekday:'short',day:'2-digit',month:'short'}:{weekday:'long',day:'numeric',month:'long'});
 }
-function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function labelSubject(s){return s==='privado'?'Privado':s==='penal'?'Penal':'Repaso';}
+function taskId(date,index){return date+'-'+index;}
+function getDay(date){return schedule.find(d=>d.date===date)||null;}
 
-function getUnitState(subject,n){
-  return (state.units[subject]&&state.units[subject][n])||{status:'sin',lastStudy:null};
-}
+function getUnitState(subject,n){return (state.units[subject]&&state.units[subject][n])||{status:'sin',lastStudy:null};}
 function setUnitStatus(subject,n,status){
   state.units[subject]=state.units[subject]||{};
   const old=getUnitState(subject,n);
-  state.units[subject][n]={status:status,lastStudy:old.lastStudy||null};
+  state.units[subject][n]={status,lastStudy:old.lastStudy||null};
   save();renderUnits();renderReviews();
 }
 function studiedToday(subject,n){
@@ -143,13 +254,10 @@ function studiedToday(subject,n){
   const old=getUnitState(subject,n);
   state.units[subject][n]={status:old.status==='sin'?'amarillo':old.status,lastStudy:today};
   state.reviews=state.reviews.filter(r=>!(r.subject===subject&&r.unit===n&&!r.done));
-  [1,3,7].forEach((offset,idx)=>{
-    state.reviews.push({
-      id:subject+'-'+n+'-'+today+'-'+offset,
-      subject:subject,unit:n,due:addDays(today,offset),
-      label:idx===0?'24 h':idx===1?'72 h':'7 días',done:false
-    });
-  });
+  [1,3,7].forEach((off,idx)=>state.reviews.push({
+    id:subject+'-'+n+'-'+today+'-'+off,subject,unit:n,due:addDays(today,off),
+    label:idx===0?'24 h':idx===1?'72 h':'7 días',done:false
+  }));
   save();renderUnits();renderReviews();renderDueReviews();
 }
 
@@ -165,74 +273,145 @@ function setView(name){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+function todayMethodHTML(){
+  return '<div class="method-flow">'+
+    '<div class="method-step"><b>1 · LEÉ — 20/25 min</b><span>Leé para entender. No copies ni resumas mientras leés. Buscá la lógica y los ejemplos.</span></div>'+
+    '<div class="method-step"><b>2 · CERRÁ — 8/10 min</b><span>Cerrá el material y explicalo en voz alta como si se lo enseñaras a alguien.</span></div>'+
+    '<div class="method-step"><b>3 · CORREGÍ — 5 min</b><span>Abrí de nuevo. Detectá solamente qué omitiste, confundiste o dijiste mal.</span></div>'+
+    '<div class="method-step"><b>4 · ESCRIBÍ — 3/5 min</b><span>Escribí un mapa mínimo: palabras clave, artículo o diferencia que te costó. No un resumen nuevo.</span></div>'+
+  '</div>'+
+  '<p class="method-note"><strong>Tu técnica principal va a ser explicar.</strong> Después de cada bloque, si podés explicarlo sin mirar queda amarillo/verde; si sólo “te suena” pero no sale, queda rojo. La escritura es para ordenar fallas, no para reemplazar el estudio.</p>';
+}
+
 function renderToday(){
   const today=localISO(new Date());
-  document.getElementById('today-chip').textContent=capitalize(new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'}));
+  document.getElementById('today-chip').textContent=cap(new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'}));
   document.getElementById('days-privado').textContent=daysUntil(PRIVADO_EXAM);
   document.getElementById('days-penal').textContent=daysUntil(PENAL_EXAM);
-  const box=document.getElementById('today-tasks');
-  const day=schedule.find(x=>x.date===today);
-  if(!day){
-    box.innerHTML='<div class="empty">Hoy no hay bloques programados. Si es fin de semana: descanso. Si querés adelantar, usá “Unidades” o “Bolillero”.</div>';
+  document.getElementById('hero-day').textContent=String(new Date().getDate()).padStart(2,'0');
+
+  const d=getDay(today);
+  const headline=document.getElementById('today-headline');
+  const summary=document.getElementById('today-summary');
+  const targets=document.getElementById('today-targets');
+  const blocks=document.getElementById('today-blocks');
+  document.getElementById('method-card').innerHTML=todayMethodHTML();
+
+  if(today<START_DATE){
+    headline.textContent='Hoy no estudiás.';
+    summary.textContent='Hoy dejamos la página lista. El plan empieza mañana, viernes 2 de octubre.';
+    targets.innerHTML='<div class="empty">Inicio programado: <strong>2 de octubre</strong>. Hoy no recuperamos contenido ni adelantamos unidades.</div>';
+    blocks.innerHTML='<div class="empty">Mañana arrancamos con 4 bloques de 40 minutos efectivos y descansos de 10 minutos.</div>';
+  }else if(!d){
+    const weekday=new Date().getDay();
+    headline.textContent=(weekday===0||weekday===6)?'Descanso programado.':'Día sin contenido nuevo.';
+    summary.textContent=(weekday===0||weekday===6)?'No hace falta compensar hoy. El descanso también forma parte del plan.':'Usá el día sólo para un repaso breve si aparece algo vencido.';
+    targets.innerHTML='<div class="empty">No hay unidades nuevas asignadas hoy.</div>';
+    blocks.innerHTML='<div class="empty">Si no hay repasos vencidos: descanso.</div>';
   }else{
-    box.innerHTML=day.tasks.map((task,i)=>taskHTML(day.date,i,task)).join('');
+    headline.textContent=d.label;
+    summary.textContent=d.note||'Cumplí el alcance marcado. No avances a la unidad siguiente aunque termines antes.';
+    targets.innerHTML=d.tasks.map((t,i)=>targetHTML(d.date,i,t)).join('') || '<div class="empty">'+(d.note||'Sin tareas')+'</div>';
+    blocks.innerHTML=buildBlocks(d).map(blockHTML).join('');
   }
   renderDueReviews();
+  refreshProgress();
 }
 
-function taskHTML(date,i,task){
-  const id=date+'-'+i;
-  const done=!!state.tasks[id];
-  return '<article class="task '+(done?'done':'')+'">'+
-    '<button class="task-check" data-task="'+id+'" aria-label="Marcar tarea">'+(done?'✓':'')+'</button>'+
-    '<div><div class="task-title">'+task.title+'</div><div class="task-meta">'+task.detail+'</div></div>'+
-    '<span class="subject-pill '+task.subject+'">'+labelSubject(task.subject)+'</span>'+
+function targetHTML(date,i,t){
+  const id=taskId(date,i),done=!!state.tasks[id];
+  return '<article class="target-card '+t.subject+' '+(done?'done':'')+'">'+
+    '<button class="target-check" data-task="'+id+'" aria-label="Marcar objetivo">'+(done?'✓':'')+'</button>'+
+    '<div><div class="target-title">'+t.title+'</div><div class="target-scope">'+t.scope+'</div><div class="target-stop"><strong>'+(t.finish?'Meta de salida: ':'Límite de hoy: ')+'</strong>'+t.stop+'</div></div>'+
+    '<span class="subject-pill '+t.subject+'">'+labelSubject(t.subject)+'</span>'+
   '</article>';
 }
-function labelSubject(s){return s==='privado'?'Privado':s==='penal'?'Penal':'Repaso';}
+
+function buildBlocks(d){
+  if(!d.tasks.length)return [];
+  if(d.tasks.length===1){
+    const a=d.tasks[0];
+    return [
+      {time:'10:00',title:a.title+' · Comprensión',text:'Leé el alcance de hoy sin escribir durante 25 min. Últimos 15 min: cerrá y explicá lo entendido.',badge:'40 min'},
+      {time:'10:50',title:a.title+' · Segunda pasada',text:'Volvé sólo a los puntos que no pudiste explicar. Cerrá con un mapa mínimo de fallas.',badge:'40 min'},
+      {time:'17:30',title:a.title+' · Recuperación',text:'Material cerrado. Explicá la unidad o el tramo completo en voz alta. Después corregí contra la fuente.',badge:'40 min'},
+      {time:'18:20',title:'Simulación oral',text:'Respondé preguntas o usá el bolillero. No leas primero: intentá recuperar y recién después corregí.',badge:'40 min'}
+    ];
+  }
+  const a=d.tasks[0],b=d.tasks[1];
+  return [
+    {time:'10:00',title:a.title+' · Comprensión',text:'25 min de lectura comprensiva sin escribir. 10 min explicándolo en voz alta. 5 min para marcar dudas.',badge:'40 min'},
+    {time:'10:50',title:a.title+' · Cierre del alcance',text:'Completá exactamente el tramo indicado para hoy. Cerrá el material y hacé una explicación de punta a punta.',badge:'40 min'},
+    {time:'17:30',title:a.title+' · Recuperación',text:'Sin mirar: explicá, hacé 5 preguntas y detectá huecos. Recién al final abrí el material y corregí.',badge:'40 min'},
+    {time:'18:20',title:b.title+' · Segunda materia',text:'Primera pasada activa: leer para entender, cerrar, explicar y anotar sólo las fallas. Respetá el límite indicado.',badge:'40 min'}
+  ];
+}
+function blockHTML(b){
+  return '<article class="study-block"><div class="block-time">'+b.time+'</div><div><h4>'+b.title+'</h4><p>'+b.text+'</p></div><span class="block-badge">'+b.badge+'</span></article>';
+}
+
+function toggleTask(id){
+  state.tasks[id]=!state.tasks[id];save();renderToday();renderCalendar();
+  if(selectedDate)renderCalendarDetail(selectedDate);
+}
 
 function renderCalendar(){
-  const today=localISO(new Date());
-  const list=document.getElementById('calendar-list');
-  const filtered=schedule.map(day=>{
-    const tasks=day.tasks.filter(task=>{
-      if(calendarFilter==='todos')return true;
-      if(calendarFilter==='repaso')return task.subject==='repaso';
-      return task.subject===calendarFilter;
-    });
-    return Object.assign({},day,{tasks:tasks});
-  }).filter(day=>day.tasks.length);
-  list.innerHTML=filtered.map(day=>
-    '<article class="day-card '+(day.date===today?'today':'')+'" id="day-'+day.date+'">'+
-      '<div class="day-head"><div><strong>'+capitalize(prettyDate(day.date,true))+'</strong><span> · '+day.label+'</span></div><span>'+day.date+'</span></div>'+
-      '<div class="day-tasks">'+day.tasks.map(task=>
-        '<div class="day-task"><div><p>'+task.title+'</p><small>'+task.detail+'</small></div><span class="subject-pill '+task.subject+'">'+labelSubject(task.subject)+'</span></div>'
-      ).join('')+'</div>'+
-    '</article>'
-  ).join('');
+  const month=calendarCursor.getMonth(),year=calendarCursor.getFullYear();
+  document.getElementById('calendar-month').textContent=cap(calendarCursor.toLocaleDateString('es-AR',{month:'long',year:'numeric'}));
+  const grid=document.getElementById('calendar-grid');
+  const first=new Date(year,month,1);
+  const last=new Date(year,month+1,0);
+  const mondayIndex=(first.getDay()+6)%7;
+  const cells=[];
+  for(let i=0;i<mondayIndex;i++){
+    const dt=new Date(year,month,1-(mondayIndex-i));
+    cells.push(calendarCell(dt,true));
+  }
+  for(let d=1;d<=last.getDate();d++)cells.push(calendarCell(new Date(year,month,d),false));
+  while(cells.length%7!==0){
+    const next=cells.length-mondayIndex-last.getDate()+1;
+    cells.push(calendarCell(new Date(year,month+1,next),true));
+  }
+  grid.innerHTML=cells.join('');
 }
-function jumpToday(){
-  const el=document.getElementById('day-'+localISO(new Date()));
-  if(el)el.scrollIntoView({behavior:'smooth',block:'center'});
+function calendarCell(dt,other){
+  const iso=localISO(dt),d=getDay(iso),today=localISO(new Date());
+  let badges='';
+  if(d&&d.tasks.length){
+    const cats=[...new Set(d.tasks.map(t=>t.subject))];
+    badges=cats.map(cat=>{
+      const indices=d.tasks.map((t,i)=>t.subject===cat?i:null).filter(i=>i!==null);
+      const all=indices.every(i=>!!state.tasks[taskId(iso,i)]);
+      const short=cat==='privado'?'Privado':cat==='penal'?'Penal':'Repaso';
+      return '<div class="day-subject '+cat+'"><span>'+short+'</span><span class="day-check">'+(all?'✓':'○')+'</span></div>';
+    }).join('');
+  }
+  const note=d&&d.note?'<div class="day-note">'+d.note+'</div>':'';
+  return '<div class="calendar-cell '+(other?'other ':'')+(d?'clickable ':'')+(iso===today?'today ':'')+(iso===selectedDate?'selected':'')+'" '+(d?'data-calendar-date="'+iso+'"':'')+'>'+
+    '<div class="day-number">'+dt.getDate()+'</div><div class="day-subjects">'+badges+'</div>'+note+'</div>';
 }
+function renderCalendarDetail(date){
+  selectedDate=date;renderCalendar();
+  const d=getDay(date),box=document.getElementById('calendar-detail');
+  if(!d){box.innerHTML='<div class="empty">No hay plan cargado para este día.</div>';return;}
+  const tasks=d.tasks.length?d.tasks.map((t,i)=>{
+    const done=!!state.tasks[taskId(date,i)];
+    return '<div class="day-detail-task"><strong>'+t.title+(done?' ✓':'')+'</strong><span>'+t.scope+'</span><span><b>'+(t.finish?'Meta: ':'Límite: ')+'</b>'+t.stop+'</span></div>';
+  }).join(''):'<div class="empty">'+(d.note||'Descanso')+'</div>';
+  box.innerHTML='<article class="day-detail-card"><div class="day-detail-head"><div><h3>'+cap(prettyDate(date,false))+' · '+d.label+'</h3><p>'+(d.note||'Plan del día')+'</p></div><button class="ghost-btn" data-open-day="'+date+'">Ver en Hoy</button></div><div class="day-detail-tasks">'+tasks+'</div></article>';
+}
+function goMonth(delta){calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()+delta,1);selectedDate=null;renderCalendar();document.getElementById('calendar-detail').innerHTML='<div class="empty">Tocá un día del calendario para ver su plan.</div>';}
 
 function renderUnits(){
   let data=currentSubject==='privado'?privado.slice():penal.slice();
   if(currentSort==='carga')data.sort((a,b)=>b.weight-a.weight);
-  const grid=document.getElementById('unit-grid');
-  grid.innerHTML=data.map(u=>{
+  document.getElementById('unit-grid').innerHTML=data.map(u=>{
     const us=getUnitState(currentSubject,u.n);
-    return '<article class="unit-card status-'+us.status+'">'+
-      '<div class="unit-top"><span class="unit-num">UNIDAD '+u.n+'</span><span class="unit-load">Carga '+u.weight+'×</span></div>'+
-      '<h4>'+u.title+'</h4>'+
-      '<div class="unit-stats"><span>'+u.difficulty+'</span><span>Orden de carga: '+u.rank+'</span>'+(us.lastStudy?'<span>Último estudio: '+prettyDate(us.lastStudy,true)+'</span>':'')+'</div>'+
-      '<div class="unit-actions">'+
-        '<select class="status-select" data-subject="'+currentSubject+'" data-unit="'+u.n+'">'+
-          option('sin','Sin empezar',us.status)+option('amarillo','En proceso',us.status)+option('verde','Dominada',us.status)+option('rojo','Reforzar',us.status)+
-        '</select>'+
-        '<button class="study-today" data-study-subject="'+currentSubject+'" data-study-unit="'+u.n+'">Estudié hoy</button>'+
-      '</div>'+
-    '</article>';
+    return '<article class="unit-card status-'+us.status+'"><div class="unit-top"><span class="unit-num">UNIDAD '+u.n+'</span><span class="unit-load">Carga '+u.weight+'×</span></div>'+
+      '<h4>'+u.title+'</h4><div class="unit-stats"><span>'+u.difficulty+'</span><span>Orden de carga: '+u.rank+'</span>'+(us.lastStudy?'<span>Último estudio: '+prettyDate(us.lastStudy,true)+'</span>':'')+'</div>'+
+      '<div class="unit-actions"><select class="status-select" data-unit-subject="'+currentSubject+'" data-unit="'+u.n+'">'+
+      option('sin','Sin empezar',us.status)+option('amarillo','En proceso',us.status)+option('verde','Dominada',us.status)+option('rojo','Reforzar',us.status)+
+      '</select><button class="study-today" data-study-subject="'+currentSubject+'" data-study-unit="'+u.n+'">Estudié hoy</button></div></article>';
   }).join('');
 }
 function option(v,label,selected){return '<option value="'+v+'" '+(v===selected?'selected':'')+'>'+label+'</option>';}
@@ -243,34 +422,25 @@ function renderDueReviews(){
   const box=document.getElementById('due-reviews');
   if(!due.length){box.innerHTML='<div class="review-chip"><strong>Todo al día</strong><span>No hay repasos vencidos.</span></div>';return;}
   box.innerHTML=due.slice(0,6).map(r=>{
-    const unit=(r.subject==='privado'?privado:penal).find(u=>u.n===r.unit);
-    return '<div class="review-chip"><strong>'+labelSubject(r.subject)+' U'+r.unit+' · '+r.label+'</strong><span>'+unit.title+'</span></div>';
+    const u=(r.subject==='privado'?privado:penal).find(x=>x.n===r.unit);
+    return '<div class="review-chip"><strong>'+labelSubject(r.subject)+' U'+r.unit+' · '+r.label+'</strong><span>'+u.title+'</span></div>';
   }).join('');
 }
 function renderReviews(){
   const today=localISO(new Date());
   const list=state.reviews.slice().sort((a,b)=>a.due.localeCompare(b.due));
   const box=document.getElementById('review-list');
-  if(!list.length){box.innerHTML='<div class="empty">Todavía no hay repasos automáticos. Entrá en “Unidades” y tocá “Estudié hoy”.</div>';return;}
+  if(!list.length){box.innerHTML='<div class="empty">Todavía no hay repasos automáticos. Cuando estudies una unidad, marcá “Estudié hoy”.</div>';return;}
   box.innerHTML=list.map(r=>{
-    const unit=(r.subject==='privado'?privado:penal).find(u=>u.n===r.unit);
-    const due=!r.done&&r.due<=today;
-    return '<article class="review-item '+(due?'due ':'')+(r.done?'done':'')+'">'+
-      '<div><p><strong>'+labelSubject(r.subject)+' U'+r.unit+' · '+r.label+'</strong> — '+unit.title+'</p><small>'+capitalize(prettyDate(r.due,true))+(due?' · Vence ahora':'')+'</small></div>'+
-      '<div class="review-actions"><button class="ghost-btn" data-review="'+r.id+'">'+(r.done?'Reabrir':'Hecho')+'</button></div>'+
-    '</article>';
+    const u=(r.subject==='privado'?privado:penal).find(x=>x.n===r.unit),due=!r.done&&r.due<=today;
+    return '<article class="review-item '+(due?'due ':'')+(r.done?'done':'')+'"><div><p><strong>'+labelSubject(r.subject)+' U'+r.unit+' · '+r.label+'</strong> — '+u.title+'</p><small>'+cap(prettyDate(r.due,true))+(due?' · Vence ahora':'')+'</small></div><div class="review-actions"><button class="ghost-btn" data-review="'+r.id+'">'+(r.done?'Reabrir':'Hecho')+'</button></div></article>';
   }).join('');
 }
-function toggleReview(id){
-  const r=state.reviews.find(x=>x.id===id);
-  if(r){r.done=!r.done;save();renderReviews();renderDueReviews();}
-}
+function toggleReview(id){const r=state.reviews.find(x=>x.id===id);if(r){r.done=!r.done;save();renderReviews();renderDueReviews();}}
 
 function refreshProgress(){
-  [['privado',privado],['penal',penal]].forEach(pair=>{
-    const subject=pair[0],arr=pair[1];
-    const green=arr.filter(u=>getUnitState(subject,u.n).status==='verde').length;
-    const pct=Math.round(green/arr.length*100);
+  [['privado',privado],['penal',penal]].forEach(([subject,arr])=>{
+    const green=arr.filter(u=>getUnitState(subject,u.n).status==='verde').length,pct=Math.round(green/arr.length*100);
     document.getElementById('bar-'+subject).style.width=pct+'%';
     document.getElementById('pct-'+subject).textContent=pct+'% de unidades en verde';
   });
@@ -278,51 +448,81 @@ function refreshProgress(){
 
 function spin(subject){
   const arr=subject==='privado'?privado:penal;
-  const pool=arr.filter(u=>getUnitState(subject,u.n).status!=='sin');
-  const source=pool.length?pool:arr;
-  const u=source[Math.floor(Math.random()*source.length)];
-  const result=document.getElementById('ball-result');
-  result.innerHTML='<span>'+u.n+'</span><p><strong>'+labelSubject(subject)+' · Unidad '+u.n+'</strong><br>'+u.title+'</p>';
+  const studied=arr.filter(u=>getUnitState(subject,u.n).status!=='sin');
+  const pool=studied.length?studied:arr;
+  const u=pool[Math.floor(Math.random()*pool.length)];
+  document.getElementById('ball-result').innerHTML='<span>'+u.n+'</span><p><strong>'+labelSubject(subject)+' · Unidad '+u.n+'</strong><br>'+u.title+'</p>';
+}
+
+let timer={remaining:2400,total:2400,mode:'Estudio',running:false,handle:null};
+function renderTimer(){
+  const m=Math.floor(timer.remaining/60),s=timer.remaining%60;
+  document.getElementById('timer-display').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  document.getElementById('timer-mode').textContent=timer.mode;
+  document.getElementById('timer-start').textContent=timer.running?'Pausar':'Iniciar';
+  document.getElementById('timer-progress').style.width=Math.max(0,(timer.remaining/timer.total)*100)+'%';
+}
+function setTimer(minutes,mode){
+  if(timer.handle)clearInterval(timer.handle);
+  timer={remaining:minutes*60,total:minutes*60,mode,running:false,handle:null};renderTimer();
+}
+function toggleTimer(){
+  if(timer.running){
+    clearInterval(timer.handle);timer.handle=null;timer.running=false;renderTimer();return;
+  }
+  timer.running=true;renderTimer();
+  timer.handle=setInterval(()=>{
+    timer.remaining--;
+    if(timer.remaining<=0){
+      timer.remaining=0;clearInterval(timer.handle);timer.handle=null;timer.running=false;renderTimer();beep();
+      document.title='✓ '+timer.mode+' terminado · Nico Study Hub';
+      setTimeout(()=>document.title='Nico Study Hub · Privado II + Penal',3000);
+      return;
+    }
+    renderTimer();
+  },1000);
+}
+function resetTimer(){timer.remaining=timer.total;if(timer.handle)clearInterval(timer.handle);timer.handle=null;timer.running=false;renderTimer();}
+function beep(){
+  try{
+    const C=window.AudioContext||window.webkitAudioContext,ctx=new C(),osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);osc.frequency.value=700;gain.gain.value=.08;osc.start();setTimeout(()=>{osc.stop();ctx.close();},350);
+  }catch(e){}
 }
 
 function exportData(){
   const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);a.download='nico-study-hub-progreso.json';a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='nico-study-hub-progreso.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
 function importData(file){
   const reader=new FileReader();
-  reader.onload=function(){
-    try{state=Object.assign(defaultState(),JSON.parse(reader.result));save();renderToday();renderCalendar();renderUnits();renderReviews();alert('Progreso importado.');}
-    catch(e){alert('No pude leer ese archivo.');}
-  };
+  reader.onload=()=>{try{state=Object.assign(defaultState(),JSON.parse(reader.result));save();renderToday();renderCalendar();renderUnits();renderReviews();alert('Progreso importado.');}catch(e){alert('No pude leer ese archivo.');}};
   reader.readAsText(file);
 }
 
-document.addEventListener('click',function(e){
+document.addEventListener('click',e=>{
   const nav=e.target.closest('.nav-btn');if(nav){setView(nav.dataset.view);return;}
-  const task=e.target.closest('[data-task]');if(task){const id=task.dataset.task;state.tasks[id]=!state.tasks[id];save();renderToday();return;}
+  const tt=e.target.closest('[data-task]');if(tt){toggleTask(tt.dataset.task);return;}
   const study=e.target.closest('[data-study-unit]');if(study){studiedToday(study.dataset.studySubject,Number(study.dataset.studyUnit));return;}
   const review=e.target.closest('[data-review]');if(review){toggleReview(review.dataset.review);return;}
   const subject=e.target.closest('[data-subject]');if(subject){currentSubject=subject.dataset.subject;document.querySelectorAll('[data-subject]').forEach(x=>x.classList.toggle('active',x===subject));renderUnits();return;}
   const sort=e.target.closest('[data-sort]');if(sort){currentSort=sort.dataset.sort;document.querySelectorAll('[data-sort]').forEach(x=>x.classList.toggle('active',x===sort));renderUnits();return;}
-  const filter=e.target.closest('[data-filter]');if(filter){calendarFilter=filter.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===filter));renderCalendar();return;}
+  const cal=e.target.closest('[data-calendar-date]');if(cal){renderCalendarDetail(cal.dataset.calendarDate);return;}
+  const open=e.target.closest('[data-open-day]');if(open){setView('hoy');return;}
 });
-document.addEventListener('change',function(e){
-  if(e.target.matches('.status-select'))setUnitStatus(e.target.dataset.subject,Number(e.target.dataset.unit),e.target.value);
+document.addEventListener('change',e=>{
+  if(e.target.matches('.status-select'))setUnitStatus(e.target.dataset.unitSubject,Number(e.target.dataset.unit),e.target.value);
 });
-document.getElementById('go-calendar').addEventListener('click',()=>setView('calendario'));
-document.getElementById('jump-today').addEventListener('click',jumpToday);
+document.getElementById('prev-month').addEventListener('click',()=>goMonth(-1));
+document.getElementById('next-month').addEventListener('click',()=>goMonth(1));
 document.getElementById('spin-privado').addEventListener('click',()=>spin('privado'));
 document.getElementById('spin-penal').addEventListener('click',()=>spin('penal'));
+document.getElementById('timer-start').addEventListener('click',toggleTimer);
+document.getElementById('timer-reset').addEventListener('click',resetTimer);
+document.querySelectorAll('[data-minutes]').forEach(b=>b.addEventListener('click',()=>setTimer(Number(b.dataset.minutes),b.dataset.mode)));
 document.getElementById('export-data').addEventListener('click',exportData);
 document.getElementById('import-data').addEventListener('change',e=>{if(e.target.files[0])importData(e.target.files[0]);});
-document.getElementById('reset-data').addEventListener('click',()=>{
-  if(confirm('¿Seguro que querés borrar todo el progreso guardado en este navegador?')){
-    state=defaultState();save();renderToday();renderCalendar();renderUnits();renderReviews();
-  }
-});
+document.getElementById('reset-data').addEventListener('click',()=>{if(confirm('¿Seguro que querés borrar todo el progreso guardado en este navegador?')){state=defaultState();save();renderToday();renderCalendar();renderUnits();renderReviews();}});
 
-renderToday();renderCalendar();renderUnits();renderReviews();refreshProgress();
+renderToday();renderCalendar();renderUnits();renderReviews();refreshProgress();renderTimer();
 })();
