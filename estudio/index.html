@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <title>Nico Study Hub · Privado II + Penal</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">NS</div>
+        <div>
+          <strong>Nico Study Hub</strong>
+          <span>Finales 2026</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-btn active" data-view="hoy">◎ <span>Hoy</span></button>
+        <button class="nav-btn" data-view="calendario">▦ <span>Calendario</span></button>
+        <button class="nav-btn" data-view="unidades">◫ <span>Unidades</span></button>
+        <button class="nav-btn" data-view="repasos">↻ <span>Repasos</span></button>
+        <button class="nav-btn" data-view="simulador">✦ <span>Bolillero</span></button>
+      </nav>
+
+      <div class="sidebar-note">
+        <span class="dot"></span>
+        <p>El progreso queda guardado en este navegador.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Plan de estudio</p>
+          <h1 id="view-title">Hoy</h1>
+        </div>
+        <div class="date-chip" id="today-chip"></div>
+      </header>
+
+      <section class="view active" id="view-hoy">
+        <div class="hero">
+          <div>
+            <p class="eyebrow">Objetivo</p>
+            <h2>Una sola pregunta: <span>¿qué toca hoy?</span></h2>
+            <p>Privado primero por fecha de examen. Penal avanza en paralelo para llegar al 17/11 con la primera vuelta prácticamente cerrada.</p>
+          </div>
+          <div class="hero-badge">2026</div>
+        </div>
+
+        <div class="countdown-grid">
+          <article class="count-card privado">
+            <div class="count-head"><span>Privado II</span><b>17 NOV</b></div>
+            <strong id="days-privado">—</strong>
+            <small>días para el oral</small>
+            <div class="mini-progress"><i id="bar-privado"></i></div>
+            <p id="pct-privado">0% de unidades en verde</p>
+          </article>
+          <article class="count-card penal">
+            <div class="count-head"><span>Penal I</span><b>25 NOV</b></div>
+            <strong id="days-penal">—</strong>
+            <small>días para el oral</small>
+            <div class="mini-progress"><i id="bar-penal"></i></div>
+            <p id="pct-penal">0% de unidades en verde</p>
+          </article>
+        </div>
+
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Agenda</p>
+            <h3>Bloques de hoy</h3>
+          </div>
+          <button class="ghost-btn" id="go-calendar">Ver calendario</button>
+        </div>
+        <div id="today-tasks" class="task-list"></div>
+
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">Control</p>
+            <h3>Repasos que vencen</h3>
+          </div>
+        </div>
+        <div id="due-reviews" class="review-strip"></div>
+      </section>
+
+      <section class="view" id="view-calendario">
+        <div class="toolbar">
+          <div class="segmented">
+            <button class="segment active" data-filter="todos">Todos</button>
+            <button class="segment" data-filter="privado">Privado</button>
+            <button class="segment" data-filter="penal">Penal</button>
+            <button class="segment" data-filter="repaso">Repasos</button>
+          </div>
+          <button class="ghost-btn" id="jump-today">Ir a hoy</button>
+        </div>
+        <div id="calendar-list" class="calendar-list"></div>
+      </section>
+
+      <section class="view" id="view-unidades">
+        <div class="toolbar">
+          <div class="segmented">
+            <button class="segment active" data-subject="privado">Privado II</button>
+            <button class="segment" data-subject="penal">Penal I</button>
+          </div>
+          <div class="segmented">
+            <button class="segment active" data-sort="programa">Programa</button>
+            <button class="segment" data-sort="carga">Por carga</button>
+          </div>
+        </div>
+        <div class="legend">
+          <span><i class="status-dot sin"></i>Sin empezar</span>
+          <span><i class="status-dot amarillo"></i>En proceso</span>
+          <span><i class="status-dot verde"></i>Dominada</span>
+          <span><i class="status-dot rojo"></i>Reforzar</span>
+        </div>
+        <div id="unit-grid" class="unit-grid"></div>
+      </section>
+
+      <section class="view" id="view-repasos">
+        <div class="hero slim">
+          <div>
+            <p class="eyebrow">Recuperación activa</p>
+            <h2>Repasar antes de olvidar.</h2>
+            <p>Cuando tocás “Estudié hoy” en una unidad, el sistema crea repasos a 1, 3 y 7 días.</p>
+          </div>
+        </div>
+        <div id="review-list" class="review-list"></div>
+      </section>
+
+      <section class="view" id="view-simulador">
+        <div class="simulator">
+          <p class="eyebrow">Entrenamiento oral</p>
+          <h2>Bolillero</h2>
+          <p>Elegí materia y sacá una unidad al azar. Explicala sin mirar; después marcá el resultado en la unidad.</p>
+          <div class="sim-actions">
+            <button class="primary-btn" id="spin-privado">Sacar Privado</button>
+            <button class="primary-btn penal-btn" id="spin-penal">Sacar Penal</button>
+          </div>
+          <div class="ball-result" id="ball-result">
+            <span>?</span>
+            <p>Todavía no sacaste ninguna unidad.</p>
+          </div>
+        </div>
+
+        <div class="backup-card">
+          <div>
+            <p class="eyebrow">Progreso</p>
+            <h3>Guardar o mover tus datos</h3>
+            <p>Podés exportar un archivo JSON con tus estados, tareas y repasos.</p>
+          </div>
+          <div class="backup-actions">
+            <button class="ghost-btn" id="export-data">Exportar progreso</button>
+            <label class="ghost-btn file-label">Importar progreso<input type="file" id="import-data" accept=".json"></label>
+            <button class="danger-btn" id="reset-data">Reiniciar</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
