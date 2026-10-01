@@ -296,12 +296,14 @@ function renderToday(){
   const targets=document.getElementById('today-targets');
   const blocks=document.getElementById('today-blocks');
   document.getElementById('method-card').innerHTML=todayMethodHTML();
+  document.getElementById('daily-load-title').textContent='3 bloques × 40 min';
+  document.getElementById('daily-load-note').textContent=today<='2026-10-09'?'Semana de calibración: no agregamos un cuarto bloque aunque te sobre energía.':'Carga base: seguimos con 3 bloques hasta decidir juntos si hace falta subirla.';
 
   if(today<START_DATE){
     headline.textContent='Hoy no estudiás.';
     summary.textContent='Hoy dejamos la página lista. El plan empieza mañana, viernes 2 de octubre.';
     targets.innerHTML='<div class="empty">Inicio programado: <strong>2 de octubre</strong>. Hoy no recuperamos contenido ni adelantamos unidades.</div>';
-    blocks.innerHTML='<div class="empty">Mañana arrancamos con 4 bloques de 40 minutos efectivos y descansos de 10 minutos.</div>';
+    blocks.innerHTML='<div class="empty">Mañana arrancamos con <strong>3 bloques de 40 minutos</strong> y descansos de 10 minutos. Esa es la carga base hasta que midamos cómo te rinde.</div>';
   }else if(!d){
     const weekday=new Date().getDay();
     headline.textContent=(weekday===0||weekday===6)?'Descanso programado.':'Día sin contenido nuevo.';
@@ -320,36 +322,35 @@ function renderToday(){
 
 function targetHTML(date,i,t){
   const id=taskId(date,i),done=!!state.tasks[id];
+  const role=i===0?'Foco principal':(t.subject==='repaso'?'Repaso':'Segunda materia');
   return '<article class="target-card '+t.subject+' '+(done?'done':'')+'">'+
     '<button class="target-check" data-task="'+id+'" aria-label="Marcar objetivo">'+(done?'✓':'')+'</button>'+
-    '<div><div class="target-title">'+t.title+'</div><div class="target-scope">'+t.scope+'</div><div class="target-stop"><strong>'+(t.finish?'Meta de salida: ':'Límite de hoy: ')+'</strong>'+t.stop+'</div></div>'+
+    '<div><div class="focus-label">'+role+'</div><div class="target-title">'+t.title+'</div><div class="target-scope">'+t.scope+'</div><div class="target-stop"><strong>'+(t.finish?'Meta de salida: ':'Hasta acá y frenás: ')+'</strong>'+t.stop+'</div></div>'+
     '<span class="subject-pill '+t.subject+'">'+labelSubject(t.subject)+'</span>'+
   '</article>';
 }
 
 function buildBlocks(d){
   if(!d.tasks.length)return [];
-  if(d.tasks.length===1){
-    const a=d.tasks[0];
+  const a=d.tasks[0],b=d.tasks[1]||null;
+
+  if(!b){
     return [
-      {time:'10:00',title:a.title+' · Comprensión',text:'Leé el alcance de hoy sin escribir durante 25 min. Últimos 15 min: cerrá y explicá lo entendido.',badge:'40 min'},
-      {time:'10:50',title:a.title+' · Segunda pasada',text:'Volvé sólo a los puntos que no pudiste explicar. Cerrá con un mapa mínimo de fallas.',badge:'40 min'},
-      {time:'17:30',title:a.title+' · Recuperación',text:'Material cerrado. Explicá la unidad o el tramo completo en voz alta. Después corregí contra la fuente.',badge:'40 min'},
-      {time:'18:20',title:'Simulación oral',text:'Respondé preguntas o usá el bolillero. No leas primero: intentá recuperar y recién después corregí.',badge:'40 min'}
+      {time:'10:00',title:'Bloque 1 · Entender',text:'Trabajá sólo el alcance marcado arriba. 20–25 min para leer y entender sin copiar; después cerrá y explicá lo que entendiste.',badge:'40 min'},
+      {time:'10:50',title:'Bloque 2 · Completar y explicar',text:'Terminá el tramo de hoy. Volvé únicamente a lo que no salió y cerrá con una explicación oral completa.',badge:'40 min'},
+      {time:'17:30',title:'Bloque 3 · Recuperar sin mirar',text:'Sin material: explicá el tema de punta a punta. Abrí recién al final para corregir huecos y anotá sólo 3–5 palabras clave.',badge:'40 min'}
     ];
   }
-  const a=d.tasks[0],b=d.tasks[1];
+
   return [
-    {time:'10:00',title:a.title+' · Comprensión',text:'25 min de lectura comprensiva sin escribir. 10 min explicándolo en voz alta. 5 min para marcar dudas.',badge:'40 min'},
-    {time:'10:50',title:a.title+' · Cierre del alcance',text:'Completá exactamente el tramo indicado para hoy. Cerrá el material y hacé una explicación de punta a punta.',badge:'40 min'},
-    {time:'17:30',title:a.title+' · Recuperación',text:'Sin mirar: explicá, hacé 5 preguntas y detectá huecos. Recién al final abrí el material y corregí.',badge:'40 min'},
-    {time:'18:20',title:b.title+' · Segunda materia',text:'Primera pasada activa: leer para entender, cerrar, explicar y anotar sólo las fallas. Respetá el límite indicado.',badge:'40 min'}
+    {time:'10:00',title:'Bloque 1 · '+labelSubject(a.subject),text:'Empezá el foco principal: '+a.scope+' Leé para entender, no para copiar. Terminá explicando en voz alta lo que ya puedas reconstruir.',badge:'40 min'},
+    {time:'10:50',title:'Bloque 2 · '+labelSubject(a.subject),text:'Seguí exactamente hasta el límite indicado arriba. Últimos 10–15 min: cerrá todo y explicá el tramo completo. No avances a la parte siguiente.',badge:'40 min'},
+    {time:'17:30',title:'Bloque 3 · '+labelSubject(b.subject),text:b.scope+' Hacé una primera pasada activa y cerrá con explicación oral. Si no alcanza para dominarlo, queda amarillo: no alargues el día.',badge:'40 min'}
   ];
 }
 function blockHTML(b){
-  return '<article class="study-block"><div class="block-time">'+b.time+'</div><div><h4>'+b.title+'</h4><p>'+b.text+'</p></div><span class="block-badge">'+b.badge+'</span></article>';
+  return '<article class="study-block"><div class="block-time">'+b.time+'</div><div><h4>'+b.title+'</h4><p>'+b.text+'</p></div><button class="block-start" data-start-block="40">▶ 40 min</button></article>';
 }
-
 function toggleTask(id){
   state.tasks[id]=!state.tasks[id];save();renderToday();renderCalendar();
   if(selectedDate)renderCalendarDetail(selectedDate);
@@ -509,6 +510,7 @@ document.addEventListener('click',e=>{
   const sort=e.target.closest('[data-sort]');if(sort){currentSort=sort.dataset.sort;document.querySelectorAll('[data-sort]').forEach(x=>x.classList.toggle('active',x===sort));renderUnits();return;}
   const cal=e.target.closest('[data-calendar-date]');if(cal){renderCalendarDetail(cal.dataset.calendarDate);return;}
   const open=e.target.closest('[data-open-day]');if(open){setView('hoy');return;}
+  const block=e.target.closest('[data-start-block]');if(block){setTimer(Number(block.dataset.startBlock),'Bloque de estudio');toggleTimer();return;}
 });
 document.addEventListener('change',e=>{
   if(e.target.matches('.status-select'))setUnitStatus(e.target.dataset.unitSubject,Number(e.target.dataset.unit),e.target.value);
