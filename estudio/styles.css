@@ -127,3 +127,9 @@ h1,h2,h3,h4,p{margin-top:0}h1{font-size:30px;margin-bottom:0}h2{font-size:34px;l
   .practice-prompt,.flashcard-front{font-size:19px}
   .flashcard-back{font-size:25px}
 }
+
+.summary-link-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.summary-link-wrap .summary-link{margin-top:0}
+.summary-topic{font-size:10px;color:#7f91a9;padding:5px 7px;border-radius:7px;background:#0a1424;border:1px solid #213047}
+.copy-topic{border:1px solid #2b3a50;background:#111d2f;color:#aebdd2;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:850}
+.copy-topic:hover{border-color:#50617a;color:#fff}
