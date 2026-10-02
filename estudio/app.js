@@ -216,6 +216,11 @@ let currentSubject='privado';
 let currentSort='programa';
 let calendarCursor=new Date(2026,9,1);
 let selectedDate=null;
+let practiceMode='questions';
+let practiceFilter='today';
+let currentPracticeItem=null;
+let practiceRevealed=false;
+let practiceCount=0;
 
 function defaultState(){return {units:{privado:{},penal:{}},tasks:{},reviews:[]};}
 function loadState(){
@@ -240,6 +245,25 @@ function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 function labelSubject(s){return s==='privado'?'Privado':s==='penal'?'Penal':'Repaso';}
 function taskId(date,index){return date+'-'+index;}
 function getDay(date){return schedule.find(d=>d.date===date)||null;}
+function taskUnit(t){
+  const m=(t.title||'').match(/U(\d+)/i);
+  if(!m)return null;
+  let subject=t.subject;
+  if(subject==='repaso'){
+    if(/^Privado/i.test(t.title))subject='privado';
+    else if(/^Penal/i.test(t.title))subject='penal';
+  }
+  if(subject!=='privado'&&subject!=='penal')return null;
+  return {subject:subject,unit:Number(m[1])};
+}
+function getResource(subject,unit){
+  return window.STUDY_RESOURCES&&window.STUDY_RESOURCES[subject]&&window.STUDY_RESOURCES[subject][unit]||null;
+}
+function resourceLinkHTML(subject,unit,label){
+  const r=getResource(subject,unit);
+  if(!r)return '';
+  return '<a class="summary-link" href="'+r.url+'" target="_blank" rel="noopener">'+(label||'Abrir resumen')+' ↗</a>';
+}
 
 function getUnitState(subject,n){return (state.units[subject]&&state.units[subject][n])||{status:'sin',lastStudy:null};}
 function setUnitStatus(subject,n,status){
@@ -265,11 +289,12 @@ function setView(name){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
   document.getElementById('view-'+name).classList.add('active');
-  const titles={hoy:'Hoy',calendario:'Calendario',unidades:'Unidades',repasos:'Repasos',simulador:'Bolillero'};
+  const titles={hoy:'Hoy',calendario:'Calendario',unidades:'Unidades',repasos:'Repasos',practica:'Práctica',simulador:'Bolillero'};
   document.getElementById('view-title').textContent=titles[name]||'Estudio';
   if(name==='calendario')renderCalendar();
   if(name==='unidades')renderUnits();
   if(name==='repasos')renderReviews();
+  if(name==='practica')renderPractice();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -323,9 +348,11 @@ function renderToday(){
 function targetHTML(date,i,t){
   const id=taskId(date,i),done=!!state.tasks[id];
   const role=i===0?'Foco principal':(t.subject==='repaso'?'Repaso':'Segunda materia');
+  const tu=taskUnit(t);
+  const link=tu?resourceLinkHTML(tu.subject,tu.unit,'Ver resumen de U'+tu.unit):'';
   return '<article class="target-card '+t.subject+' '+(done?'done':'')+'">'+
     '<button class="target-check" data-task="'+id+'" aria-label="Marcar objetivo">'+(done?'✓':'')+'</button>'+
-    '<div><div class="focus-label">'+role+'</div><div class="target-title">'+t.title+'</div><div class="target-scope">'+t.scope+'</div><div class="target-stop"><strong>'+(t.finish?'Meta de salida: ':'Hasta acá y frenás: ')+'</strong>'+t.stop+'</div></div>'+
+    '<div><div class="focus-label">'+role+'</div><div class="target-title">'+t.title+'</div><div class="target-scope">'+t.scope+'</div><div class="target-stop"><strong>'+(t.finish?'Meta de salida: ':'Hasta acá y frenás: ')+'</strong>'+t.stop+'</div>'+link+'</div>'+
     '<span class="subject-pill '+t.subject+'">'+labelSubject(t.subject)+'</span>'+
   '</article>';
 }
@@ -439,6 +466,78 @@ function renderReviews(){
 }
 function toggleReview(id){const r=state.reviews.find(x=>x.id===id);if(r){r.done=!r.done;save();renderReviews();renderDueReviews();}}
 
+function todayPracticeUnits(){
+  const d=getDay(localISO(new Date()));
+  if(!d)return [];
+  return d.tasks.map(taskUnit).filter(Boolean);
+}
+function practicePool(){
+  const bank=window.PRACTICE_BANK||{questions:[],flashcards:[]};
+  let pool=(bank[practiceMode]||[]).slice();
+  if(practiceFilter==='today'){
+    const units=todayPracticeUnits();
+    pool=pool.filter(x=>units.some(u=>u.subject===x.subject&&u.unit===x.unit));
+  }else if(practiceFilter==='studied'){
+    pool=pool.filter(x=>getUnitState(x.subject,x.unit).status!=='sin');
+  }else if(practiceFilter==='privado'||practiceFilter==='penal'){
+    pool=pool.filter(x=>x.subject===practiceFilter);
+  }
+  return pool;
+}
+function pickPracticeItem(forceDifferent){
+  const pool=practicePool();
+  if(!pool.length){currentPracticeItem=null;practiceRevealed=false;return;}
+  let candidates=pool;
+  if(forceDifferent&&currentPracticeItem&&pool.length>1){
+    candidates=pool.filter(x=>x!==currentPracticeItem);
+  }
+  currentPracticeItem=candidates[Math.floor(Math.random()*candidates.length)];
+  practiceRevealed=false;
+}
+function renderPractice(){
+  const card=document.getElementById('practice-card');
+  if(!card)return;
+  const pool=practicePool();
+  document.getElementById('practice-pool-count').textContent=pool.length+' '+(practiceMode==='questions'?'preguntas':'flashcards')+' disponibles';
+  document.getElementById('practice-progress-count').textContent=practiceCount+' practicadas';
+  if(!currentPracticeItem||!pool.includes(currentPracticeItem))pickPracticeItem(false);
+  if(!currentPracticeItem){
+    card.className='practice-card';
+    card.innerHTML='<div class="empty">No hay tarjetas para este filtro todavía. Probá con “Todo”, “Penal” o una materia que ya hayas estudiado.</div>';
+    document.getElementById('practice-reveal').disabled=true;
+    return;
+  }
+  document.getElementById('practice-reveal').disabled=false;
+  const x=currentPracticeItem;
+  const source=resourceLinkHTML(x.subject,x.unit,'Ver resumen fuente');
+  if(practiceMode==='questions'){
+    card.className='practice-card';
+    card.innerHTML='<div class="practice-meta"><span class="'+x.subject+'">'+labelSubject(x.subject)+'</span><span>Unidad '+x.unit+'</span><span>Respondé en voz alta</span></div>'+
+      '<p class="practice-prompt">'+x.q+'</p>'+
+      '<p class="practice-hint">No mires el resumen todavía. Explicalo con tus palabras y recién después tocá “Ver respuesta”.</p>'+
+      '<div class="practice-answer '+(practiceRevealed?'':'hidden')+'"><strong>Respuesta esperada</strong>'+x.a+'</div>'+
+      '<div class="practice-source">'+source+'</div>';
+    document.getElementById('practice-reveal').textContent=practiceRevealed?'Ocultar respuesta':'Ver respuesta';
+  }else{
+    card.className='practice-card flashcard-mode';
+    card.innerHTML='<div class="practice-meta"><span class="'+x.subject+'">'+labelSubject(x.subject)+'</span><span>Unidad '+x.unit+'</span><span>Definición → término</span></div>'+
+      '<div class="'+(practiceRevealed?'flashcard-back':'flashcard-front')+'">'+(practiceRevealed?x.back:x.front)+'</div>'+
+      '<p class="practice-hint">'+(practiceRevealed?'Esta es la palabra o instituto que buscabas.':'Decí la palabra o instituto antes de dar vuelta la tarjeta.')+'</p>'+
+      '<div class="practice-source">'+source+'</div>';
+    document.getElementById('practice-reveal').textContent=practiceRevealed?'Volver a definición':'Dar vuelta';
+  }
+}
+function revealPractice(){
+  if(!currentPracticeItem)return;
+  practiceRevealed=!practiceRevealed;
+  if(practiceRevealed)practiceCount++;
+  renderPractice();
+}
+function nextPractice(){
+  pickPracticeItem(true);
+  renderPractice();
+}
+
 function refreshProgress(){
   [['privado',privado],['penal',penal]].forEach(([subject,arr])=>{
     const green=arr.filter(u=>getUnitState(subject,u.n).status==='verde').length,pct=Math.round(green/arr.length*100);
@@ -511,6 +610,16 @@ document.addEventListener('click',e=>{
   const cal=e.target.closest('[data-calendar-date]');if(cal){renderCalendarDetail(cal.dataset.calendarDate);return;}
   const open=e.target.closest('[data-open-day]');if(open){setView('hoy');return;}
   const block=e.target.closest('[data-start-block]');if(block){setTimer(Number(block.dataset.startBlock),'Bloque de estudio');toggleTimer();return;}
+  const pm=e.target.closest('[data-practice-mode]');if(pm){
+    practiceMode=pm.dataset.practiceMode;currentPracticeItem=null;practiceRevealed=false;
+    document.querySelectorAll('[data-practice-mode]').forEach(x=>x.classList.toggle('active',x===pm));
+    renderPractice();return;
+  }
+  const pf=e.target.closest('[data-practice-filter]');if(pf){
+    practiceFilter=pf.dataset.practiceFilter;currentPracticeItem=null;practiceRevealed=false;
+    document.querySelectorAll('[data-practice-filter]').forEach(x=>x.classList.toggle('active',x===pf));
+    renderPractice();return;
+  }
 });
 document.addEventListener('change',e=>{
   if(e.target.matches('.status-select'))setUnitStatus(e.target.dataset.unitSubject,Number(e.target.dataset.unit),e.target.value);
@@ -521,10 +630,12 @@ document.getElementById('spin-privado').addEventListener('click',()=>spin('priva
 document.getElementById('spin-penal').addEventListener('click',()=>spin('penal'));
 document.getElementById('timer-start').addEventListener('click',toggleTimer);
 document.getElementById('timer-reset').addEventListener('click',resetTimer);
+document.getElementById('practice-reveal').addEventListener('click',revealPractice);
+document.getElementById('practice-next').addEventListener('click',nextPractice);
 document.querySelectorAll('[data-minutes]').forEach(b=>b.addEventListener('click',()=>setTimer(Number(b.dataset.minutes),b.dataset.mode)));
 document.getElementById('export-data').addEventListener('click',exportData);
 document.getElementById('import-data').addEventListener('change',e=>{if(e.target.files[0])importData(e.target.files[0]);});
 document.getElementById('reset-data').addEventListener('click',()=>{if(confirm('¿Seguro que querés borrar todo el progreso guardado en este navegador?')){state=defaultState();save();renderToday();renderCalendar();renderUnits();renderReviews();}});
 
-renderToday();renderCalendar();renderUnits();renderReviews();refreshProgress();renderTimer();
+renderToday();renderCalendar();renderUnits();renderReviews();renderPractice();refreshProgress();renderTimer();
 })();
