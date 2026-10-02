@@ -87,3 +87,43 @@ h1,h2,h3,h4,p{margin-top:0}h1{font-size:30px;margin-bottom:0}h2{font-size:34px;l
   .daily-load-banner{align-items:flex-start;flex-direction:column}
   .daily-load-banner span{text-align:left}
 }
+
+.summary-link{
+  display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:7px 10px;
+  border:1px solid #2d3d55;background:#0b1626;color:#dbe6f5;border-radius:9px;
+  font-size:11px;font-weight:850;text-decoration:none
+}
+.summary-link:hover{border-color:#536985;background:#101e32}
+.practice-hero{margin-bottom:18px}
+.practice-toolbar{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.practice-stats{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:11px;margin:8px 2px 14px}
+.practice-card{
+  min-height:330px;border:1px solid var(--line);background:linear-gradient(160deg,#0e1b2d,#091321);
+  border-radius:22px;padding:30px;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:center
+}
+.practice-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.practice-meta span{font-size:10px;font-weight:900;padding:6px 8px;border-radius:999px;background:#15233a;color:#9eb0c8}
+.practice-meta .privado{background:rgba(139,92,246,.14);color:#c9baff}
+.practice-meta .penal{background:rgba(22,199,154,.12);color:#78e4c6}
+.practice-prompt{font-size:24px;line-height:1.45;font-weight:850;max-width:950px;margin:0}
+.practice-hint{margin-top:16px;color:var(--muted);font-size:12px}
+.practice-answer{
+  margin-top:22px;padding:18px;border-radius:14px;background:#08111e;border:1px solid #233149;
+  color:#dce6f2;line-height:1.65;font-size:14px
+}
+.practice-answer.hidden{display:none}
+.practice-answer strong{display:block;color:#fff;margin-bottom:7px}
+.practice-actions{display:flex;justify-content:center;gap:10px;margin-top:14px}
+.practice-source{margin-top:14px}
+.flashcard-front{font-size:22px;line-height:1.5;font-weight:750;color:#dbe5f2}
+.flashcard-back{font-size:30px;font-weight:950;color:#fff}
+.practice-card.flashcard-mode{text-align:center}
+.practice-card.flashcard-mode .practice-meta{justify-content:center}
+.practice-card.flashcard-mode .practice-source{display:flex;justify-content:center}
+@media(max-width:760px){
+  .practice-toolbar{display:grid;grid-template-columns:1fr}
+  .practice-toolbar .segmented{overflow:auto}
+  .practice-card{min-height:300px;padding:22px}
+  .practice-prompt,.flashcard-front{font-size:19px}
+  .flashcard-back{font-size:25px}
+}
