@@ -259,11 +259,58 @@ function taskUnit(t){
 function getResource(subject,unit){
   return window.STUDY_RESOURCES&&window.STUDY_RESOURCES[subject]&&window.STUDY_RESOURCES[subject][unit]||null;
 }
-function resourceLinkHTML(subject,unit,label){
+function resourceLinkHTML(subject,unit,label,topic){
   const r=getResource(subject,unit);
   if(!r)return '';
-  return '<a class="summary-link" href="'+r.url+'" target="_blank" rel="noopener">'+(label||'Abrir resumen')+' ↗</a>';
+  const clean=(topic||'').trim();
+  let href=r.url;
+  if(clean){
+    const base=href.split('#')[0];
+    href=base+'#:~:text='+encodeURIComponent(clean);
+  }
+  const topicNote=clean?'<span class="summary-topic">Tema: '+clean+'</span>':'';
+  return '<div class="summary-link-wrap"><a class="summary-link" href="'+href+'" target="_blank" rel="noopener">'+(label||'Abrir resumen')+' ↗</a>'+topicNote+(clean?'<button class="copy-topic" data-copy-topic="'+clean.replace(/"/g,'&quot;')+'">Copiar tema</button>':'')+'</div>';
 }
+function practiceTopic(x){
+  if(x.topic)return x.topic;
+  if(x.subject==='privado'){
+    if(x.unit===1){
+      if(/deber jurídico|obligación en sentido técnico/i.test(x.q||x.front||''))return 'Deber jurídico';
+      if(/naturales|art\. 728|morales o de conciencia/i.test((x.q||'')+' '+(x.front||'')))return 'Obligaciones naturales';
+      if(/propter rem/i.test((x.q||'')+' '+(x.front||'')))return 'Obligaciones propter rem';
+      if(/derecho personal|derecho real/i.test((x.q||'')+' '+(x.front||'')))return 'Derechos personales y reales';
+    }
+  }
+  const s=(x.q||'')+' '+(x.front||'')+' '+(x.back||'');
+  const maps={
+    1:[['ius poenale','Derecho Penal objetivo'],['dogmática','Dogmática penal']],
+    2:[['secuencia correcta','Evolución del Derecho Penal argentino'],['Ilustración','Iluminismo o Ilustración']],
+    3:[['legalidad','Principio de legalidad'],['lesividad','Principio de lesividad']],
+    4:[['fuente inmediata','Fuentes del Derecho Penal'],['DNU','Decretos de necesidad y urgencia']],
+    5:[['embajadas','Concepto de territorio'],['territorial','Principio territorial']],
+    6:[['art. 2','Ley penal más benigna'],['temporal o excepcional','Leyes temporales y excepcionales']],
+    7:[['teoría del delito','Teoría jurídica del delito'],['Roxin','Funcionalismo']],
+    8:[['finalista','Concepción finalista de la acción'],['personas jurídicas','Agente del hecho']],
+    9:[['tipo y tipicidad','El tipo'],['imputación objetiva','Imputación objetiva']],
+    10:[['formal y material','Antijuridicidad formal y material'],['supralegales','Justificación supralegal']],
+    11:[['tres requisitos','Legítima defensa'],['20.4','Legítima defensa']],
+    12:[['finalismo','Culpabilidad'],['aborto','Responsabilidad por el hecho']],
+    13:[['inimputabilidad','Inimputabilidad'],['emoción violenta','Imputabilidad disminuida']],
+    14:[['tentativa','Tentativa'],['desistimiento','Desistimiento']],
+    15:[['autor mediato','Autoría mediata'],['dominio del hecho','Teoría del dominio del hecho']],
+    16:[['concurso ideal','Concurso ideal'],['art. 58','Unificación de condenas']],
+    17:[['art. 59','Extinción de la acción penal'],['suspensión del juicio','Suspensión del juicio a prueba']],
+    18:[['35 años','Libertad condicional'],['libertad asistida','Libertad asistida']],
+    19:[['reincidencia','Reincidencia']],
+    20:[['Régimen Penal Juvenil','Régimen para menores'],['875/2026','Régimen Penal Juvenil']],
+    21:[['24.660','Ley Penitenciaria Nacional'],['finalidad general','Tratamiento']],
+    22:[['Couture','Mandamientos del abogado'],['art. 48','Participación criminal']]
+  };
+  const list=maps[x.unit]||[];
+  for(const [needle,topic] of list) if(s.toLowerCase().includes(needle.toLowerCase())) return topic;
+  return 'Unidad '+x.unit;
+}
+
 
 function getUnitState(subject,n){return (state.units[subject]&&state.units[subject][n])||{status:'sin',lastStudy:null};}
 function setUnitStatus(subject,n,status){
@@ -363,20 +410,21 @@ function buildBlocks(d){
 
   if(!b){
     return [
-      {time:'10:00',title:'Bloque 1 · Entender',text:'Trabajá sólo el alcance marcado arriba. 20–25 min para leer y entender sin copiar; después cerrá y explicá lo que entendiste.',badge:'40 min'},
-      {time:'10:50',title:'Bloque 2 · Completar y explicar',text:'Terminá el tramo de hoy. Volvé únicamente a lo que no salió y cerrá con una explicación oral completa.',badge:'40 min'},
-      {time:'17:30',title:'Bloque 3 · Recuperar sin mirar',text:'Sin material: explicá el tema de punta a punta. Abrí recién al final para corregir huecos y anotá sólo 3–5 palabras clave.',badge:'40 min'}
+      {time:'10:00',title:'Bloque 1 · Entender',text:'Trabajá sólo el alcance marcado arriba. 20–25 min para leer y entender sin copiar; después cerrá y explicá lo que entendiste.',badge:'40 min',resource:taskUnit(a)},
+      {time:'10:50',title:'Bloque 2 · Completar y explicar',text:'Terminá el tramo de hoy. Volvé únicamente a lo que no salió y cerrá con una explicación oral completa.',badge:'40 min',resource:taskUnit(a)},
+      {time:'17:30',title:'Bloque 3 · Recuperar sin mirar',text:'Sin material: explicá el tema de punta a punta. Abrí recién al final para corregir huecos y anotá sólo 3–5 palabras clave.',badge:'40 min',resource:taskUnit(a)}
     ];
   }
 
   return [
-    {time:'10:00',title:'Bloque 1 · '+labelSubject(a.subject),text:'Empezá el foco principal: '+a.scope+' Leé para entender, no para copiar. Terminá explicando en voz alta lo que ya puedas reconstruir.',badge:'40 min'},
-    {time:'10:50',title:'Bloque 2 · '+labelSubject(a.subject),text:'Seguí exactamente hasta el límite indicado arriba. Últimos 10–15 min: cerrá todo y explicá el tramo completo. No avances a la parte siguiente.',badge:'40 min'},
-    {time:'17:30',title:'Bloque 3 · '+labelSubject(b.subject),text:b.scope+' Hacé una primera pasada activa y cerrá con explicación oral. Si no alcanza para dominarlo, queda amarillo: no alargues el día.',badge:'40 min'}
+    {time:'10:00',title:'Bloque 1 · '+labelSubject(a.subject),text:'Empezá el foco principal: '+a.scope+' Leé para entender, no para copiar. Terminá explicando en voz alta lo que ya puedas reconstruir.',badge:'40 min',resource:taskUnit(a)},
+    {time:'10:50',title:'Bloque 2 · '+labelSubject(a.subject),text:'Seguí exactamente hasta el límite indicado arriba. Últimos 10–15 min: cerrá todo y explicá el tramo completo. No avances a la parte siguiente.',badge:'40 min',resource:taskUnit(a)},
+    {time:'17:30',title:'Bloque 3 · '+labelSubject(b.subject),text:b.scope+' Hacé una primera pasada activa y cerrá con explicación oral. Si no alcanza para dominarlo, queda amarillo: no alargues el día.',badge:'40 min',resource:taskUnit(b)}
   ];
 }
 function blockHTML(b){
-  return '<article class="study-block"><div class="block-time">'+b.time+'</div><div><h4>'+b.title+'</h4><p>'+b.text+'</p></div><button class="block-start" data-start-block="40">▶ 40 min</button></article>';
+  const link=b.resource?resourceLinkHTML(b.resource.subject,b.resource.unit,'Abrir resumen U'+b.resource.unit):'';
+  return '<article class="study-block"><div class="block-time">'+b.time+'</div><div><h4>'+b.title+'</h4><p>'+b.text+'</p>'+link+'</div><button class="block-start" data-start-block="40">▶ 40 min</button></article>';
 }
 function toggleTask(id){
   state.tasks[id]=!state.tasks[id];save();renderToday();renderCalendar();
@@ -509,7 +557,8 @@ function renderPractice(){
   }
   document.getElementById('practice-reveal').disabled=false;
   const x=currentPracticeItem;
-  const source=resourceLinkHTML(x.subject,x.unit,'Ver resumen fuente');
+  const topic=practiceTopic(x);
+  const source=resourceLinkHTML(x.subject,x.unit,'Ir a este tema en el resumen',topic);
   if(practiceMode==='questions'){
     card.className='practice-card';
     card.innerHTML='<div class="practice-meta"><span class="'+x.subject+'">'+labelSubject(x.subject)+'</span><span>Unidad '+x.unit+'</span><span>Respondé en voz alta</span></div>'+
@@ -619,6 +668,10 @@ document.addEventListener('click',e=>{
     practiceFilter=pf.dataset.practiceFilter;currentPracticeItem=null;practiceRevealed=false;
     document.querySelectorAll('[data-practice-filter]').forEach(x=>x.classList.toggle('active',x===pf));
     renderPractice();return;
+  }
+  const cp=e.target.closest('[data-copy-topic]');if(cp){
+    navigator.clipboard&&navigator.clipboard.writeText(cp.dataset.copyTopic);
+    cp.textContent='Copiado ✓';setTimeout(()=>cp.textContent='Copiar tema',1200);return;
   }
 });
 document.addEventListener('change',e=>{
