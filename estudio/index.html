@@ -20,6 +20,7 @@
         <button class="nav-btn" data-view="calendario">▦ <span>Calendario</span></button>
         <button class="nav-btn" data-view="unidades">◫ <span>Unidades</span></button>
         <button class="nav-btn" data-view="repasos">↻ <span>Repasos</span></button>
+        <button class="nav-btn" data-view="practica">◇ <span>Práctica</span></button>
         <button class="nav-btn" data-view="simulador">✦ <span>Bolillero</span></button>
       </nav>
 
@@ -161,6 +162,44 @@
         <div id="review-list" class="review-list"></div>
       </section>
 
+      <section class="view" id="view-practica">
+        <div class="hero slim practice-hero">
+          <div>
+            <p class="eyebrow">Recuperación activa</p>
+            <h2>Práctica</h2>
+            <p>Respondé oralmente antes de mirar. La respuesta está construida a partir de tus resúmenes revisados y las correcciones 2026 agregadas al final de cada unidad.</p>
+          </div>
+        </div>
+
+        <div class="practice-toolbar">
+          <div class="segmented">
+            <button class="segment active" data-practice-mode="questions">Preguntas orales</button>
+            <button class="segment" data-practice-mode="flashcards">Flashcards</button>
+          </div>
+          <div class="segmented">
+            <button class="segment active" data-practice-filter="today">Sólo hoy</button>
+            <button class="segment" data-practice-filter="studied">Visto</button>
+            <button class="segment" data-practice-filter="privado">Privado</button>
+            <button class="segment" data-practice-filter="penal">Penal</button>
+            <button class="segment" data-practice-filter="all">Todo</button>
+          </div>
+        </div>
+
+        <div class="practice-stats">
+          <span id="practice-pool-count">— tarjetas disponibles</span>
+          <span id="practice-progress-count">0 practicadas</span>
+        </div>
+
+        <div class="practice-card" id="practice-card">
+          <div class="empty">Cargando práctica…</div>
+        </div>
+
+        <div class="practice-actions">
+          <button class="primary-btn" id="practice-reveal">Ver respuesta</button>
+          <button class="ghost-btn" id="practice-next">Otra</button>
+        </div>
+      </section>
+
       <section class="view" id="view-simulador">
         <div class="simulator">
           <p class="eyebrow">Entrenamiento oral</p>
@@ -184,6 +223,7 @@
       </section>
     </main>
   </div>
+  <script src="practice-data.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
